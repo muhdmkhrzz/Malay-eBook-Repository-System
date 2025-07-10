@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malay eBook Repository</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Malay eBook Repository</h1>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#" id="home-link">Home</a></li>
+                    <li><a href="#" id="upload-link" class="hidden">Upload Book</a></li>
+                    <li id="auth-links">
+                        <a href="#" id="login-link">Login</a>
+                        <a href="#" id="register-link">Register</a>
+                    </li>
+                    <li><a href="#" id="logout-link" class="hidden">Logout</a></li>
+                    <li id="user-display" class="hidden">Welcome, <span id="user-email"></span></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="auth-section" class="form-section hidden">
+            <h2>Login / Register</h2>
+            <form id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email" required>
+                <input type="password" id="auth-password" placeholder="Password" required>
+                <button type="submit" id="auth-button">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+            <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+        </section>
+
+        <section id="upload-section" class="form-section hidden">
+            <h2>Upload New eBook</h2>
+            <form id="ebook-upload-form">
+                <input type="text" id="upload-title" placeholder="Title" required>
+                <input type="text" id="upload-author" placeholder="Author" required>
+                <input type="number" id="upload-pages" placeholder="Pages">
+                <input type="number" id="upload-words" placeholder="Words">
+                <input type="number" step="0.01" id="upload-price" placeholder="Price (RM)">
+                <input type="text" id="upload-genre" placeholder="Genre/Category">
+                <input type="text" id="upload-month" placeholder="Month">
+                <input type="text" id="upload-year" placeholder="Year">
+                <input type="text" id="upload-publisher" placeholder="Publisher">
+                <textarea id="upload-synopsis" placeholder="Synopsis"></textarea>
+                <input type="file" id="upload-file" accept=".pdf,.epub">
+                <button type="submit">Upload eBook</button>
+            </form>
+        </section>
+
+        <section id="ebook-list-section">
+            <div class="search-sort-filter">
+                <input type="text" id="search-input" placeholder="Search by title, author, category...">
+                <select id="sort-select">
+                    <option value="title_asc">Title (A-Z)</option>
+                    <option value="author_asc">Author (A-Z)</option>
+                    <option value="year_desc">Year (Newest First)</option>
+                </select>
+                <select id="filter-genre-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div id="ebook-list" class="ebook-grid">
+                <p id="loading-message">Loading eBooks...</p>
+            </div>
+        </section>
+
+        <section id="ebook-detail-section" class="hidden">
+            <button id="back-to-list">&larr; Back to List</button>
+            <div id="ebook-detail-content">
+            </div>
+            <div id="review-section">
+                <h3>Reviews and Ratings</h3>
+                <div id="reviews-list">
+                    <p id="no-reviews">No reviews yet. Be the first to leave one!</p>
+                </div>
+                <div id="add-review-form" class="hidden">
+                    <h4>Add Your Review</h4>
+                    <form>
+                        <div class="rating-stars">
+                            <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="5 stars">&#9733;</label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">&#9733;</label>
+                            <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">&#9733;</label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">&#9733;</label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">&#9733;</label>
+                        </div>
+                        <textarea id="review-comment" placeholder="Leave your comment here..."></textarea>
+                        <button type="submit" id="submit-review">Submit Review</button>
+                    </form>
+                </div>
+                <p id="login-to-review" class="hidden">Please <a href="#" id="login-to-review-link">log in</a> to leave a review.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Malay eBook Repository. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
