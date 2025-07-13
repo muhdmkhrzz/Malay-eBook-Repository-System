@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - MyEbookMelayu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 min-h-screen bg-white shadow-md">
+    <div class="p-6 border-b">
+      <h1 class="text-2xl font-bold text-indigo-600">MyEbookMelayu</h1>
+    </div>
+    <nav class="mt-4 px-4 space-y-2">
+      <a href="dashboard.html" class="block py-2 px-3 rounded hover:bg-indigo-100 text-indigo-600 font-semibold">📊 Dashboard</a>
+      <a href="search.php" class="block py-2 px-3 rounded hover:bg-indigo-100 text-gray-700">🔍 Search eBooks</a>
+      <a href="add-ebook.php" class="block py-2 px-3 rounded hover:bg-indigo-100 text-gray-700">➕ Add eBook</a>
+      <a href="reviews.php" class="block py-2 px-3 rounded hover:bg-indigo-100 text-gray-700">⭐ Reviews</a>
+      <a href="logout.php" class="block py-2 px-3 rounded hover:bg-red-100 text-red-500">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8">
+
+    <!-- Search Form -->
+    <div class="mb-6">
+      <form action="search.php" method="GET" class="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center">
+        <input
+          type="text"
+          name="query"
+          placeholder="Search eBook title or author..."
+          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          required
+        />
+        <button
+          type="submit"
+          class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+        >
+          🔍 Search
+        </button>
+      </form>
+    </div>
+
+    <!-- Welcome Heading -->
+    <h2 class="text-3xl font-semibold mb-6 text-gray-800">Welcome back!</h2>
+
+    <!-- 📚 Book Grid Section -->
+    <section>
+      <h3 class="text-2xl font-bold text-gray-800 mb-4">Latest eBooks</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Book 1 -->
+        <div class="bg-white rounded-xl shadow p-4 flex flex-col">
+          <img src="images/default-cover.jpg" alt="Book Cover" class="rounded mb-4 h-48 object-cover w-full">
+          <h4 class="text-lg font-semibold text-indigo-700">Senja Biru</h4>
+          <p class="text-sm text-gray-600 mb-4">By Aisyah Zakwan</p>
+          <a href="ebook-details.php?book_id=1" class="mt-auto text-indigo-600 hover:underline">📖 View Details</a>
+        </div>
+
+        <!-- Book 2 -->
+        <div class="bg-white rounded-xl shadow p-4 flex flex-col">
+          <img src="images/default-cover.jpg" alt="Book Cover" class="rounded mb-4 h-48 object-cover w-full">
+          <h4 class="text-lg font-semibold text-indigo-700">Hujan Dalam Hati</h4>
+          <p class="text-sm text-gray-600 mb-4">By Amir Rahman</p>
+          <a href="ebook-details.php?book_id=2" class="mt-auto text-indigo-600 hover:underline">📖 View Details</a>
+        </div>
+
+        <!-- Book 3 -->
+        <div class="bg-white rounded-xl shadow p-4 flex flex-col">
+          <img src="images/default-cover.jpg" alt="Book Cover" class="rounded mb-4 h-48 object-cover w-full">
+          <h4 class="text-lg font-semibold text-indigo-700">Bintang Malam</h4>
+          <p class="text-sm text-gray-600 mb-4">By Nur Syifa</p>
+          <a href="ebook-details.php?book_id=3" class="mt-auto text-indigo-600 hover:underline">📖 View Details</a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+</body>
+</html>
