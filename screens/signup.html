@@ -34,31 +34,23 @@
         <input type="password" placeholder="Confirm Password" required id="confirm-password" />
         <i class='bx bx-lock'></i>
       </div>
-
-      <!-- Message display area -->
+      
       <div id="signup-message" style="margin: 10px 0; text-align: center; color: red;"></div>
-
-      <!-- Changed class from "btn" to "signup-btn" to apply enhanced styling -->
       <button type="submit" class="signup-btn">Sign Up</button>
-
       <div class="register-link">
         <p>Already have an account? <a href="../screens/login.html" id="show-login">Login</a></p>
       </div>
     </form>
   </div>
 
-  <!-- Custom Modal for Success/Error Messages -->
   <div id="custom-modal-overlay" class="modal-overlay">
     <div class="modal-content">
       <h2 id="modal-title"></h2>
       <p id="modal-message"></p>
-      <!-- Removed the OK button -->
     </div>
   </div>
 
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Your script.js -->
   <script src="../script.js"></script>
 </body>
 

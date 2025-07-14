@@ -1,7 +1,7 @@
 const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); // Direct creation
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
 
 // DOM Elements - These will be present on index.html (after login)
 const authSection = document.getElementById('auth-section'); 
@@ -19,10 +19,10 @@ const loginToReviewMessage = document.getElementById('login-to-review');
 // Navigation Elements - Some will be on index.html, others handled by direct page links
 const homeLink = document.getElementById('home-link');
 const uploadLink = document.getElementById('upload-link');
-const loginLink = document.getElementById('login-link'); // Login button on index.html
-const registerLink = document.getElementById('register-link'); // Register button on index.html
+const loginLink = document.getElementById('login-link'); 
+const registerLink = document.getElementById('register-link'); 
 const logoutLink = document.getElementById('logout-link');
-const authLinks = document.getElementById('auth-links'); // Container for login/register links on index.html
+const authLinks = document.getElementById('auth-links'); 
 const userDisplay = document.getElementById('user-display');
 const userEmailSpan = document.getElementById('user-email');
 
@@ -32,32 +32,29 @@ const authEmailInput = document.getElementById('auth-email');
 const authPasswordInput = document.getElementById('auth-password');
 const authUsernameInput = document.getElementById('auth-username'); 
 const authButton = document.getElementById('auth-button');
-const showRegisterLink = document.getElementById('show-register'); // Link on login.html to signup.html
-const showLoginLink = document.getElementById('show-login'); // Link on signup.html to login.html
-const confirmPasswordInput = document.getElementById('confirm-password'); // Only present on signup.html
-const signupMessageDiv = document.getElementById('signup-message'); // New: For displaying messages on signup page
+const showRegisterLink = document.getElementById('show-register'); 
+const showLoginLink = document.getElementById('show-login'); 
+const confirmPasswordInput = document.getElementById('confirm-password'); 
+const signupMessageDiv = document.getElementById('signup-message'); 
 
 // Custom Modal Elements
 const customModalOverlay = document.getElementById('custom-modal-overlay');
 const modalTitle = document.getElementById('modal-title');
 const modalMessage = document.getElementById('modal-message');
-const modalCloseButton = document.getElementById('modal-close-button'); // This button was removed from HTML, but variable still exists.
-
-// eBook related elements (these will primarily function *after* successful login on index.html)
+const modalCloseButton = document.getElementById('modal-close-button');
 const ebookUploadForm = document.getElementById('ebook-upload-form');
 const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
 const filterGenreSelect = document.getElementById('filter-genre-select');
 const backToListBtn = document.getElementById('back-to-list');
 const submitReviewBtn = document.getElementById('submit-review');
-const loginToReviewLink = document.getElementById('login-to-review-link'); // Ensure you have this ID in your HTML
+const loginToReviewLink = document.getElementById('login-to-review-link'); 
 
 let currentEbookId = null;
 let allGenres = new Set();
 
-// Helper Functions
+
 function showSection(section) {
-    // Only attempt to hide/show if the elements exist on the current page
     if (authSection) authSection.classList.add('hidden');
     if (uploadSection) uploadSection.classList.add('hidden');
     if (ebookListSection) ebookListSection.classList.add('hidden');
@@ -65,35 +62,30 @@ function showSection(section) {
     if (section) section.classList.remove('hidden');
 }
 
-// Function to show the custom modal
 function showCustomModal(title, message, isSuccess = true) {
     modalTitle.textContent = title;
     modalMessage.textContent = message;
-    modalTitle.style.color = isSuccess ? '#28a745' : '#dc3545'; // Green for success, red for error
+    modalTitle.style.color = isSuccess ? '#28a745' : '#dc3545'; 
     customModalOverlay.classList.add('visible');
 }
 
-// Function to hide the custom modal (no longer directly called by a button)
 function hideCustomModal() {
     customModalOverlay.classList.remove('visible');
 }
 
-// Event listener for the modal close button (no longer exists in HTML, but keeping this for robustness)
 if (modalCloseButton) {
     modalCloseButton.addEventListener('click', hideCustomModal);
 }
 
 async function updateUI() {
     const { data: { user } } = await supabase.auth.getUser();
-
-    // These UI updates are primarily for the main application page (index.html after login)
     if (authLinks && logoutLink && uploadLink && userDisplay && userEmailSpan) {
         if (user) {
             authLinks.classList.add('hidden');
             logoutLink.classList.remove('hidden');
             uploadLink.classList.remove('hidden');
             userDisplay.classList.remove('hidden');
-            userEmailSpan.textContent = user.user_metadata.username || user.email; // Prioritize username
+            userEmailSpan.textContent = user.user_metadata.username || user.email; 
             if (addReviewFormDiv) addReviewFormDiv.classList.remove('hidden');
             if (loginToReviewMessage) loginToReviewMessage.classList.add('hidden');
         } else {
@@ -107,29 +99,26 @@ async function updateUI() {
     }
 }
 
-// Authentication Forms (handled on login.html and signup.html)
 if (authForm) { 
-    console.log("Auth form found, attaching submit listener."); // Log 1
+    console.log("Auth form found, attaching submit listener."); 
     authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log("Auth form submitted!"); // Log 2
+        console.log("Auth form submitted!"); 
         const email = authEmailInput.value;
         const password = authPasswordInput.value;
-
-        // Determine if it's register mode based on the presence of confirmPasswordInput
         const isRegisterMode = !!confirmPasswordInput; 
-        console.log("Is Register Mode:", isRegisterMode); // Log 3
+        console.log("Is Register Mode:", isRegisterMode); 
 
         if (isRegisterMode) {
             const confirmPassword = confirmPasswordInput.value;
             if (password !== confirmPassword) {
                 signupMessageDiv.textContent = 'Passwords do not match!';
-                console.log("Passwords do not match."); // Log 4
+                console.log("Passwords do not match."); 
                 return;
             }
-            signupMessageDiv.textContent = ''; // Clear previous messages
+            signupMessageDiv.textContent = ''; 
             const username = authUsernameInput ? authUsernameInput.value : null;
-            console.log("Attempting to sign up with:", { email, username }); // Log 5
+            console.log("Attempting to sign up with:", { email, username }); 
 
             try {
                 const { data, error } = await supabase.auth.signUp({ 
@@ -142,49 +131,43 @@ if (authForm) {
                     }
                 });
                 if (error) {
-                    console.error("Supabase Sign Up Error:", error.message); // Log 6 (Error)
+                    console.error("Supabase Sign Up Error:", error.message); 
                     showCustomModal('Sign Up Error', error.message, false);
                 } else {
-                    console.log("Supabase Sign Up Success:", data); // Log 7 (Success)
+                    console.log("Supabase Sign Up Success:", data); 
                     showCustomModal('Sign Up Successful!', 'Please Log In now.');
-                    // Redirect after a short delay to allow user to read the message
                     setTimeout(() => {
                         window.location.href = '../screens/login.html'; 
                     }, 2000); 
                 }
             } catch (err) {
-                console.error("Unexpected error during Supabase sign up:", err); // Log 8 (Catch-all error)
+                console.error("Unexpected error during Supabase sign up:", err); 
                 showCustomModal('Sign Up Error', 'An unexpected error occurred. Please try again.', false);
             }
         } else {
-            // This is the login path
-            console.log("Attempting to sign in with:", { email }); // Log A
+            console.log("Attempting to sign in with:", { email }); 
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                 if (error) {
-                    console.error("Supabase Login Error:", error.message); // Log B (Error)
+                    console.error("Supabase Login Error:", error.message); 
                     showCustomModal('Login Error', error.message, false);
                 } else {
-                    console.log("Supabase Login Success:", data); // Log C (Success)
+                    console.log("Supabase Login Success:", data); 
                     showCustomModal('Login Successful!', 'You have been logged in.');
-                    // --- START OF RELEVANT CHANGE ---
                     setTimeout(() => {
-                        // Assuming dashboard.html is in the 'user' folder, relative to the root
                         window.location.href = '../user/dashboard.html';
                     }, 2000);
-                    // --- END OF RELEVANT CHANGE ---
                 }
             } catch (err) {
-                console.error("Unexpected error during Supabase login:", err); // Log D (Catch-all error)
+                console.error("Unexpected error during Supabase login:", err); 
                 showCustomModal('Login Error', 'An unexpected error occurred. Please try again.', false);
             }
         }
     });
 } else {
-    console.log("Auth form element not found on this page."); // Log 13
+    console.log("Auth form element not found on this page."); 
 }
 
-// Navigation Event Listeners for direct page links (primarily for index.html)
 if (loginLink) {
     loginLink.addEventListener('click', (e) => {
         e.preventDefault();
@@ -199,7 +182,6 @@ if (registerLink) {
     });
 }
 
-// Navigation Event Listeners for links between login/signup pages
 if (showRegisterLink) {
     showRegisterLink.addEventListener('click', (e) => {
         e.preventDefault();
@@ -226,18 +208,17 @@ if (logoutLink) {
                 window.location.href = '../index.html'; 
             }, 2000);
         }
-        updateUI(); // Update UI if on index.html
+        updateUI(); 
     });
 }
 
 if (loginToReviewLink) {
     loginToReviewLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = '../screens/login.html'; // Redirect to login page
+        window.location.href = '../screens/login.html'; 
     });
 }
 
-// eBook Functions (these will primarily function on index.html after login)
 async function fetchEbooks() {
     try {
         console.log("Starting to fetch eBooks...");
@@ -248,16 +229,16 @@ async function fetchEbooks() {
 
         let query = supabase.from('ebook').select('*');
         
-        if (searchInput && searchInput.value) { // Ensure searchInput exists
+        if (searchInput && searchInput.value) { 
             const searchTerm = searchInput.value.toLowerCase();
             query = query.or(`title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%,genre.ilike.%${searchTerm}%`);
         }
 
-        if (filterGenreSelect && filterGenreSelect.value) { // Ensure filterGenreSelect exists
+        if (filterGenreSelect && filterGenreSelect.value) { 
             query = query.eq('genre', filterGenreSelect.value);
         }
 
-        if (sortSelect && sortSelect.value) { // Ensure sortSelect exists
+        if (sortSelect && sortSelect.value) { 
             const sortOption = sortSelect.value;
             switch (sortOption) {
                 case 'title_asc':
@@ -276,7 +257,6 @@ async function fetchEbooks() {
                     query = query.order('price', { ascending: false });
                     break;
                 default:
-                    // No specific sorting
                     break;
             }
         }
@@ -293,8 +273,8 @@ async function fetchEbooks() {
             return;
         }
 
-        ebookList.innerHTML = ''; // Clear loading message or previous content
-        allGenres.clear(); // Clear genres before repopulating
+        ebookList.innerHTML = '';
+        allGenres.clear(); 
 
         if (ebooks.length === 0) {
             ebookList.innerHTML = '<p>No eBooks found.</p>';
@@ -315,7 +295,6 @@ async function fetchEbooks() {
             allGenres.add(ebook.genre);
         });
 
-        // Add event listeners for "View Details" buttons
         document.querySelectorAll('.view-details-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 const ebookId = e.target.dataset.id;
@@ -386,7 +365,7 @@ async function fetchReviews(ebookId) {
 
         if (error) throw error;
 
-        reviewsList.innerHTML = ''; // Clear existing reviews
+        reviewsList.innerHTML = ''; 
 
         if (reviews.length === 0) {
             noReviewsMessage.classList.remove('hidden');
@@ -428,8 +407,8 @@ async function addReview(ebookId, reviewText) {
 
         if (error) throw error;
         showCustomModal('Review Added', 'Your review has been successfully added!');
-        fetchReviews(ebookId); // Refresh reviews
-        document.getElementById('review-text').value = ''; // Clear the textarea
+        fetchReviews(ebookId); 
+        document.getElementById('review-text').value = ''; 
     } catch (error) {
         console.error("Error adding review:", error);
         showCustomModal('Error Adding Review', error.message, false);
@@ -492,16 +471,16 @@ async function uploadEbook(event) {
         showCustomModal('Upload Error', 'Error inserting ebook data: ' + insertError.message, false);
     } else {
         showCustomModal('Upload Successful', 'Ebook uploaded successfully!');
-        ebookUploadForm.reset(); // Clear the form
-        fetchEbooks(); // Refresh the list of ebooks
-        showSection(ebookListSection); // Go back to the ebook list
+        ebookUploadForm.reset(); 
+        fetchEbooks(); 
+        showSection(ebookListSection); 
     }
 }
 
 
 function populateGenreFilter() {
     if (filterGenreSelect) {
-        filterGenreSelect.innerHTML = '<option value="">All Genres</option>'; // Default option
+        filterGenreSelect.innerHTML = '<option value="">All Genres</option>'; 
         allGenres.forEach(genre => {
             const option = document.createElement('option');
             option.value = genre;
@@ -511,7 +490,6 @@ function populateGenreFilter() {
     }
 }
 
-// Event Listeners for main app functionality (primarily for index.html)
 if (ebookUploadForm) {
     ebookUploadForm.addEventListener('submit', uploadEbook);
 }
@@ -519,7 +497,7 @@ if (ebookUploadForm) {
 if (backToListBtn) {
     backToListBtn.addEventListener('click', () => {
         showSection(ebookListSection);
-        fetchEbooks(); // Refresh the list in case anything changed
+        fetchEbooks(); 
     });
 }
 
@@ -546,15 +524,11 @@ if (filterGenreSelect) {
     filterGenreSelect.addEventListener('change', fetchEbooks);
 }
 
-// Initial load logic
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if we are on the main application page (index.html)
     if (document.getElementById('ebook-list-section')) {
         updateUI();
         fetchEbooks();
     } else if (document.getElementById('auth-page')) {
-        // We are on login.html or signup.html, no initial UI update needed here
-        // The form submission listener handles the redirects
         console.log("On auth-page. Auth form setup should be handled.");
     }
 });
