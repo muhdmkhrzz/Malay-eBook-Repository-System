@@ -2,41 +2,64 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../design/signup-styles.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../design/signup-styles.css" />
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <title>Sign Up</title>
 </head>
 
 <body id="auth-page">
-    <div class="wrapper">
-        <form action="" id="auth-form">
-            <a href="/index.html" class="back-button"><i class='bx bx-arrow-back'></i> Back</a>
-            <h1>Sign Up</h1>
-            
-            <div class="input-box">
-                <input type="text" placeholder="Username" required id="auth-username" name="username"> 
-                <i class='bx bxs-user'></i> </div>
+  <div class="wrapper">
+    <form id="auth-form">
+      <a href="/index.html" class="back-button"><i class='bx bx-arrow-back'></i> Back</a>
+      <h1>Sign Up</h1>
 
-            <div class="input-box">
-                <input type="text" placeholder="Email" required id="auth-email" name="email"> 
-                <i class='bx bx-envelope'></i> </div>
-            <div class="input-box">
-                <input type="password" placeholder="Password" required id="auth-password" name="password">
-                <i class='bx bx-lock-alt'></i> </div>
-            <div class="input-box">
-                <input type="password" placeholder="Confirm Password" required id="confirm-password"> 
-                <i class='bx bx-lock'></i> </div>      
+      <div class="input-box">
+        <input type="text" placeholder="Username" required id="auth-username" name="username" />
+        <i class='bx bxs-user'></i>
+      </div>
 
-            <button type="submit" class="signup-btn" id="auth-button">Sign Up</button>
+      <div class="input-box">
+        <input type="text" placeholder="Email" required id="auth-email" name="email" />
+        <i class='bx bx-envelope'></i>
+      </div>
 
-            <div class="register-link">
-                <p>Already have an account? <a href="../screens/login.html" id="show-login">Login</a></p>
-            </div>
-        </form>
+      <div class="input-box">
+        <input type="password" placeholder="Password" required id="auth-password" name="password" />
+        <i class='bx bx-lock-alt'></i>
+      </div>
+
+      <div class="input-box">
+        <input type="password" placeholder="Confirm Password" required id="confirm-password" />
+        <i class='bx bx-lock'></i>
+      </div>
+
+      <!-- Message display area -->
+      <div id="signup-message" style="margin: 10px 0; text-align: center; color: red;"></div>
+
+      <!-- Changed class from "btn" to "signup-btn" to apply enhanced styling -->
+      <button type="submit" class="signup-btn">Sign Up</button>
+
+      <div class="register-link">
+        <p>Already have an account? <a href="../screens/login.html" id="show-login">Login</a></p>
+      </div>
+    </form>
+  </div>
+
+  <!-- Custom Modal for Success/Error Messages -->
+  <div id="custom-modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+      <h2 id="modal-title"></h2>
+      <p id="modal-message"></p>
+      <!-- Removed the OK button -->
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script> <script src="../script.js"></script>
+  </div>
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Your script.js -->
+  <script src="../script.js"></script>
 </body>
 
 </html>

@@ -14,7 +14,7 @@
             <a href="/index.html" class="back-button"><i class='bx bx-arrow-back'></i> Back</a>
             <h1>Login</h1>
             <div class="input-box">
-                <input type="text" placeholder="Username" required id="auth-email" name="email"> 
+                <input type="text" placeholder="Email" required id="auth-email" name="email"> 
                 <i class='bx bx-user'></i> </div>
             <div class="input-box">
                 <input type="password" placeholder="Password" required id="auth-password" name="password">
@@ -31,9 +31,15 @@
                 <p>Don't have an account? <a href="../screens/signup.html" id="show-register">Register</a></p>
             </div>
         </form>
+        <div id="custom-modal-overlay" class="modal-overlay">
+            <div class="modal-content">
+                <h2 id="modal-title">Success</h2>
+                <p id="modal-message">You have been logged in.</p>
+            </div>
+        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
-    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script> <script src="../script.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../script.js"></script>
 </body>
 
 </html>
