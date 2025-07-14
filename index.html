@@ -2,24 +2,28 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malay eBook Repository System</title>
-    <link rel="stylesheet" href="../design/index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Malay eBook Repository</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="design/welcome-styles.css">
 </head>
 
 <body>
-    <div class="container">
-      <h1>Welcome</h1>
-    <a href="screens/signup.html">
-      <button class="btn"><i class="fas fa-user-plus"></i> SIGN UP</button>
-    </a>
-
-    <a href="screens/login.html">
-      <button class="btn"><i class="fas fa-sign-in-alt"></i> LOG IN</button>
-    </a>
-
-  </div>
+    <div class="container">
+        <h1>Welcome to the Malay eBook Repository</h1>
+        <p class="text-white text-lg mb-8">Your gateway to a vast collection of Malay literature.</p>
+        
+        <div class="btn-group">
+                        <a href="screens/login.html" class="btn btn-login">
+                <i class="fas fa-sign-in-alt"></i> LOG IN
+            </a>
+                        <a href="screens/signup.html" class="btn btn-signup">
+                <i class="fas fa-user-plus"></i> SIGN UP
+            </a>
+        </div>
+    </div>
 </body>
 
 </html>
