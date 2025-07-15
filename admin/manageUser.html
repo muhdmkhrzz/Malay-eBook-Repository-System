@@ -1,285 +1,813 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>User Management</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #253449;
-      --danger: #dc3545;
-      --bg-light: #f7f9fc;
-      --text-dark: #333;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
 
-    * {
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+            // Placeholder data for demonstration (now in JavaScript)
+            const users = [
+                {
+                    id: 1,
+                    username: 'john.doe',
+                    email: 'john.doe@example.com',
+                    role: 'Regular User',
+                    status: 'Active',
+                    registered: 'Jan 15, 2023'
+                },
+                {
+                    id: 2,
+                    username: 'jane.smith',
+                    email: 'jane.smith@example.com',
+                    role: 'Clerk',
+                    status: 'Active',
+                    registered: 'Feb 20, 2023'
+                },
+                {
+                    id: 3,
+                    username: 'admin.user',
+                    email: 'admin.user@example.com',
+                    role: 'Admin',
+                    status: 'Active',
+                    registered: 'Mar 01, 2023'
+                },
+                {
+                    id: 4,
+                    username: 'inactive.user',
+                    email: 'inactive.user@example.com',
+                    role: 'Regular User',
+                    status: 'Inactive',
+                    registered: 'Apr 10, 2023'
+                },
+                {
+                    id: 5,
+                    username: 'suspended.clerk',
+                    email: 'suspended.clerk@example.com',
+                    role: 'Clerk',
+                    status: 'Suspended',
+                    registered: 'May 05, 2023'
+                },
+            ];
 
-    body {
-      background: var(--bg-light);
-      margin: 0;
-      padding: 30px;
-      color: var(--text-dark);
-    }
+            // Function to handle user actions (client-side simulation)
+            window.handleUserAction = function(userId, action, username) {
+                const row = document.getElementById('user-row-' + userId);
+                if (!row) return;
 
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: var(--primary);
-    }
+                const statusCell = row.querySelector('.status-cell');
+                const actionsCell = row.querySelector('.actions-cell');
+                const currentStatusSpan = statusCell.querySelector('span');
 
-    .main-layout {
-      display: flex;
-    }
+                let newStatus = '';
+                let message = '';
+                let messageType = 'success';
 
-    .main-content {
-      flex: 1;
-      padding: 0 20px;
-    }
+                if (action === 'toggleStatus') {
+                    if (currentStatusSpan.classList.contains('status-active')) {
+                        newStatus = 'Inactive';
+                        message = `User ${username} Deactivated!`;
+                    } else {
+                        newStatus = 'Active';
+                        message = `User ${username} Activated!`;
+                    }
+                    statusCell.innerHTML = `<span class="status-${newStatus.toLowerCase()}">${newStatus}</span>`;
+                    const toggleButton = actionsCell.querySelector('.toggle-status-button');
+                    if (toggleButton) {
+                        toggleButton.innerHTML = `<i class="lucide lucide-${newStatus === 'Active' ? 'user-x' : 'user-check'}"></i> ${newStatus === 'Active' ? 'Deactivate' : 'Activate'}`;
+                        toggleButton.className = `action-button toggle-status-button ${newStatus === 'Active' ? 'deactivate-button' : 'activate-button'}`;
+                    }
 
-    .table-container {
-      max-width: 1000px;
-      margin: auto;
-    }
+                } else if (action === 'resetPassword') {
+                    message = `Password for User ${username} Reset!`;
+                    messageType = 'success';
+                } else if (action === 'delete') {
+                    openConfirmModal(userId, username);
+                    return;
+                } else if (action === 'edit') {
+                    message = `Editing User ${username}... (Not implemented in preview)`;
+                    messageType = 'info';
+                }
 
-    .action-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
+                showMessageBox(message, messageType);
+            };
 
-    .add-btn {
-      background-color: var(--primary);
-      color: #fff;
-      padding: 8px 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-    }
+            // Custom Message Box
+            function showMessageBox(message, type) {
+                const messageBox = document.createElement('div');
+                messageBox.className = `message-box ${type}`;
+                messageBox.innerHTML = `
+                    <p>${message}</p>
+                    <button class="message-box-close" onclick="this.parentNode.remove()">X</button>
+                `;
+                document.body.appendChild(messageBox);
+                setTimeout(() => { messageBox.remove(); }, 3000);
+            }
 
-    .search-input {
-      padding: 8px;
-      width: 250px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
+            // Custom Confirmation Modal
+            let userToDeleteRow = null;
+            window.openConfirmModal = function(userId, username) {
+                userToDeleteRow = document.getElementById('user-row-' + userId);
+                document.getElementById('confirmDeleteText').textContent = `Are you sure you want to permanently delete user "${username}"?`;
+                document.getElementById('confirmModal').style.display = 'flex';
+            };
 
-    table {
-      width: 100%;
-      border-spacing: 0 15px;
-      margin-bottom: 30px;
-    }
+            window.closeConfirmModal = function() {
+                document.getElementById('confirmModal').style.display = 'none';
+                userToDeleteRow = null;
+            };
 
-    th {
-      background-color: var(--primary);
-      color: #fff;
-      padding: 12px;
-      border-radius: 10px 10px 0 0;
-      text-align: center;
-    }
+            window.confirmDeleteUser = function() {
+                if (userToDeleteRow) {
+                    const username = userToDeleteRow.querySelector('.user-username').textContent;
+                    userToDeleteRow.remove();
+                    showMessageBox(`User "${username}" Deleted!`, 'error');
+                }
+                closeConfirmModal();
+            };
 
-    td {
-      background-color: #fff;
-      text-align: center;
-      padding: 15px;
-      border-radius: 0 0 10px 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
+            window.onclick = function(event) {
+                const modal = document.getElementById('confirmModal');
+                const addModal = document.getElementById('addClerkModal');
+                if (event.target === modal) {
+                    closeConfirmModal();
+                }
+                if (event.target === addModal) {
+                    closeAddClerkModal();
+                }
+            };
 
-    .btn {
-      padding: 8px 14px;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: 500;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
+            // Add Clerk Modal Functions
+            window.openAddClerkModal = function() {
+                document.getElementById('addClerkModal').style.display = 'flex';
+            };
 
-    .btn:hover {
-      opacity: 0.85;
-    }
+            window.closeAddClerkModal = function() {
+                document.getElementById('addClerkModal').style.display = 'none';
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newEmail').value = '';
+            };
 
-    .remove { background-color: var(--danger); }
+            window.addClerk = function() {
+                const username = document.getElementById('newUsername').value.trim();
+                const email = document.getElementById('newEmail').value.trim();
 
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-    }
+                if (username === '' || email === '') {
+                    showMessageBox('Please fill in both username and email.', 'error');
+                    return;
+                }
 
-    .modal-content {
-      background: #fff;
-      margin: 10% auto;
-      padding: 25px;
-      width: 350px;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    }
+                const newId = Date.now();
+                const newClerk = {
+                    id: newId,
+                    username: username,
+                    email: email,
+                    role: 'Clerk',
+                    status: 'Active',
+                    registered: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                };
 
-    .modal-content h3 {
-      margin-top: 0;
-    }
+                const tbody = document.querySelector('.user-table tbody');
+                const row = document.createElement('tr');
+                row.id = `user-row-${newId}`;
+                row.innerHTML = `
+                    <td><span class="user-username">${newClerk.username}</span></td>
+                    <td><span class="user-email">${newClerk.email}</span></td>
+                    <td><span class="user-role">${newClerk.role}</span></td>
+                    <td class="status-cell"><span class="status-active">Active</span></td>
+                    <td><span class="user-registered">${newClerk.registered}</span></td>
+                    <td class="actions-cell">
+                        <button class="action-button edit-button" onclick="handleUserAction(${newClerk.id}, 'edit', '${newClerk.username}')">
+                            <i class="lucide lucide-edit"></i> Edit
+                        </button>
+                        <button class="action-button deactivate-button toggle-status-button" onclick="handleUserAction(${newClerk.id}, 'toggleStatus', '${newClerk.username}')">
+                            <i class="lucide lucide-user-x"></i> Deactivate
+                        </button>
+                        <button class="action-button reset-password-button" onclick="handleUserAction(${newClerk.id}, 'resetPassword', '${newClerk.username}')">
+                            <i class="lucide lucide-key-round"></i> Reset Password
+                        </button>
+                        <button class="action-button delete-button" onclick="handleUserAction(${newClerk.id}, 'delete', '${newClerk.username}')">
+                            <i class="lucide lucide-trash-2"></i> Delete
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                showMessageBox('New Clerk Added!', 'success');
+                closeAddClerkModal();
+            };
 
-    .modal-content input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
+            // Search Functionality
+            window.searchUsers = function() {
+                const input = document.getElementById('searchInput').value.toLowerCase();
+                const rows = document.querySelectorAll('.user-table tbody tr');
 
-    .modal-content button {
-      margin-top: 10px;
-    }
+                rows.forEach(row => {
+                    const username = row.querySelector('.user-username').textContent.toLowerCase();
+                    const email = row.querySelector('.user-email').textContent.toLowerCase();
+                    const role = row.querySelector('.user-role').textContent.toLowerCase();
 
-    @media (max-width: 600px) {
-      td, th {
-        font-size: 12px;
-        padding: 10px;
-      }
+                    if (username.includes(input) || email.includes(input) || role.includes(input)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            };
 
-      .btn, .add-btn, .search-input {
-        padding: 6px 10px;
-        font-size: 12px;
-      }
-    }
-  </style>
+            // Initial render of users
+            const tbody = document.querySelector('.user-table tbody');
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.id = `user-row-${user.id}`;
+                let statusHtml = '';
+                if (user.status === 'Active') {
+                    statusHtml = `<span class="status-active">${user.status}</span>`;
+                } else if (user.status === 'Inactive') {
+                    statusHtml = `<span class="status-inactive">${user.status}</span>`;
+                } else if (user.status === 'Suspended') {
+                    statusHtml = `<span class="status-suspended">${user.status}</span>`;
+                }
+
+                const toggleStatusText = user.status === 'Active' ? 'Deactivate' : 'Activate';
+                const toggleStatusIcon = user.status === 'Active' ? 'user-x' : 'user-check';
+                const toggleStatusButtonClass = user.status === 'Active' ? 'deactivate-button' : 'activate-button';
+
+                row.innerHTML = `
+                    <td><span class="user-username">${user.username}</span></td>
+                    <td><span class="user-email">${user.email}</span></td>
+                    <td><span class="user-role">${user.role}</span></td>
+                    <td class="status-cell">${statusHtml}</td>
+                    <td><span class="user-registered">${user.registered}</span></td>
+                    <td class="actions-cell">
+                        <button class="action-button edit-button" onclick="handleUserAction(${user.id}, 'edit', '${user.username}')">
+                            <i class="lucide lucide-edit"></i> Edit
+                        </button>
+                        <button class="action-button ${toggleStatusButtonClass} toggle-status-button" onclick="handleUserAction(${user.id}, 'toggleStatus', '${user.username}')">
+                            <i class="lucide lucide-${toggleStatusIcon}"></i> ${toggleStatusText}
+                        </button>
+                        <button class="action-button reset-password-button" onclick="handleUserAction(${user.id}, 'resetPassword', '${user.username}')">
+                            <i class="lucide lucide-key-round"></i> Reset Password
+                        </button>
+                        <button class="action-button delete-button" onclick="handleUserAction(${user.id}, 'delete', '${user.username}')">
+                            <i class="lucide lucide-trash-2"></i> Delete
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+    </script>
+    <style>
+        /* Root variables */
+        :root {
+            --primary: #253449;
+            --danger: #dc3545;
+            --bg-light: #f7f9fc;
+            --text-dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --gray: #6b7280; /* Added for consistency */
+        }
+
+        /* General styling for the body */
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+        }
+
+        /* Main container for sidebar and content */
+        .main-layout-container {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--bg-light);
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 256px;
+            background-color: #1f2937;
+            color: #ffffff;
+            padding: 24px;
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: none;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                display: block;
+            }
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            font-size: 1.125rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+
+        .sidebar a:hover {
+            background-color: #374151;
+            color: #93c5fd;
+        }
+
+        .sidebar i {
+            margin-right: 12px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .page-header .date-info {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        /* Action Bar (Search and Add User) */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .add-btn {
+            background-color: var(--primary);
+            color: #fff;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s ease;
+        }
+        .add-btn:hover {
+            opacity: 0.85;
+        }
+
+        .search-input {
+            padding: 8px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        /* User List Table */
+        .user-list-container {
+            max-width: 1000px;
+            margin: auto;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0 15px;
+            margin-bottom: 30px;
+            min-width: 700px;
+        }
+
+        .user-table th, .user-table td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .user-table th {
+            background-color: var(--primary);
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px 10px 0 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+
+        .user-table tbody tr:hover {
+            background-color: #f3f4f6;
+        }
+
+        .user-username, .user-email {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .user-role, .user-registered {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+        }
+
+        .action-button {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s ease;
+            margin-right: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .action-button:hover {
+            opacity: 0.85;
+        }
+
+        /* Specific button styles */
+        .edit-button {
+            background-color: var(--warning);
+            color: var(--text-dark);
+        }
+        .edit-button:hover {
+            background-color: #e0a800;
+        }
+
+        .deactivate-button {
+            background-color: #f59e0b;
+            color: #ffffff;
+        }
+        .deactivate-button:hover {
+            background-color: #d97706;
+        }
+
+        .activate-button {
+            background-color: var(--success);
+            color: #ffffff;
+        }
+        .activate-button:hover {
+            background-color: #218838;
+        }
+
+        .reset-password-button {
+            background-color: #6c757d;
+            color: #ffffff;
+        }
+        .reset-password-button:hover {
+            background-color: #5a6268;
+        }
+
+        .delete-button {
+            background-color: var(--danger);
+            color: #ffffff;
+        }
+        .delete-button:hover {
+            opacity: 0.85;
+        }
+
+        /* Status badges */
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-suspended {
+            background-color: #fffbeb;
+            color: #92400e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Custom Message Box Styles */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: fadeInOut 3s forwards;
+        }
+
+        .message-box.success {
+            background-color: var(--success);
+        }
+
+        .message-box.error {
+            background-color: var(--danger);
+        }
+
+        .message-box.info {
+            background-color: #17a2b8;
+        }
+
+        .message-box-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            animation: fadeIn 0.3s ease-in-out;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            text-align: left;
+        }
+
+        .modal-header {
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .modal-close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close-btn:hover,
+        .modal-close-btn:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-body label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .modal-body input[type="text"],
+        .modal-body input[type="email"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .modal-footer {
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            text-align: right;
+            margin-top: 15px;
+        }
+
+        .modal-footer .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s ease;
+            margin-left: 10px;
+        }
+        .modal-footer .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+        }
+        .modal-footer .btn-primary:hover {
+            opacity: 0.85;
+        }
+        .modal-footer .btn-cancel {
+            background-color: var(--gray);
+            color: #fff;
+        }
+        .modal-footer .btn-cancel:hover {
+            opacity: 0.85;
+        }
+        .modal-footer .btn-danger {
+            background-color: var(--danger);
+            color: #fff;
+        }
+        .modal-footer .btn-danger:hover {
+            opacity: 0.85;
+        }
+
+        /* Specific styles for confirmation modal */
+        #confirmModal .modal-content {
+            text-align: center;
+        }
+        #confirmModal .modal-body p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
+    <div class="main-layout-container">
+        <!-- Sidebar (Embedded HTML) -->
+        <div class="sidebar">
+            <h2>Admin Menu</h2>
+            <nav>
+                <ul>
+                    <li class="mb-2">
+                        <a href="dashboardAdmin.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
+                            <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="manageEbook.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
+                            <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="manageUser.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
+                            <i class="lucide lucide-users mr-3"></i> Manage Users
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="approveBookList.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
+                            <i class="lucide lucide-check-circle mr-3"></i> Approved Books
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
 
-<h1>📄 User Management</h1>
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Manage Users</h1>
+                <div class="date-info">
+                    <p>Welcome, Administrator!</p>
+                    <p><script>document.write(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));</script></p>
+                </div>
+            </div>
 
-<div class="main-layout">
-  <?php // include 'sidebar.php'; ?>
+            <div class="action-bar">
+                <button class="add-btn" onclick="openAddClerkModal()">Add New Clerk</button>
+                <input type="text" id="searchInput" class="search-input" onkeyup="searchUsers()" placeholder="Search users...">
+            </div>
 
-  <div class="main-content">
-    <div class="table-container">
-      <div class="action-bar">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search users or clerks..." onkeyup="searchUsers()">
-        <button class="add-btn" onclick="openAddModal()">+ Add New Clerk</button>
-      </div>
-
-      <h2>Clerks</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="clerk-table">
-          <tr>
-            <td class="username">clerk_jane</td>
-            <td class="email">jane@example.com</td>
-            <td>
-              <button class="btn remove" onclick="removeUser(this)">Remove</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h2>Users</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="user-table">
-          <tr>
-            <td class="username">user_mike</td>
-            <td class="email">mike@example.com</td>
-            <td>
-              <button class="btn remove" onclick="removeUser(this)">Remove</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            <div class="user-list-container">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Registered On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- User rows will be dynamically inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- Add Clerk Modal -->
-<div id="addModal" class="modal">
-  <div class="modal-content">
-    <h3>Add New Clerk</h3>
-    <input type="text" id="newUsername" placeholder="Username">
-    <input type="email" id="newEmail" placeholder="Email">
-    <button class="btn" style="background-color: var(--primary);" onclick="addClerk()">Add Clerk</button>
-    <button class="btn remove" onclick="closeModal()">Cancel</button>
-  </div>
-</div>
+    <!-- Add Clerk Modal -->
+    <div id="addClerkModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Clerk</h2>
+                <span class="modal-close-btn" onclick="closeAddClerkModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <label for="newUsername">Username:</label>
+                <input type="text" id="newUsername" placeholder="Enter username">
+                <label for="newEmail">Email:</label>
+                <input type="email" id="newEmail" placeholder="Enter email">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="addClerk()">Add Clerk</button>
+                <button class="btn btn-cancel" onclick="closeAddClerkModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-<script>
-function removeUser(btn) {
-  const row = btn.closest('tr');
-  const username = row.querySelector('.username').textContent;
-  alert("❌ Removed: " + username);
-  row.remove();
-}
-
-function openAddModal() {
-  document.getElementById('addModal').style.display = 'block';
-}
-
-function closeModal() {
-  document.getElementById('addModal').style.display = 'none';
-}
-
-function addClerk() {
-  const username = document.getElementById('newUsername').value;
-  const email = document.getElementById('newEmail').value;
-  if (username && email) {
-    const table = document.getElementById('clerk-table');
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td class="username">${username}</td>
-      <td class="email">${email}</td>
-      <td>
-        <button class="btn remove" onclick="removeUser(this)">Remove</button>
-      </td>
-    `;
-    table.appendChild(row);
-    closeModal();
-  } else {
-    alert("Please fill in both fields.");
-  }
-}
-
-function searchUsers() {
-  const input = document.getElementById('searchInput').value.toLowerCase();
-  const tables = ['clerk-table', 'user-table'];
-
-  tables.forEach(tableId => {
-    const rows = document.getElementById(tableId).getElementsByTagName('tr');
-    for (let row of rows) {
-      const username = row.querySelector('.username').textContent.toLowerCase();
-      const email = row.querySelector('.email').textContent.toLowerCase();
-      row.style.display = (username.includes(input) || email.includes(input)) ? '' : 'none';
-    }
-  });
-}
-
-window.onclick = function(event) {
-  const modal = document.getElementById('addModal');
-  if (event.target == modal) {
-    closeModal();
-  }
-}
-</script>
-
+    <!-- Delete Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Deletion</h2>
+                <span class="modal-close-btn" onclick="closeConfirmModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmDeleteText">Are you sure you want to permanently delete this user?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="confirmDeleteUser()">Delete</button>
+                <button class="btn btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
