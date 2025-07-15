@@ -1,13 +1,13 @@
 const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // DOM Elements - These will be present on index.html (after login)
-const authSection = document.getElementById('auth-section'); 
-const uploadSection = document.getElementById('upload-section'); 
-const ebookListSection = document.getElementById('ebook-list-section'); 
-const ebookDetailSection = document.getElementById('ebook-detail-section'); 
+const authSection = document.getElementById('auth-section');
+const uploadSection = document.getElementById('upload-section');
+const ebookListSection = document.getElementById('ebook-list-section');
+const ebookDetailSection = document.getElementById('ebook-detail-section');
 const ebookList = document.getElementById('ebook-list');
 const ebookDetailContent = document.getElementById('ebook-detail-content');
 const reviewsList = document.getElementById('reviews-list');
@@ -19,10 +19,10 @@ const loginToReviewMessage = document.getElementById('login-to-review');
 // Navigation Elements - Some will be on index.html, others handled by direct page links
 const homeLink = document.getElementById('home-link');
 const uploadLink = document.getElementById('upload-link');
-const loginLink = document.getElementById('login-link'); 
-const registerLink = document.getElementById('register-link'); 
+const loginLink = document.getElementById('login-link');
+const registerLink = document.getElementById('register-link');
 const logoutLink = document.getElementById('logout-link');
-const authLinks = document.getElementById('auth-links'); 
+const authLinks = document.getElementById('auth-links');
 const userDisplay = document.getElementById('user-display');
 const userEmailSpan = document.getElementById('user-email');
 
@@ -30,12 +30,12 @@ const userEmailSpan = document.getElementById('user-email');
 const authForm = document.getElementById('auth-form');
 const authEmailInput = document.getElementById('auth-email');
 const authPasswordInput = document.getElementById('auth-password');
-const authUsernameInput = document.getElementById('auth-username'); 
-const authButton = document.getElementById('auth-button');
-const showRegisterLink = document.getElementById('show-register'); 
-const showLoginLink = document.getElementById('show-login'); 
-const confirmPasswordInput = document.getElementById('confirm-password'); 
-const signupMessageDiv = document.getElementById('signup-message'); 
+const authUsernameInput = document.getElementById('auth-username');
+const authButton = document.getElementById('auth-button'); // This seems unused if signup/login handled by form submit
+const showRegisterLink = document.getElementById('show-register');
+const showLoginLink = document.getElementById('show-login');
+const confirmPasswordInput = document.getElementById('confirm-password');
+const signupMessageDiv = document.getElementById('signup-message');
 
 // Custom Modal Elements
 const customModalOverlay = document.getElementById('custom-modal-overlay');
@@ -48,7 +48,7 @@ const sortSelect = document.getElementById('sort-select');
 const filterGenreSelect = document.getElementById('filter-genre-select');
 const backToListBtn = document.getElementById('back-to-list');
 const submitReviewBtn = document.getElementById('submit-review');
-const loginToReviewLink = document.getElementById('login-to-review-link'); 
+const loginToReviewLink = document.getElementById('login-to-review-link');
 
 let currentEbookId = null;
 let allGenres = new Set();
@@ -65,8 +65,14 @@ function showSection(section) {
 function showCustomModal(title, message, isSuccess = true) {
     modalTitle.textContent = title;
     modalMessage.textContent = message;
-    modalTitle.style.color = isSuccess ? '#28a745' : '#dc3545'; 
+    modalTitle.style.color = isSuccess ? '#28a745' : '#dc3545';
     customModalOverlay.classList.add('visible');
+    // Add event listener to close modal when clicking outside of it
+    customModalOverlay.addEventListener('click', (event) => {
+        if (event.target === customModalOverlay) {
+            hideCustomModal();
+        }
+    });
 }
 
 function hideCustomModal() {
@@ -83,9 +89,15 @@ async function updateUI() {
         if (user) {
             authLinks.classList.add('hidden');
             logoutLink.classList.remove('hidden');
-            uploadLink.classList.remove('hidden');
+            // Only show upload link if the user has a 'clerk' or 'admin' role
+            const userRole = user.user_metadata.role;
+            if (userRole === 'clerk' || userRole === 'admin') {
+                uploadLink.classList.remove('hidden');
+            } else {
+                uploadLink.classList.add('hidden');
+            }
             userDisplay.classList.remove('hidden');
-            userEmailSpan.textContent = user.user_metadata.username || user.email; 
+            userEmailSpan.textContent = user.user_metadata.username || user.email;
             if (addReviewFormDiv) addReviewFormDiv.classList.remove('hidden');
             if (loginToReviewMessage) loginToReviewMessage.classList.add('hidden');
         } else {
@@ -99,100 +111,133 @@ async function updateUI() {
     }
 }
 
-if (authForm) { 
-    console.log("Auth form found, attaching submit listener."); 
+if (authForm) {
+    console.log("Auth form found, attaching submit listener.");
     authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log("Auth form submitted!"); 
+        console.log("Auth form submitted!");
         const email = authEmailInput.value;
         const password = authPasswordInput.value;
-        const isRegisterMode = !!confirmPasswordInput; 
-        console.log("Is Register Mode:", isRegisterMode); 
+        // Check if confirmPasswordInput exists to determine if it's a registration form
+        const isRegisterMode = !!confirmPasswordInput && document.getElementById('auth-page').classList.contains('signup'); 
+        console.log("Is Register Mode:", isRegisterMode);
 
         if (isRegisterMode) {
             const confirmPassword = confirmPasswordInput.value;
             if (password !== confirmPassword) {
-                signupMessageDiv.textContent = 'Passwords do not match!';
-                console.log("Passwords do not match."); 
+                showCustomModal('Registration Error', 'Passwords do not match!', false);
                 return;
             }
-            signupMessageDiv.textContent = ''; 
+            signupMessageDiv.textContent = ''; // Clear previous message if any
+
             const username = authUsernameInput ? authUsernameInput.value : null;
-            console.log("Attempting to sign up with:", { email, username }); 
+            // Correctly get the selected role from the radio buttons
+            const selectedRoleElement = document.querySelector('input[name="role"]:checked');
+            const role = selectedRoleElement ? selectedRoleElement.value : null;
+
+            if (!role) {
+                showCustomModal('Registration Error', 'Please select a role.', false);
+                return;
+            }
 
             try {
-                const { data, error } = await supabase.auth.signUp({ 
-                    email, 
+                const { data, error } = await supabase.auth.signUp({
+                    email,
                     password,
                     options: {
                         data: {
-                            username: username
-                        }
+                            username: username,
+                            role: role,
+                        },
                     }
                 });
+
                 if (error) {
-                    console.error("Supabase Sign Up Error:", error.message); 
                     showCustomModal('Sign Up Error', error.message, false);
                 } else {
-                    console.log("Supabase Sign Up Success:", data); 
-                    showCustomModal('Sign Up Successful!', 'Please Log In now.');
-                    setTimeout(() => {
-                        window.location.href = '../screens/login.html'; 
-                    }, 2000); 
+                    if (data.session) {
+                        showCustomModal('Sign Up Successful!', 'You have been signed up and logged in.');
+                        const userRole = data.user.user_metadata ? data.user.user_metadata.role : null;
+                        let redirectUrl = '../index.html'; // Default redirect
+
+                        if (userRole === 'user') {
+                            redirectUrl = '../user/dashboard.html';
+                        } else if (userRole === 'clerk') {
+                            redirectUrl = '../clerk/dashboardClerk.html';
+                        } else if (userRole === 'admin') {
+                            redirectUrl = '../admin/dashboardAdmin.html';
+                        }
+                        setTimeout(() => {
+                            window.location.href = redirectUrl;
+                        }, 2000);
+                    } else {
+                        showCustomModal('Sign Up Successful!', 'Please check your email for a confirmation link, then log in.');
+                        setTimeout(() => {
+                            window.location.href = '../screens/login.html';
+                        }, 2000);
+                    }
                 }
             } catch (err) {
-                console.error("Unexpected error during Supabase sign up:", err); 
+                console.error("Unexpected error during Supabase sign up:", err);
                 showCustomModal('Sign Up Error', 'An unexpected error occurred. Please try again.', false);
             }
         } else {
-            console.log("Attempting to sign in with:", { email }); 
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                 if (error) {
-                    console.error("Supabase Login Error:", error.message); 
                     showCustomModal('Login Error', error.message, false);
                 } else {
-                    console.log("Supabase Login Success:", data); 
                     showCustomModal('Login Successful!', 'You have been logged in.');
+
+                    const role = data.user.user_metadata ? data.user.user_metadata.role : null;
+                    let redirectUrl = '../index.html';
+
+                    if (role === 'user') {
+                        redirectUrl = '../user/dashboard.html';
+                    } else if (role === 'clerk') {
+                        redirectUrl = '../clerk/dashboardClerk.html';
+                    } else if (role === 'admin') {
+                        redirectUrl = '../admin/dashboardAdmin.html';
+                    }
+
                     setTimeout(() => {
-                        window.location.href = '../user/dashboard.html';
+                        window.location.href = redirectUrl;
                     }, 2000);
                 }
             } catch (err) {
-                console.error("Unexpected error during Supabase login:", err); 
                 showCustomModal('Login Error', 'An unexpected error occurred. Please try again.', false);
             }
         }
     });
 } else {
-    console.log("Auth form element not found on this page."); 
+    console.log("Auth form element not found on this page.");
 }
 
 if (loginLink) {
     loginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = 'screens/login.html'; 
+        window.location.href = 'screens/login.html';
     });
 }
 
 if (registerLink) {
     registerLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = 'screens/signup.html'; 
+        window.location.href = 'screens/signup.html';
     });
 }
 
 if (showRegisterLink) {
     showRegisterLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = '../screens/signup.html'; 
+        window.location.href = '../screens/signup.html';
     });
 }
 
 if (showLoginLink) {
     showLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = '../screens/login.html'; 
+        window.location.href = '../screens/login.html';
     });
 }
 
@@ -205,40 +250,40 @@ if (logoutLink) {
         } else {
             showCustomModal('Logged Out', 'You have been successfully logged out.');
             setTimeout(() => {
-                window.location.href = '../index.html'; 
+                window.location.href = '../index.html';
             }, 2000);
         }
-        updateUI(); 
+        updateUI();
     });
 }
 
 if (loginToReviewLink) {
     loginToReviewLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = '../screens/login.html'; 
+        window.location.href = '../screens/login.html';
     });
 }
 
 async function fetchEbooks() {
     try {
         console.log("Starting to fetch eBooks...");
-        
+
         if (ebookList) {
             ebookList.innerHTML = '<p id="loading-message">Loading eBooks...</p>';
         }
 
         let query = supabase.from('ebook').select('*');
-        
-        if (searchInput && searchInput.value) { 
+
+        if (searchInput && searchInput.value) {
             const searchTerm = searchInput.value.toLowerCase();
             query = query.or(`title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%,genre.ilike.%${searchTerm}%`);
         }
 
-        if (filterGenreSelect && filterGenreSelect.value) { 
+        if (filterGenreSelect && filterGenreSelect.value) {
             query = query.eq('genre', filterGenreSelect.value);
         }
 
-        if (sortSelect && sortSelect.value) { 
+        if (sortSelect && sortSelect.value) {
             const sortOption = sortSelect.value;
             switch (sortOption) {
                 case 'title_asc':
@@ -267,14 +312,14 @@ async function fetchEbooks() {
             throw error;
         }
         console.log("Received data:", ebooks);
-        
+
         if (!ebookList) {
             console.error("ebookList element not found");
             return;
         }
 
         ebookList.innerHTML = '';
-        allGenres.clear(); 
+        allGenres.clear();
 
         if (ebooks.length === 0) {
             ebookList.innerHTML = '<p>No eBooks found.</p>';
@@ -365,7 +410,7 @@ async function fetchReviews(ebookId) {
 
         if (error) throw error;
 
-        reviewsList.innerHTML = ''; 
+        reviewsList.innerHTML = '';
 
         if (reviews.length === 0) {
             noReviewsMessage.classList.remove('hidden');
@@ -407,8 +452,8 @@ async function addReview(ebookId, reviewText) {
 
         if (error) throw error;
         showCustomModal('Review Added', 'Your review has been successfully added!');
-        fetchReviews(ebookId); 
-        document.getElementById('review-text').value = ''; 
+        fetchReviews(ebookId);
+        document.getElementById('review-text').value = '';
     } catch (error) {
         console.error("Error adding review:", error);
         showCustomModal('Error Adding Review', error.message, false);
@@ -438,9 +483,12 @@ async function uploadEbook(event) {
     let fileUrl = null;
     if (ebookFile) {
         const filePath = `${Date.now()}-${ebookFile.name}`;
-        const { error: uploadError } = await supabase.storage
+        const { data, error: uploadError } = await supabase.storage
             .from('ebook-files')
-            .upload(filePath, ebookFile);
+            .upload(filePath, ebookFile, {
+                cacheControl: '3600',
+                upsert: false
+            });
 
         if (uploadError) {
             showCustomModal('Upload Error', 'Error uploading file: ' + uploadError.message, false);
@@ -471,16 +519,16 @@ async function uploadEbook(event) {
         showCustomModal('Upload Error', 'Error inserting ebook data: ' + insertError.message, false);
     } else {
         showCustomModal('Upload Successful', 'Ebook uploaded successfully!');
-        ebookUploadForm.reset(); 
-        fetchEbooks(); 
-        showSection(ebookListSection); 
+        ebookUploadForm.reset();
+        fetchEbooks();
+        showSection(ebookListSection);
     }
 }
 
 
 function populateGenreFilter() {
     if (filterGenreSelect) {
-        filterGenreSelect.innerHTML = '<option value="">All Genres</option>'; 
+        filterGenreSelect.innerHTML = '<option value="">All Genres</option>';
         allGenres.forEach(genre => {
             const option = document.createElement('option');
             option.value = genre;
@@ -497,7 +545,7 @@ if (ebookUploadForm) {
 if (backToListBtn) {
     backToListBtn.addEventListener('click', () => {
         showSection(ebookListSection);
-        fetchEbooks(); 
+        fetchEbooks();
     });
 }
 
@@ -525,10 +573,19 @@ if (filterGenreSelect) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Determine which page we are on based on known elements
     if (document.getElementById('ebook-list-section')) {
+        // This is likely index.html
         updateUI();
         fetchEbooks();
+        // Ensure the ebook list section is shown by default if on the main page
+        showSection(ebookListSection);
     } else if (document.getElementById('auth-page')) {
+        // This is likely login.html or signup.html
         console.log("On auth-page. Auth form setup should be handled.");
+        // Add a class to the body if it's the signup page to help distinguish
+        if (window.location.pathname.includes('signup.html')) {
+            document.getElementById('auth-page').classList.add('signup');
+        }
     }
 });
