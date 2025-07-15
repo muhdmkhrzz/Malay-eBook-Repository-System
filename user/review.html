@@ -6,37 +6,116 @@
   <title>My Reviews - MyEbookMelayu</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.6/dist/umd/supabase.min.js"></script>
+
+  <script>
+  const supabase = window.supabase.createClient(
+    'https://zfiaoyymowvjurqxrazu.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
+  );
+
+  let currentUser = null;
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      console.error("Auth error:", error);
+      alert("Please log in to manage your reviews.");
+      return;
+    }
+    currentUser = user;
+    loadAllReview();
+  });
+
+  async function loadAllReview() {
+    const { data: reviews, error } = await supabase
+      .from("review")
+      .select("id, rating, comment, ebook(title, author)")
+      .eq("user_id", currentUser.id)
+      .order("datereview", { ascending: false });
+
+    const container = document.querySelector(".space-y-6");
+    container.innerHTML = "";
+
+    if (error) {
+      console.error("Load reviews error:", error);
+      container.insertAdjacentHTML("beforeend",
+        "<p class='text-red-500'>Failed to load reviews.</p>");
+      return;
+    }
+
+    if (!reviews || reviews.length === 0) {
+      container.insertAdjacentHTML("beforeend",
+        "<p class='text-gray-500'>You have no reviews yet.</p>");
+      return;
+    }
+
+    for (const r of reviews) {
+      const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+      container.insertAdjacentHTML("beforeend", `
+        <div class="bg-white p-6 shadow rounded-lg">
+          <div class="flex justify-between">
+            <div>
+              <h3 class="text-indigo-700 font-semibold">${r.ebook.title}</h3>
+              <p class="text-gray-500 text-sm">By ${r.ebook.author}</p>
+              <p class="text-yellow-500">${stars}</p>
+              <p class="text-gray-700">${r.comment}</p>
+            </div>
+            <div class="flex flex-col gap-2">
+              <a href="edit-review.html?id=${r.id}" class="text-blue-600 hover:underline">✏️ Edit</a>
+              <button onclick="deleteReview(${r.id})" class="text-red-500 hover:underline">🗑️ Delete</button>
+            </div>
+          </div>
+        </div>
+      `);
+    }
+  }
+
+  async function deleteReview(reviewId) {
+    if (!confirm("Delete this review?")) return;
+
+    const { error } = await supabase
+      .from("review")
+      .delete()
+      .eq("id", reviewId);
+
+    if (error) {
+      console.error("Delete error:", error);
+      alert("Couldn’t delete review:\n" + error.message);
+    } else {
+      loadAllReview(); // Refresh the list
+    }
+  }
+</script>
+
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
     }
-    /* Custom CSS for fixed sidebar */
     .fixed-sidebar {
-      position: fixed; /* Makes the sidebar stay in place */
+      position: fixed;
       top: 0;
       left: 0;
-      height: 100vh; /* Ensures it takes full viewport height */
-      z-index: 10; /* Ensures it stays on top of other content */
+      height: 100vh;
+      z-index: 10;
     }
-    /* Adjust main content to not be hidden by the fixed sidebar */
     .main-content-wrapper {
-      margin-left: 16rem; /* Equivalent to w-64 (64 * 0.25rem = 16rem) */
-      flex-grow: 1; /* Allows it to take remaining space */
+      margin-left: 16rem;
+      flex-grow: 1;
     }
-
-    /* Responsive adjustments for smaller screens if needed, though sidebar is static */
-    @media (max-width: 767px) { /* Adjust for small screens if sidebar needs to change behavior */
+    @media (max-width: 767px) {
       .fixed-sidebar {
-        width: 100%; /* Full width on small screens if desired */
-        height: auto; /* Adjust height for content */
-        position: relative; /* Make it relative for scrolling */
-        box-shadow: none; /* Remove shadow if it's not fixed */
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: none;
       }
       .main-content-wrapper {
-        margin-left: 0; /* No margin on small screens */
+        margin-left: 0;
       }
       .flex {
-        flex-direction: column; /* Stack sidebar and main content vertically */
+        flex-direction: column;
       }
     }
   </style>
@@ -44,60 +123,24 @@
 <body class="bg-gray-100 font-sans flex">
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="w-64 bg-white shadow-md rounded-tr-lg rounded-br-lg fixed-sidebar">
+  <aside class="w-64 bg-white shadow-md rounded-tr-lg rounded-br-lg fixed-sidebar">
     <div class="p-6 border-b border-gray-200">
       <h1 class="text-2xl font-bold text-indigo-600">MyEbookMelayu</h1>
     </div>
     <nav class="mt-4 px-4 space-y-2">
-      <a href="dashboard.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 font-semibold transition duration-200 ease-in-out">📊 Dashboard</a>
-     <a href="review.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-600 font-semibold transition duration-200 ease-in-out">⭐ Reviews</a>
-      <a href="wishlist.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition duration-200 ease-in-out">❤️ Wishlist</a>
-      <a href="library.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition duration-200 ease-in-out">📚 Library</a>
-      <a href="/logout.html" class="block py-2 px-3 rounded-lg hover:bg-red-100 text-red-500 transition duration-200 ease-in-out">🚪 Logout</a>
+      <a href="dashboard.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 font-semibold">📊 Dashboard</a>
+      <a href="review.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-600 font-semibold">⭐ Reviews</a>
+      <a href="wishlist.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">❤️ Wishlist</a>
+      <a href="library.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">📚 Library</a>
+      <a href="/logout.html" class="block py-2 px-3 rounded-lg hover:bg-red-100 text-red-500">🚪 Logout</a>
     </nav>
   </aside>
 
-  <!-- Main Content Wrapper -->
+  <!-- Main Content -->
   <div class="main-content-wrapper">
-    <main id="mainContent" class="max-w-4xl mx-auto px-4 py-8">
+    <main class="max-w-4xl mx-auto px-4 py-8">
       <h2 class="text-3xl font-semibold text-gray-800 mb-6">⭐ My Reviews</h2>
-
-      <!-- Reviews List -->
-      <div class="space-y-6">
-
-        <!-- Review Card -->
-        <div class="bg-white shadow rounded-lg p-6">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="text-xl font-semibold text-indigo-700">Senja Biru</h3>
-              <p class="text-sm text-gray-500 mb-1">By Aisyah Zakwan</p>
-              <p class="text-yellow-500 mb-2">★★★★☆</p>
-              <p class="text-gray-700">A very emotional and beautiful story. I loved every chapter!</p>
-            </div>
-            <div class="flex flex-col gap-2 items-end">
-              <a href="edit-review.php?id=1" class="text-sm text-blue-600 hover:underline">✏️ Edit</a>
-              <a href="delete-review.php?id=1" class="text-sm text-red-500 hover:underline">🗑️ Delete</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Review Card -->
-        <div class="bg-white shadow rounded-lg p-6">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="text-xl font-semibold text-indigo-700">Hujan Dalam Hati</h3>
-              <p class="text-sm text-gray-500 mb-1">By Amir Rahman</p>
-              <p class="text-yellow-500 mb-2">★★★☆☆</p>
-              <p class="text-gray-700">Good theme, but slow pacing. Worth reading if you like drama.</p>
-            </div>
-            <div class="flex flex-col gap-2 items-end">
-              <a href="edit-review.php?id=2" class="text-sm text-blue-600 hover:underline">✏️ Edit</a>
-              <a href="delete-review.php?id=2" class="text-sm text-red-500 hover:underline">🗑️ Delete</a>
-            </div>
-          </div>
-        </div>
-
-      </div>
+      <div class="space-y-6"></div>
     </main>
 
     <!-- Footer -->

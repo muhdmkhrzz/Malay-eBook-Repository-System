@@ -147,5 +147,41 @@
     </footer>
   </div>
 
+  <script>
+  function renderLibrary() {
+    const container = document.querySelector(".grid");
+    const books = JSON.parse(localStorage.getItem('library')) || [];
+    container.innerHTML = "";
+
+    books.forEach(book => {
+      container.innerHTML += `
+        <div class="bg-white p-5 rounded-xl shadow-md flex flex-col transform hover:scale-105 transition duration-300 ease-in-out">
+          <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg mb-4 h-56 object-cover w-full shadow-sm">
+          <h3 class="text-lg font-semibold text-indigo-700 mb-1">${book.title}</h3>
+          <p class="text-sm text-gray-600 mb-2">By ${book.author}</p>
+          <p class="text-sm text-gray-500 mb-4 leading-relaxed">${book.synopsis?.slice(0, 100) || 'No synopsis available'}...</p>
+          <div class="mt-auto flex justify-between items-center">
+            <a href="ebook_detail.html?book_id=${book.id}" class="text-indigo-600 hover:underline font-medium flex items-center">
+              📖 View Details
+            </a>
+            <button onclick="removeFromList('library', ${book.id})" class="text-red-500 hover:underline font-medium flex items-center">
+              🗑️ Remove
+            </button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function removeFromList(key, id) {
+    let list = JSON.parse(localStorage.getItem(key)) || [];
+    list = list.filter(b => b.id !== id);
+    localStorage.setItem(key, JSON.stringify(list));
+    location.reload();
+  }
+
+  renderLibrary();
+</script>
+
 </body>
 </html>
