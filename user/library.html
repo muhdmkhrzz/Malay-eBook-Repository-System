@@ -184,4 +184,35 @@
 </script>
 
 </body>
+<script>
+  function loadLibrary() {
+    const library = JSON.parse(localStorage.getItem("library")) || [];
+    const grid = document.querySelector(".grid");
+
+    grid.innerHTML = ""; // Clear any placeholder content
+
+    if (library.length === 0) {
+      grid.innerHTML = "<p class='text-gray-500 col-span-full'>No books in your library yet.</p>";
+      return;
+    }
+
+    library.forEach((book) => {
+      const card = document.createElement("div");
+      card.className = "bg-white p-5 rounded-xl shadow-md flex flex-col transform hover:scale-105 transition duration-300 ease-in-out";
+
+      card.innerHTML = `
+        <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-md mb-4 h-64 object-cover w-full">
+        <h3 class="text-lg font-bold text-gray-800 mb-1">${book.title}</h3>
+        <p class="text-sm text-gray-600 mb-3">by ${book.author}</p>
+        <a href="ebook_detail.html?book_id=${book.id}" class="mt-auto bg-indigo-600 text-white text-center py-2 px-4 rounded hover:bg-indigo-700 transition">
+          📖 View Book
+        </a>
+      `;
+
+      grid.appendChild(card);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", loadLibrary);
+</script>
 </html>
