@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Senarai Buku</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Add New eBook</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom font import for Inter */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body {
+            font-family: 'Poppins', sans-serif;
+        }
+        h1 {
             font-family: 'Inter', sans-serif;
+            font-weight: 700;
         }
         /* Hide default file input button */
         input[type="file"] {
@@ -43,105 +46,134 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Styles for the enhanced image preview area */
+        .image-preview-wrapper {
+            position: relative;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Ensure content doesn't spill out */
+        }
+
+        .image-preview-text {
+            position: absolute;
+            /* Changed to a direct hex code for gray */
+            color: #6B7280; /* This is Tailwind's default gray-500 */
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 500; /* font-medium */
+            pointer-events: none; /* Allows clicks to pass through to the container */
+            z-index: 10; /* Ensure text is above the image */
+            transition: opacity 0.3s ease-in-out; /* Smooth transition for fading */
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .image-preview-wrapper img {
+            transition: opacity 0.3s ease-in-out; /* Smooth transition for image */
+        }
+
+        /* Hide text and show image when an image is loaded */
+        .image-preview-wrapper.has-image .image-preview-text {
+            opacity: 0; /* Fade out text */
+        }
+
+        /* When no image, make placeholder visible and image transparent */
+        .image-preview-wrapper:not(.has-image) img {
+            opacity: 0; /* Make the placeholder image transparent */
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 to-purple-200 min-h-screen flex items-center justify-center p-4">
 
     <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl transform transition-all duration-300 hover:scale-[1.01]">
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Borang Pendaftaran eBook</h1>
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">eBook New Entry</h1>
 
         <form id="ebookForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <!-- Book Title -->
             <div>
-                <label for="bookTitle" class="block text-sm font-medium text-gray-700 mb-1">Tajuk Buku</label>
-                <input type="text" id="bookTitle" name="bookTitle" placeholder="Masukkan tajuk buku"
-                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+                <label for="bookTitle" class="block text-sm font-medium text-gray-700 mb-1">Book Title</label>
+                <input type="text" id="bookTitle" name="bookTitle" placeholder="Write the book title here"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
             </div>
 
-            <!-- Author -->
             <div>
-                <label for="author" class="block text-sm font-medium text-gray-700 mb-1">Pengarang baru</label>
-                <input type="text" id="author" name="author" placeholder="Masukkan nama pengarang"
-                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+                <label for="author" class="block text-sm font-medium text-gray-700 mb-1">Author</label>
+                <input type="text" id="author" name="author" placeholder="Enter author name"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
             </div>
 
-            <!-- Year Published -->
             <div>
-                <label for="yearPublished" class="block text-sm font-medium text-gray-700 mb-1">Tahun Diterbitkan</label>
-                <input type="number" id="yearPublished" name="yearPublished" placeholder="contoh: 2023" min="1000" max="2099"
-                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+                <label for="yearPublished" class="block text-sm font-medium text-gray-700 mb-1">Year Published</label>
+                <input type="number" id="yearPublished" name="yearPublished" placeholder="e.g., 2023" min="1000" max="2099"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
             </div>
 
-            <!-- Genre Dropdown -->
             <div>
                 <label for="genre" class="block text-sm font-medium text-gray-700 mb-1">Genre</label>
                 <select id="genre" name="genre"
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white transition duration-150 ease-in-out">
-                    <option value="">Pilih genre</option>
-                    <option value="fiction">Fiksi</option>
-                    <option value="fantasy">Fantasi</option>
-                    <option value="science-fiction">Fiksi Sains</option>
-                    <option value="mystery">Misteri</option>
+                    <option value="">Choose genre</option>
+                    <option value="fiction">Fiction</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="science-fiction">Science Fiction</option>
+                    <option value="mystery">Mystery</option>
                     <option value="thriller">Thriller</option>
-                    <option value="romance">Romantis</option>
-                    <option value="biography">Biografi</option>
-                    <option value="history">Sejarah</option>
-                    <option value="self-help">Bantuan Diri</option>
-                    <option value="children">Kanak-Kanak</option>
-                    <option value="horror">Seram</option>
-                    <option value="poetry">Puisi</option>
-                    <option value="non-fiction">Non-Fiksi</option>
+                    <option value="romance">Romance</option>
+                    <option value="biography">Biography</option>
+                    <option value="history">History</option>
+                    <option value="self-help">Self-Help</option>
+                    <option value="children">Children</option>
+                    <option value="horror">Horror</option>
+                    <option value="poetry">Poetry</option>
+                    <option value="non-fiction">Non-Fiction</option>
                 </select>
             </div>
 
-            <!-- Price Input -->
             <div class="col-span-1 md:col-span-2">
-                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Harga (RM)</label>
-                <input type="number" id="price" name="price" placeholder="contoh: 12.99" step="0.01" min="0"
-                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price (RM)</label>
+                <input type="number" id="price" name="price" placeholder="e.g., 12.99" step="0.01" min="0"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
             </div>
 
-            <!-- Synopsis Textarea -->
             <div class="col-span-1 md:col-span-2">
-                <label for="synopsis" class="block text-sm font-medium text-gray-700 mb-1">Sinopsis</label>
-                <textarea id="synopsis" name="synopsis" rows="6" placeholder="Berikan sinopsis terperinci tentang buku ini..."
-                          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"></textarea>
+                <label for="synopsis" class="block text-sm font-medium text-gray-700 mb-1">Synopsis</label>
+                <textarea id="synopsis" name="synopsis" rows="6" placeholder="Provide a detailed synopsis of the book..."
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"></textarea>
             </div>
 
-            <!-- Picture Selector -->
             <div class="col-span-1 md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Kulit Buku</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover</label>
                 <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <!-- File Input -->
                     <label for="imageUpload" class="custom-file-upload flex-shrink-0">
-                        Pilih Fail
+                        Choose File
                     </label>
                     <input type="file" id="imageUpload" accept="image/*" class="flex-grow">
 
-                    <span class="text-gray-500 font-medium">ATAU</span>
+                    <span class="text-gray-500 font-medium">OR</span>
 
-                    <!-- URL Input -->
-                    <input type="url" id="imageUrl" name="imageUrl" placeholder="Tampal URL gambar di sini"
-                           class="flex-grow mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+                    <input type="url" id="imageUrl" name="imageUrl" placeholder="Paste image URL here"
+                                class="flex-grow mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
                 </div>
 
-                <!-- Image Preview -->
-                <div class="mt-4 border border-gray-300 rounded-lg p-2 flex items-center justify-center min-h-[150px] bg-gray-50">
+                <div id="imagePreviewContainer" class="mt-4 border border-gray-300 rounded-lg p-2 flex items-center justify-center bg-gray-50 cursor-pointer image-preview-wrapper">
                     <img id="imagePreview" src="https://placehold.co/200x150/E0E7FF/4F46E5?text=No+Image" alt="Preview Gambar"
-                         class="max-w-full max-h-[200px] rounded-md object-contain shadow-md">
+                            class="max-w-full max-h-[200px] rounded-md object-contain shadow-md">
+                    <span id="imagePreviewText" class="image-preview-text">
+                        Click here<br>to add image
+                    </span>
                 </div>
             </div>
 
-            <!-- Buttons -->
             <div class="col-span-1 md:col-span-2 flex justify-center mt-6 space-x-4">
                 <button type="button" id="cancelButton"
-                        class="px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 ease-in-out transform hover:scale-105">
-                    Batal
+                                class="px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 ease-in-out transform hover:scale-105">
+                    Cancel
                 </button>
                 <button type="submit"
-                        class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200 ease-in-out transform hover:scale-105">
-                    Tambah eBook
+                                class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200 ease-in-out transform hover:scale-105">
+                    Add eBook
                 </button>
             </div>
 
@@ -154,15 +186,18 @@
         const imageUpload = document.getElementById('imageUpload');
         const imageUrl = document.getElementById('imageUrl');
         const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreviewText = document.getElementById('imagePreviewText');
         const cancelButton = document.getElementById('cancelButton');
 
-        // Function to update image preview
+        // Function to update image preview and manage text visibility
         function updateImagePreview(src) {
-            if (src) {
+            if (src && src !== "https://placehold.co/200x150/E0E7FF/4F46E5?text=No+Image") {
                 imagePreview.src = src;
+                imagePreviewContainer.classList.add('has-image'); // Add class to container
             } else {
-                // Placeholder image if no source
                 imagePreview.src = "https://placehold.co/200x150/E0E7FF/4F46E5?text=No+Image";
+                imagePreviewContainer.classList.remove('has-image'); // Remove class from container
             }
         }
 
@@ -185,11 +220,9 @@
         imageUrl.addEventListener('input', function() {
             const url = this.value;
             if (url) {
-                // Try to load the image from URL. Use onerror for fallback.
                 const img = new Image();
                 img.onload = () => updateImagePreview(url);
                 img.onerror = () => {
-                    // Fallback to placeholder if URL is invalid or image fails to load
                     updateImagePreview(null);
                     console.error("Failed to load image from URL:", url);
                 };
@@ -200,11 +233,19 @@
             }
         });
 
+        // Event listener for clicking the image preview container
+        imagePreviewContainer.addEventListener('click', function() {
+            imageUpload.click(); // Programmatically click the hidden file input
+        });
+
         // Event listener for Cancel button
         cancelButton.addEventListener('click', function() {
             ebookForm.reset(); // Resets all form fields
-            updateImagePreview(null); // Reset image preview
+            updateImagePreview(null); // Reset image preview and show text
         });
+
+        // Initialize preview on page load
+        updateImagePreview(null);
     </script>
 </body>
 </html>

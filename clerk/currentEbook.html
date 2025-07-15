@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Available eBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1f2937; /* Dark Gray */
+      --secondary: #4b5563; /* Medium Gray */
+      --accent: #4A90E2; /* A nice blue for links/highlights */
+      --bg-light: #f7f9fc;
+      --text-dark: #333;
+      --border-color: #e0e0e0;
+      --card-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg-light);
+      margin: 0;
+      padding: 30px;
+      color: var(--text-dark);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--primary);
+    }
+
+    .controls-container {
+      max-width: 1200px;
+      margin: 0 auto 30px auto;
+      padding: 0 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .search-bar, .genre-filter {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .search-bar input, .genre-filter select {
+      padding: 12px 15px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 1em;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+      background-color: #fff;
+    }
+    .genre-filter select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.5H18.6c-5%200-9.3%201.8-13.2%206.5-3.9%203.9-6%208.2-6%2013.2%200%205%202.1%209.3%206%2013.2L128.7%20287c3.9%203.9%208.2%206%2013.2%206s9.3-2.1%2013.2-6l121.7-181.7c3.9-3.9%206-8.2%206-13.2s-2.1-9.3-6-13.2z%22%2F%3E%3C%2Fsvg%3E');
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 12px;
+        padding-right: 40px;
+    }
+
+    /* Horizontal Scrollable Line */
+    .book-list-container {
+      max-width: 100%; /* Adjust as needed, can be wider than 1200px if content demands */
+      margin: auto;
+      display: flex; /* Changed from grid */
+      flex-wrap: nowrap; /* Ensures items stay in one line */
+      overflow-x: auto; /* Enables horizontal scrolling */
+      -webkit-overflow-scrolling: touch; /* Smoother scrolling on iOS */
+      padding: 0 15px 20px 15px; /* Add padding for scrollbar/shadow */
+      gap: 25px; /* Space between book cards */
+      scroll-snap-type: x mandatory; /* Optional: for snapping to cards */
+    }
+
+    /* Hide scrollbar for aesthetic purposes (optional) */
+    .book-list-container::-webkit-scrollbar {
+      display: none;
+    }
+    .book-list-container {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    .book-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      flex: 0 0 220px; /* Fixed width for card, important for flex nowrap */
+      scroll-snap-align: start; /* Optional: for snapping to cards */
+    }
+
+    .book-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .book-card img.cover {
+      width: 120px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      border: 1px solid var(--border-color);
+    }
+
+    .book-card .title {
+      font-size: 1.15em;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 5px;
+      line-height: 1.3;
+      min-height: 2.6em;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .book-card .author {
+      font-size: 0.95em;
+      color: var(--secondary);
+      margin-bottom: 10px;
+    }
+
+    .book-card .genre {
+      font-size: 0.85em;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .book-card .approved-date { /* New style for approved date on card */
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    /* Removed .book-card .price */
+
+    /* Modal for Book Details - No changes to modal pricing, as it's not present now */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 800px;
+      max-width: 90%;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+      position: relative;
+      display: flex;
+      gap: 30px;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #aaa;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .close:hover {
+      color: #333;
+    }
+
+    .modal-left {
+      flex: 0 0 200px;
+      text-align: center;
+    }
+
+    .modal-left img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .modal-right {
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .modal-right h3 {
+      font-size: 2em;
+      color: var(--primary);
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .modal-right p {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .modal-right p strong {
+      color: var(--secondary);
+    }
+
+    .modal-right .modal-synopsis {
+      margin-top: 20px;
+      font-size: 0.95em;
+      color: #555;
+    }
+
+    /* Removed .modal-right .modal-price */
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .controls-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-bar, .genre-filter {
+        min-width: unset;
+        width: 100%;
+      }
+
+      /* Adjust card width for smaller screens in horizontal scroll */
+      .book-card {
+        flex: 0 0 180px; /* Smaller fixed width for mobile */
+        padding: 15px;
+      }
+      .book-card img.cover {
+        width: 100px;
+        height: 150px;
+      }
+      .book-card .title {
+        font-size: 1em;
+      }
+      .book-card .author, .book-card .genre, .book-card .approved-date {
+        font-size: 0.8em;
+      }
+
+      .modal-content {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+      }
+      .modal-left {
+        flex: none;
+        width: 150px;
+        margin: 0 auto;
+      }
+      .modal-right h3 {
+        font-size: 1.5em;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Our eBook Catalog</h1>
+
+<div class="controls-container">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search by title or author..." onkeyup="filterBooks()">
+  </div>
+  <div class="genre-filter">
+    <select id="genreSelect" onchange="filterBooks()">
+      <option value="all">All Genres</option>
+      <option value="fantasy">Fantasy</option>
+      <option value="science-fiction">Science Fiction</option>
+      <option value="mystery">Mystery</option>
+      <option value="cookbook">Cookbook</option>
+      <option value="self-help">Self-Help</option>
+      </select>
+  </div>
+</div>
+
+
+<div class="book-list-container" id="book-list">
+  <div class="book-card" onclick="openBookDetailsModal(this)"
+       data-title="The Enchanted Forest"
+       data-author="Elena Rivers"
+       data-genre="Fantasy"
+       data-year="2021"
+       data-approved-date="2021-05-10"
+       data-image="https://via.placeholder.com/120x180.png?text=Book1"
+       data-synopsis="A young adventurer stumbles upon a magical forest where ancient trees whisper secrets and mythical creatures roam. She must uncover the mystery of a fading enchantment before the forest disappears forever.">
+    <img src="https://via.placeholder.com/120x180.png?text=Book1" class="cover" alt="Book Cover" />
+    <div class="title">The Enchanted Forest</div>
+    <div class="author">Elena Rivers</div>
+    <div class="genre">Fantasy</div>
+    <div class="approved-date">Approved: 2021-05-10</div> </div>
+
+  <div class="book-card" onclick="openBookDetailsModal(this)"
+       data-title="Echoes of Tomorrow"
+       data-author="Dr. Anya Sharma"
+       data-genre="Science Fiction"
+       data-year="2023"
+       data-approved-date="2023-01-20"
+       data-image="https://via.placeholder.com/120x180.png?text=Book2"
+       data-synopsis="In a future where technology intertwines with human consciousness, a scientist discovers a way to glimpse parallel futures. But altering destiny comes with unforeseen consequences that could shatter reality itself.">
+    <img src="https://via.placeholder.com/120x180.png?text=Book2" class="cover" alt="Book Cover" />
+    <div class="title">Echoes of Tomorrow</div>
+    <div class="author">Dr. Anya Sharma</div>
+    <div class="genre">Science Fiction</div>
+    <div class="approved-date">Approved: 2023-01-20</div>
+  </div>
+
+  <div class="book-card" onclick="openBookDetailsModal(this)"
+       data-title="The Silent Detective"
+       data-author="Mark Jenkins"
+       data-genre="Mystery"
+       data-year="2020"
+       data-approved-date="2020-03-15"
+       data-image="https://via.placeholder.com/120x180.png?text=Book3"
+       data-synopsis="A renowned detective, known for his keen observation and minimal speech, takes on his most perplexing case yet: a series of impossible disappearances where the victims vanish without a trace.">
+    <img src="https://via.placeholder.com/120x180.png?text=Book3" class="cover" alt="Book Cover" />
+    <div class="title">The Silent Detective</div>
+    <div class="author">Mark Jenkins</div>
+    <div class="genre">Mystery</div>
+    <div class="approved-date">Approved: 2020-03-15</div>
+  </div>
+
+  <div class="book-card" onclick="openBookDetailsModal(this)"
+       data-title="Culinary Journeys"
+       data-author="Chef Antoine Dubois"
+       data-genre="Cookbook"
+       data-year="2022"
+       data-approved-date="2022-09-01"
+       data-image="https://via.placeholder.com/120x180.png?text=Book4"
+       data-synopsis="Embark on a gastronomic adventure with Chef Antoine Dubois as he shares his most cherished recipes from around the world. From exotic spices to comforting classics, this cookbook is a celebration of global flavors.">
+    <img src="https://via.placeholder.com/120x180.png?text=Book4" class="cover" alt="Book Cover" />
+    <div class="title">Culinary Journeys</div>
+    <div class="author">Chef Antoine Dubois</div>
+    <div class="genre">Cookbook</div>
+    <div class="approved-date">Approved: 2022-09-01</div>
+  </div>
+
+  <div class="book-card" onclick="openBookDetailsModal(this)"
+       data-title="The Art of Mindfulness"
+       data-author="Dr. Maya K. Patel"
+       data-genre="Self-Help"
+       data-year="2024"
+       data-approved-date="2024-02-28"
+       data-image="https://via.placeholder.com/120x180.png?text=Book5"
+       data-synopsis="Discover practical techniques to cultivate inner peace and reduce stress through the power of mindfulness. This guide offers exercises and insights to help you live more present and fulfilling life.">
+    <img src="https://via.placeholder.com/120x180.png?text=Book5" class="cover" alt="Book Cover" />
+    <div class="title">The Art of Mindfulness</div>
+    <div class="author">Dr. Maya K. Patel</div>
+    <div class="genre">Self-Help</div>
+    <div class="approved-date">Approved: 2024-02-28</div>
+  </div>
+
+  </div>
+
+<div id="bookDetailsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('bookDetailsModal')">&times;</span>
+    <div class="modal-left">
+      <img id="modalBookImage" src="" alt="Book Cover">
+    </div>
+    <div class="modal-right">
+      <h3 id="modalBookTitle"></h3>
+      <p><strong>Author:</strong> <span id="modalBookAuthor"></span></p>
+      <p><strong>Genre:</strong> <span id="modalBookGenre"></span></p>
+      <p><strong>Year Published:</strong> <span id="modalBookYear"></span></p>
+      <p><strong>Approved Date:</strong> <span id="modalBookApprovedDate"></span></p>
+      <p class="modal-synopsis" id="modalBookSynopsis"></p>
+      </div>
+  </div>
+</div>
+
+<script>
+  function openBookDetailsModal(card) {
+    document.getElementById('modalBookImage').src = card.dataset.image;
+    document.getElementById('modalBookTitle').textContent = card.dataset.title;
+    document.getElementById('modalBookAuthor').textContent = card.dataset.author;
+    document.getElementById('modalBookGenre').textContent = card.dataset.genre;
+    document.getElementById('modalBookYear').textContent = card.dataset.year;
+    document.getElementById('modalBookApprovedDate').textContent = card.dataset.approvedDate;
+    document.getElementById('modalBookSynopsis').textContent = card.dataset.synopsis;
+
+    document.getElementById('bookDetailsModal').style.display = 'flex';
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+
+  // Close modal when clicking outside of it
+  window.onclick = function(event) {
+    const modal = document.getElementById('bookDetailsModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  };
+
+  function filterBooks() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const genreSelect = document.getElementById('genreSelect');
+    const selectedGenre = genreSelect.value;
+    const bookCards = document.querySelectorAll('.book-card');
+
+    bookCards.forEach(card => {
+      const title = card.dataset.title.toLowerCase();
+      const author = card.dataset.author.toLowerCase();
+      const genre = card.dataset.genre.toLowerCase();
+
+      // Search by title or author only
+      const matchesSearch = title.includes(searchInput) ||
+                            author.includes(searchInput);
+
+      // Filter by selected genre
+      const matchesGenre = (selectedGenre === 'all' || genre === selectedGenre);
+
+      if (matchesSearch && matchesGenre) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
