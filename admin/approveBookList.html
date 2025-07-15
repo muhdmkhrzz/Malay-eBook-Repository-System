@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Approved eBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1f2937;
+      --danger: #dc3545;
+      --bg-light: #f7f9fc;
+      --text-dark: #333;
+      --gray: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg-light);
+      margin: 0;
+      padding: 30px;
+      color: var(--text-dark);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .search-bar {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .search-bar input {
+      padding: 10px;
+      width: 500px; /* Adjusted width */
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    table {
+      width: 100%;
+      border-spacing: 0 15px;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: #fff;
+      padding: 12px;
+      border-radius: 10px 10px 0 0;
+      text-align: center;
+    }
+
+    td {
+      background-color: #fff;
+      text-align: center;
+      padding: 15px;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    img.cover {
+      width: 60px;
+      height: 90px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn:hover {
+      opacity: 0.85;
+    }
+
+    .delete { background-color: var(--danger); }
+    .cancel { background-color: var(--gray); color: white; }
+
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 25px;
+      width: 350px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+    }
+
+    .modal-content button {
+      margin: 10px 10px 0 10px;
+    }
+
+    @media (max-width: 600px) {
+      td, th {
+        font-size: 12px;
+        padding: 10px;
+      }
+
+      .btn {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .search-bar input {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<?php // include 'sidebar.php'; ?>
+
+<h1>📖 Approved eBooks List</h1>
+<div class="container">
+  <div class="search-bar">
+    <input type="text" id="searchInput" onkeyup="searchBooks()" placeholder="Search approved eBooks...">
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Cover</th>
+          <th>Title</th>
+          <th>Genre</th>
+          <th>Author</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="approved-table">
+        <tr>
+          <td><img src="https://via.placeholder.com/60x90.png?text=Book" class="cover" /></td>
+          <td class="title">Journey Beyond</td>
+          <td class="genre">Adventure</td>
+          <td class="author">Liam Cross</td>
+          <td>
+            <button class="btn delete" onclick="openDeleteModal(this)">Delete Forever</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Permanent Deletion</h3>
+    <p id="deleteText"></p>
+    <button class="btn delete" onclick="confirmDelete()">Yes, Delete</button>
+    <button class="btn cancel" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+  let currentRow = null;
+
+  function openDeleteModal(btn) {
+    currentRow = btn.closest('tr');
+    const title = currentRow.querySelector('.title').textContent;
+    document.getElementById('deleteText').textContent = `Are you sure you want to permanently delete "${title}"?`;
+    document.getElementById('deleteModal').style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    currentRow = null;
+  }
+
+  function confirmDelete() {
+    if (currentRow) currentRow.remove();
+    closeModal();
+  }
+
+  window.onclick = function(e) {
+    const modal = document.getElementById('deleteModal');
+    if (e.target === modal) closeModal();
+  }
+
+  function searchBooks() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#approved-table tr');
+
+    rows.forEach(row => {
+      const title = row.querySelector('.title').textContent.toLowerCase();
+      const author = row.querySelector('.author').textContent.toLowerCase();
+      const genre = row.querySelector('.genre').textContent.toLowerCase();
+
+      if (title.includes(input) || author.includes(input) || genre.includes(input)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

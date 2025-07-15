@@ -1,0 +1,94 @@
+<?php
+// sidebar.php - This file contains the HTML and CSS for the admin sidebar.
+?>
+
+<style>
+/* Basic styling for the sidebar container */
+.sidebar {
+    width: 256px; /* w-64 in Tailwind */
+    background-color: #1f2937; /* bg-gray-800 in Tailwind */
+    color: #ffffff; /* text-white in Tailwind */
+    padding: 24px; /* p-6 in Tailwind */
+    border-top-right-radius: 12px; /* rounded-r-xl in Tailwind */
+    border-bottom-right-radius: 12px; /* rounded-r-xl in Tailwind */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg in Tailwind */
+    display: none; /* hidden by default */
+    flex-shrink: 0; /* Prevents sidebar from shrinking on smaller screens */
+}
+
+/* Media query for medium screens and up (md:block in Tailwind) */
+@media (min-width: 768px) {
+    .sidebar {
+        display: block; /* md:block */
+    }
+}
+
+/* Styling for the menu title */
+.sidebar h2 {
+    font-size: 1.5rem; /* text-2xl in Tailwind */
+    font-weight: bold;
+    margin-bottom: 24px; /* mb-6 in Tailwind */
+}
+
+/* Styling for list items */
+.sidebar ul {
+    list-style: none; /* Remove default list bullets */
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    margin-bottom: 8px; /* mb-2 in Tailwind */
+}
+
+/* Styling for anchor tags (menu items) */
+.sidebar a {
+    display: flex; /* flex in Tailwind */
+    align-items: center; /* items-center in Tailwind */
+    font-size: 1.125rem; /* text-lg in Tailwind */
+    padding: 8px 16px; /* px-4 py-2 in Tailwind */
+    border-radius: 8px; /* rounded-lg in Tailwind */
+    color: #ffffff; /* text-white initially */
+    text-decoration: none; /* Remove underline */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* transition-colors duration-200 */
+}
+
+/* Hover effect for menu items */
+.sidebar a:hover {
+    background-color: #374151; /* hover:bg-gray-700 in Tailwind */
+    color: #93c5fd; /* hover:text-blue-300 in Tailwind */
+}
+
+/* Styling for icons */
+.sidebar i {
+    margin-right: 12px; /* mr-3 in Tailwind */
+}
+</style>
+
+<div class="sidebar">
+    <h2>Admin Menu</h2>
+    <nav>
+        <ul>
+            <li class="mb-2">
+                <a href="dashboardAdmin.php" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
+                    <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
+                </a>
+            </li>
+            <li class="mb-2">
+                <a href="manageEbook.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
+                    <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
+                </a>
+            </li>
+            <li class="mb-2">
+                <a href="#" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
+                    <i class="lucide lucide-users mr-3"></i> Manage Users
+                </a>
+            </li>
+            <li class="mb-2">
+                <a href="#" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
+                    <i class="lucide lucide-check-circle mr-3"></i> List of Approved Books
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
