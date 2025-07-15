@@ -90,9 +90,10 @@
         <!-- Books will be injected here -->
         </div>
         <div class="mt-6 text-center">
-          <a href="library.html" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-200 ease-in-out shadow-md hover:shadow-lg">
+          <button onclick="loadAllBooks()" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-200 ease-in-out shadow-md hover:shadow-lg">
           📚 View All eBooks
-          </a>
+          </button>
+
         </div>
       </section>
 
@@ -141,6 +142,39 @@
 
 
   loadBooks();
+
+  async function loadAllBooks() {
+  const { data, error } = await supabase
+    .from('ebook')
+    .select('*'); // no limit
+
+  const container = document.getElementById('booksGrid');
+
+  if (error) {
+    container.innerHTML = `<p class="text-red-500">Failed to load all books.</p>`;
+    console.error('Error loading all books:', error);
+    return;
+  }
+
+  if (data.length === 0) {
+    container.innerHTML = `<p class="text-gray-500">No books found.</p>`;
+    return;
+  }
+
+  container.innerHTML = data.map(book => `
+    <div class="book-card bg-white rounded-xl shadow-md p-5 flex flex-col transform hover:scale-105 transition duration-300 ease-in-out"
+         data-title="${book.title}"
+         data-author="${book.author}">
+      <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg mb-4 h-56 object-cover w-full shadow-sm">
+      <h4 class="text-lg font-semibold text-indigo-700 mb-1">${book.title}</h4>
+      <p class="text-sm text-gray-600 mb-4">By ${book.author}</p>
+      <a href="ebook_detail.html?book_id=${book.id}" class="mt-auto text-indigo-600 hover:underline font-medium flex items-center">
+        📖 View Details
+      </a>
+    </div>
+  `).join('');
+}
+
   
   document.getElementById('searchForm').addEventListener('submit', async function (e) {
   e.preventDefault(); // Stop default form submit
