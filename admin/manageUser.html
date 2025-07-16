@@ -1,16 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF‑8">
-  <meta name="viewport" content="width=device-width, initial‑scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Users - Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f7f6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* No need for explicit sidebar styles as Tailwind CSS handles it */
+    .user-list-container {
+      /* Removed max-width and mx-auto as main handles sizing */
+    }
+    .user-table th, .user-table td {
+      white-space: nowrap; /* Prevent text wrapping in table headers/cells */
+    }
+    /* Status styling */
+    .status-active { color: #28a745; font-weight: 600; }
+    .status-inactive { color: #6c757d; font-weight: 600; }
+
+    /* For smaller screens, improve table readability */
+    @media (max-width: 768px) {
+      /* Main content will adjust automatically with flex-1 and no fixed margin-left */
+      .user-table, .user-table thead, .user-table tbody, .user-table th, .user-table td, .user-table tr {
+        display: block;
+      }
+      .user-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      .user-table tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+      .user-table td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+      }
+      .user-table td:before {
+        position: absolute;
+        top: 12px;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 600;
+        color: #555;
+      }
+      .user-table td:nth-of-type(1):before { content: "Username"; }
+      .user-table td:nth-of-type(2):before { content: "Email"; }
+      .user-table td:nth-of-type(3):before { content: "Role"; }
+      .user-table td:nth-of-type(4):before { content: "Status"; }
+      .user-table td:nth-of-type(5):before { content: "Registered"; }
+      .user-table td:nth-of-type(6):before { content: "Actions"; }
+      .user-table .flex-gap-2 {
+        justify-content: flex-end; /* Align action buttons to the right */
+        margin-top: 10px;
+      }
+    }
+  </style>
 </head>
 <body class="bg-gray-100 font-sans flex">
 
-  <!-- Sidebar with Logout -->
   <aside class="hidden md:flex flex-col justify-between w-64 h-screen bg-gray-800 text-white p-6 sticky top-0">
   <div>
     <h2 class="text-2xl font-bold mb-6">Admin Menu</h2>
@@ -21,7 +90,7 @@
       <a href="manageEbook.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
         <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
       </a>
-      <a href="manageUser.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+      <a href="manageUser.html" class="flex items-center px-4 py-2 rounded-lg bg-gray-700 text-blue-300">
         <i class="lucide lucide-users mr-3"></i> Manage Users
       </a>
       <a href="approveBookList.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
@@ -29,13 +98,11 @@
       </a>
     </nav>
   </div>
-  <button onclick="logout()" class="flex items-center px-4 py-2 mt-4 rounded-lg hover:bg-gray-700 hover:text-red-400">
-    <i class="lucide lucide-log-out mr-3"></i> Logout
-  </button>
+  <button onclick="window.location.href='../screens/login.html'" class="flex items-center px-4 py-2 mt-4 rounded-lg hover:bg-gray-700 hover:text-red-400">
+      <i class="lucide lucide-log-out mr-3"></i> Logout
+    </button>
 </aside>
 
-
-  <!-- Main Content -->
   <main class="flex-1 p-6 overflow-y-auto">
     <h1 class="text-3xl font-bold mb-6">Manage Users</h1>
     <div class="user-list-container bg-white rounded-lg shadow p-6 overflow-x-auto max-w-5xl mx-auto">
@@ -51,13 +118,11 @@
           </tr>
         </thead>
         <tbody id="userTableBody">
-          <!-- Rows inserted here -->
-        </tbody>
+          </tbody>
       </table>
     </div>
   </main>
 
-  <!-- Confirm Delete Modal -->
   <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-30 hidden justify-center items-center">
     <div class="bg-white p-6 rounded shadow-lg max-w-md w-full">
       <h2 class="text-xl font-bold mb-4">Confirm Deletion</h2>
@@ -69,47 +134,52 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
     const supabase = window.supabase.createClient(
       'https://zfiaoyymowvjurqxrazu.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
-
     );
 
     let userToDelete = null;
-    const userTableBody = document.getElementById('userTableBody');
     const confirmModal = document.getElementById('confirmModal');
     const confirmDeleteText = document.getElementById('confirmDeleteText');
+    const userTableBody = document.getElementById('userTableBody');
 
-    // Auth & Redirect
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) window.location.href = '/login.html';
+    document.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      await fetchUsers();
     });
 
-    // Fetch and render users
-    async function loadUsers() {
-  const { data: users, error } = await supabase
-    .from('profiles')
-    .select('id, email, role, created_at')
-    .order('created_at', { ascending: false });
+    async function fetchUsers() {
+      const { data: users, error } = await supabase
+        .from('profiles')
+        .select('id, username, email, role, status, registered_at');
 
-  if (error) {
-    console.error(error);
+      if (error) {
+        console.error('Error fetching users:', error);
+        userTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500">Error loading users: ${error.message}</td></tr>`;
+        return;
+      }
+      renderUsers(users);
+    }
+
+function renderUsers(users) {
+  userTableBody.innerHTML = '';
+  if (users.length === 0) {
+    userTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">No users found.</td></tr>';
     return;
   }
 
-  userTableBody.innerHTML = '';
-
   users.forEach(u => {
-    const registered = new Date(u.created_at).toLocaleDateString();
-    const status = 'Active'; // Static or fetch from a column if available
-    const username = u.email ? u.email.split('@')[0] : 'Unknown';
-
     const tr = document.createElement('tr');
+    const status = u.status === true ? 'Active' : 'Inactive';
+    const registered = new Date(u.registered_at).toLocaleDateString(); // Format date
+
+    tr.className = 'border-b border-gray-200 hover:bg-gray-50';
     tr.innerHTML = `
-      <td class="px-4 py-2">${username}</td>
-      <td class="px-4 py-2">${u.email || '-'}</td>
-      <td class="px-4 py-2">${u.role || 'Unknown'}</td>
+      <td class="px-4 py-2">${u.username}</td>
+      <td class="px-4 py-2">${u.email}</td>
+      <td class="px-4 py-2">${u.role}</td>
       <td class="px-4 py-2"><span class="px-2 py-1 rounded ${status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${status}</span></td>
       <td class="px-4 py-2">${registered}</td>
       <td class="px-4 py-2 flex gap-2 justify-center">
@@ -146,21 +216,25 @@
       if (error) {
         alert('Failed to delete user: ' + error.message);
       } else {
-        loadUsers(); // Refresh table
+        alert('User deleted successfully!');
+        closeConfirmModal();
+        await fetchUsers(); // Refresh the list
       }
-      closeConfirmModal();
     }
 
-    async function logout() {
-      await supabase.auth.signOut();
-      window.location.href = '../screens/login.html';
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      loadUsers();
-    });
+    // Expose functions to global scope for HTML onclick attributes
+    window.promptDelete = promptDelete;
+    window.closeConfirmModal = closeConfirmModal;
+    window.confirmDeleteUser = confirmDeleteUser;
+    window.logout = async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error logging out:', error.message);
+        alert('Logout failed: ' + error.message);
+      } else {
+        window.location.href = 'index.html'; // Redirect to login page
+      }
+    };
   </script>
-
 </body>
 </html>
