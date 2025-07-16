@@ -232,11 +232,13 @@
         </div>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Replace with your Supabase URL
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Replace with your Supabase Anon Key
+    <script type = module>
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Replace with your Supabase URL
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Replace with your Supabase Anon Key  
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
         // Logout functionality
         document.getElementById('logoutButton').addEventListener('click', async (event) => {
@@ -247,7 +249,7 @@
                 console.error('Error logging out:', error.message);
                 alert('Error logging out: ' + error.message);
             } else {
-                window.location.href = 'login.html'; // Redirect to your login page
+                window.location.href = '/screens/login.html'; // Redirect to your login page
             }
         } catch (err) {
             console.error('Network error during logout:', err.message);
@@ -261,8 +263,8 @@
         async function fetchDashboardStats() {
             try {
                 // Fetch all ebooks to calculate stats
-                const { data: ebooks, error } = await supabase
-                    .from('ebooks')
+                const { data: ebook, error } = await supabase
+                    .from('ebook')
                     .select('status, genre');
 
                 if (error) {
@@ -275,10 +277,10 @@
                     return;
                 }
 
-                const totalEbooks = ebooks.length;
-                const pendingApproval = ebooks.filter(book => book.status === 'pending').length;
-                const approvedEbooks = ebooks.filter(book => book.status === 'approved').length;
-                const rejectedEbooks = ebooks.filter(book => book.status === 'rejected').length;
+                const totalEbooks = ebook.length;
+                const pendingApproval = ebook.filter(book => book.status === 'pending').length;
+                const approvedEbooks = ebook.filter(book => book.status === 'approved').length;
+                const rejectedEbooks = ebook.filter(book => book.status === 'rejected').length;
 
                 document.getElementById('totalEbooksCount').textContent = totalEbooks;
                 document.getElementById('pendingApprovalCount').textContent = pendingApproval;
@@ -286,7 +288,7 @@
                 document.getElementById('rejectedCount').textContent = rejectedEbooks;
 
                 // Calculate genre counts
-                const genreCounts = ebooks.reduce((acc, book) => {
+                const genreCounts = ebook.reduce((acc, book) => {
                     if (book.status === 'approved') { // Only count approved books for genre stats
                         acc[book.genre] = (acc[book.genre] || 0) + 1;
                     }
@@ -333,5 +335,6 @@
         // Fetch stats on page load
         document.addEventListener('DOMContentLoaded', fetchDashboardStats);
     </script>
+    
 </body>
 </html>

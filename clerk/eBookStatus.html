@@ -224,11 +224,12 @@
         </div>
     </div>
 
-    <script>
+    <script type ="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
         const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Replace with your Supabase URL
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Replace with your Supabase Anon Key
 
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Logout functionality
         document.getElementById('logoutButton').addEventListener('click', async (event) => {
@@ -239,7 +240,7 @@
                 console.error('Error logging out:', error.message);
                 alert('Error logging out: ' + error.message);
             } else {
-                window.location.href = 'login.html'; // Redirect to your login page
+                window.location.href = '/screens/login.html'; // Redirect to your login page
             }
         } catch (err) {
             console.error('Network error during logout:', err.message);
@@ -269,19 +270,19 @@
             loadingIndicator.style.display = 'flex'; // Show loading indicator
             try {
                 const { data, error } = await supabase
-                    .from('ebooks')
+                    .from('ebook')
                     .select('*');
 
                 if (error) {
-                    console.error('Error fetching ebooks:', error.message);
-                    ebookList.innerHTML = '<p class="text-center text-gray-500 col-span-full">Error loading ebooks.</p>';
+                    console.error('Error fetching ebook:', error.message);
+                    ebookList.innerHTML = '<p class="text-center text-gray-500 col-span-full">Error loading ebook.</p>';
                     return;
                 }
 
                 allEbooks = data; // Store all fetched books
                 filterAndSearchEbooks(); // Apply initial filters
             } catch (networkError) {
-                console.error('Network error fetching ebooks:', networkError);
+                console.error('Network error fetching ebook:', networkError);
                 ebookList.innerHTML = '<p class="text-center text-gray-500 col-span-full">Network error. Please check your connection.</p>';
             } finally {
                 loadingIndicator.style.display = 'none'; // Hide loading indicator
@@ -309,14 +310,14 @@
          * Renders a list of ebooks into the ebook list container.
          * @param {Array<Object>} ebooks - The list of ebook objects to render.
          */
-        function renderEbooks(ebooks) {
+        function renderEbooks(ebook) {
             ebookList.innerHTML = ''; // Clear existing books
-            if (ebooks.length === 0) {
+            if (ebook.length === 0) {
                 ebookList.innerHTML = '<p class="text-center text-gray-500 col-span-full">No eBooks found matching your criteria.</p>';
                 return;
             }
 
-            ebooks.forEach(book => {
+            ebook.forEach(book => {
                 const bookCard = document.createElement('div');
                 bookCard.className = 'book-card';
                 bookCard.onclick = () => openModal(book);
