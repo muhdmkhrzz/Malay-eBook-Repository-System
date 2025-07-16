@@ -9,50 +9,37 @@
   <script>
     const supabase = window.supabase.createClient(
       'https://zfiaoyymowvjurqxrazu.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'// Supabase anon public key
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
     );
   </script>
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    /* Custom CSS for fixed sidebar */
+    body { font-family: 'Inter', sans-serif; }
     .fixed-sidebar {
-      position: fixed; /* Makes the sidebar stay in place */
+      position: fixed;
       top: 0;
       left: 0;
-      height: 100vh; /* Ensures it takes full viewport height */
-      z-index: 10; /* Ensures it stays on top of other content */
+      height: 100vh;
+      z-index: 10;
     }
-    /* Adjust main content to not be hidden by the fixed sidebar */
     .main-content-wrapper {
-      margin-left: 16rem; /* Equivalent to w-64 (64 * 0.25rem = 16rem) */
-      flex-grow: 1; /* Allows it to take remaining space */
+      margin-left: 16rem;
+      flex-grow: 1;
     }
-
-    /* Responsive adjustments for smaller screens */
-    @media (max-width: 767px) { /* Adjust for small screens */
+    @media (max-width: 767px) {
       .fixed-sidebar {
-        width: 100%; /* Full width on small screens */
-        height: auto; /* Adjust height for content */
-        position: relative; /* Make it relative for scrolling */
-        box-shadow: none; /* Remove shadow if it's not fixed */
-        border-bottom: 1px solid #e5e7eb; /* Add a subtle border at the bottom */
-        padding-bottom: 1rem; /* Add some padding at the bottom */
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: none;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
       }
       .main-content-wrapper {
-        margin-left: 0; /* No margin on small screens */
+        margin-left: 0;
       }
       .flex {
-        flex-direction: column; /* Stack sidebar and main content vertically */
-      }
-      .fixed-sidebar .p-6 {
-        padding-bottom: 0.5rem; /* Reduce padding in header for mobile */
-      }
-      .fixed-sidebar nav {
-        padding-top: 0.5rem; /* Adjust nav padding for mobile */
+        flex-direction: column;
       }
     }
   </style>
@@ -60,56 +47,28 @@
 <body class="bg-gray-100 font-sans flex">
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="w-64 bg-white shadow-md rounded-tr-lg rounded-br-lg fixed-sidebar">
+  <aside class="w-64 bg-white shadow-md rounded-tr-lg rounded-br-lg fixed-sidebar">
     <div class="p-6 border-b border-gray-200">
       <h1 class="text-2xl font-bold text-indigo-600">MyEbookMelayu</h1>
     </div>
     <nav class="mt-4 px-4 space-y-2">
-      <a href="dashboard.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 font-semibold transition duration-200 ease-in-out">📊 Dashboard</a>
-      <a href="review.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition duration-200 ease-in-out">⭐ Reviews</a>
-      <a href="wishlist.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition duration-200 ease-in-out">❤️ Wishlist</a>
-      <a href="library.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition duration-200 ease-in-out">📚 Library</a>
-      <a href="/logout.html" class="block py-2 px-3 rounded-lg hover:bg-red-100 text-red-500 transition duration-200 ease-in-out">🚪 Logout</a>
+      <a href="dashboard.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 font-semibold">📊 Dashboard</a>
+      <a href="review.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">⭐ Reviews</a>
+      <a href="wishlist.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">❤️ Wishlist</a>
+      <a href="library.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">📚 Library</a>
+      <a href="/logout.html" class="block py-2 px-3 rounded-lg hover:bg-red-100 text-red-500">🚪 Logout</a>
     </nav>
   </aside>
 
-  <!-- Main Content Wrapper -->
+  <!-- Main Content -->
   <div class="main-content-wrapper">
-    <main id="mainContent" class="max-w-5xl mx-auto px-4 py-8">
-      <!-- Back Button -->
+    <main class="max-w-5xl mx-auto px-4 py-8">
       <div class="mb-6">
-        <button onclick="history.back()" class="flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
-          ← Back
-        </button>
+        <button onclick="history.back()" class="flex items-center text-indigo-600 hover:text-indigo-800 font-medium">← Back</button>
       </div>
 
-      <!-- The header from the original "Senja Biru" page is removed as the sidebar now provides branding -->
+      <div id="bookDetail" class="w-full flex flex-col md:flex-row gap-8"></div>
 
-      <div id="bookDetail" class="w-full flex flex-col md:flex-row gap-8">
-      <div class="flex-shrink-0 w-full md:w-1/3">
-  <img src="BOOK_COVER_URL" alt="Book Cover BOOK_TITLE" class="rounded-lg shadow-md w-full object-cover">
-</div>
-
-<div class="flex-1">
-  <h2 class="text-3xl font-bold text-gray-800 mb-2">BOOK_TITLE</h2>
-  <p class="text-gray-600 text-sm mb-4">By <strong>BOOK_AUTHOR</strong></p>
-
-  <div class="flex flex-wrap gap-4 mb-6">
-    <a href="#" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition duration-200 ease-in-out shadow-md flex items-center justify-center">
-      ➕ Add to My Library
-    </a>
-    <a href="#" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition duration-200 ease-in-out shadow-md flex items-center justify-center">
-      ❤️ Add to Wishlist
-    </a>
-  </div>
-
-  <div>
-    <h3 class="text-xl font-semibold mb-3 text-gray-800">Sinopsis</h3>
-    <p class="text-gray-700 leading-relaxed text-base">BOOK_SYNOPSIS or "There is no synopsis"</p>
-  </div>
-</div>
-
-      </div>
       <!-- Review Section -->
       <section class="mt-8 bg-white p-8 rounded-xl shadow-md">
         <h3 class="text-2xl font-semibold text-gray-800 mb-6">Reader Reviews</h3>
@@ -118,7 +77,7 @@
         <form id="reviewForm" class="mb-8 p-6 border border-gray-200 rounded-lg bg-gray-50">
           <div class="mb-4">
             <label for="rating" class="block text-sm font-medium text-gray-700 mb-1">Your Rating</label>
-            <select id="rating" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 ease-in-out">
+            <select id="rating" required class="w-full px-3 py-2 border rounded-lg">
               <option value="">-- Choose Rating --</option>
               <option value="5">★★★★★ - Excellent</option>
               <option value="4">★★★★☆ - Good</option>
@@ -130,32 +89,14 @@
 
           <div class="mb-4">
             <label for="reviewText" class="block text-sm font-medium text-gray-700 mb-1">Your Review</label>
-            <textarea id="reviewText" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 ease-in-out" placeholder="Write your review here..."></textarea>
+            <textarea id="reviewText" rows="4" required class="w-full px-3 py-2 border rounded-lg" placeholder="Write your review here..."></textarea>
           </div>
 
-          <button type="submit" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition duration-200 ease-in-out shadow-md">
-            Submit Review
-          </button>
+          <button type="submit" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Submit Review</button>
         </form>
 
-        <!-- Sample Reviews -->
-        <div class="space-y-4">
-          <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <div class="flex justify-between items-center mb-1">
-              <strong class="text-gray-800">Aminah87</strong>
-              <span class="text-yellow-500">★★★★☆</span>
-            </div>
-            <p class="text-sm text-gray-700">A very emotional and touching story. I cried near the end!</p>
-          </div>
-
-          <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <div class="flex justify-between items-center mb-1">
-              <strong class="text-gray-800">zakuan_writer</strong>
-              <span class="text-yellow-500">★★★☆☆</span>
-            </div>
-            <p class="text-sm text-gray-700">It was okay, but felt a bit slow in the middle chapters.</p>
-          </div>
-        </div>
+        <!-- Dynamic Review List -->
+        <div id="reviewList" class="space-y-4"></div>
       </section>
     </main>
 
@@ -164,159 +105,86 @@
       &copy; 2025 MyEbookMelayu. All rights reserved.
     </footer>
   </div>
+
+  <!-- JS Scripts -->
   <script>
-  async function loadBookDetail() {
-    const params = new URLSearchParams(window.location.search);
-    const bookId = params.get('book_id');
+    async function loadBookDetail() {
+      const params = new URLSearchParams(window.location.search);
+      const bookId = params.get('book_id');
 
-    if (!bookId) {
-      document.getElementById('bookDetail').innerHTML = `<p class="text-red-500">No book selected.</p>`;
-      return;
-    }
+      if (!bookId) {
+        document.getElementById('bookDetail').innerHTML = `<p class="text-red-500">No book selected.</p>`;
+        return;
+      }
 
-    const { data: book, error } = await supabase
-      .from('ebook')
-      .select('*')
-      .eq('id', bookId)
-      .single();
+      const { data: book, error } = await supabase.from('ebook').select('*').eq('id', bookId).single();
 
-    if (error || !book) {
-      document.getElementById('bookDetail').innerHTML = `<p class="text-red-500">Book not found.</p>`;
-      return;
-    }
+      if (error || !book) {
+        document.getElementById('bookDetail').innerHTML = `<p class="text-red-500">Book not found.</p>`;
+        return;
+      }
 
-    const synopsis = book.synopsis?.trim() || '';
-    const displaySynopsis = synopsis !== '' ? synopsis : 'There is no synopsis';
+      const synopsis = book.synopsis?.trim() || 'There is no synopsis';
 
-    document.getElementById('bookDetail').innerHTML = `
-      <div class="flex-shrink-0 w-full md:w-1/3">
-        <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg shadow-md w-full object-cover">
-      </div>
-
-      <div class="flex flex-wrap gap-4 mb-6">
-      <button onclick="addToLibrary(${book.id})" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition duration-200 ease-in-out shadow-md flex items-center justify-center">
-        ➕ Add to My Library
-      </button>
-      <button onclick="addToWishlist(${book.id})" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition duration-200 ease-in-out shadow-md flex items-center justify-center">
-        ❤️ Add to Wishlist
-      </button>
-      </div>
-
-        <div>
-          <h3 class="text-xl font-semibold mb-3 text-gray-800">Sinopsis</h3>
-          <p class="text-gray-700 leading-relaxed text-base">${displaySynopsis}</p>
+      document.getElementById('bookDetail').innerHTML = `
+        <div class="flex-shrink-0 w-full md:w-1/3">
+          <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg shadow-md w-full object-cover">
         </div>
-      </div>
-    `;
-  }
+        <div class="flex-1">
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">${book.title}</h2>
+          <p class="text-gray-600 text-sm mb-4">By <strong>${book.author}</strong></p>
 
-  loadBookDetail();
-</script>
-<script>
-  function saveToStorage(key, book) {
-    const list = JSON.parse(localStorage.getItem(key)) || [];
-    const exists = list.find(b => b.id === book.id);
-    if (!exists) {
-      list.push(book);
-      localStorage.setItem(key, JSON.stringify(list));
-      alert(`Added to ${key}`);
-    } else {
-      alert('Already added!');
+          <div class="flex flex-wrap gap-4 mb-6">
+            <button onclick="addToLibrary(${book.id})" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">➕ Add to My Library</button>
+            <button onclick="addToWishlist(${book.id})" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300">❤️ Add to Wishlist</button>
+          </div>
+
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-gray-800">Sinopsis</h3>
+            <p class="text-gray-700 leading-relaxed text-base">${synopsis}</p>
+          </div>
+        </div>
+      `;
     }
-  }
 
-  async function addToWishlist(bookId) {
-    const { data: book, error } = await supabase
-      .from('ebook')
-      .select('*')
-      .eq('id', bookId)
-      .single();
+    async function loadReviews() {
+  const bookId = new URLSearchParams(window.location.search).get("book_id");
+  const { data: reviews, error } = await supabase
+  .from("review")
+  .select("*")
+  .eq("ebook_id", bookId)
+  .order("datereview", { ascending: false });
 
-    if (book) saveToStorage('wishlist', book);
-  }
+  const container = document.getElementById("reviewList");
+  container.innerHTML = "";
 
-  async function addToLibrary(bookId) {
-    const { data: book, error } = await supabase
-      .from('ebook')
-      .select('*')
-      .eq('id', bookId)
-      .single();
-
-    if (book) saveToStorage('library', book);
-  }
-</script>
-
-<script>
-document.getElementById("reviewForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
-
-  const params = new URLSearchParams(window.location.search);
-  const bookId = params.get('book_id');
-  const rating = document.getElementById("rating").value;
-  const comment = document.getElementById("reviewText").value;
-
-  if (!bookId || !rating || !comment.trim()) {
-    alert("Please fill in all fields.");
+  if (!reviews || reviews.length === 0) {
+    container.innerHTML = "<p class='text-gray-500'>No reviews yet.</p>";
     return;
   }
 
-  try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      alert("You must be logged in to submit a review.");
-      return;
-    }
+  // 🔢 Calculate average rating
+  const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
+  const avgRating = (totalRating / reviews.length).toFixed(1);
 
-    const { error } = await supabase.from("review").insert([{
-      ebook_id: parseInt(bookId),
-      user_id: user.id,
-      rating: parseInt(rating),
-      comment: comment.trim(),
-      datereview: new Date().toISOString()
-    }]);
+  // ⭐ Display average rating
+  container.innerHTML += `
+    <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-md">
+      <p class="text-lg font-semibold text-indigo-700">
+        ⭐ Average Rating: <span class="text-indigo-900">${avgRating}</span> / 5 (${reviews.length} review${reviews.length > 1 ? "s" : ""})
+      </p>
+    </div>
+  `;
 
-    if (error) {
-      console.error("Supabase insert error:", error);
-      alert("Failed to submit review.\n" + (error.message || "Unknown error."));
-      return;
-    }
-
-    alert("Review submitted!");
-    document.getElementById("rating").value = "";
-    document.getElementById("reviewText").value = "";
-    location.reload();
-
-  } catch (err) {
-    console.error("Unexpected error:", err);
-    alert("Unexpected error: " + err.message);
-  }
-});
-</script>
-
-
-<script>
-async function loadReviews() {
-  const params = new URLSearchParams(window.location.search);
-  const bookId = params.get('book_id');
-  const { data: reviews, error } = await supabase
-    .from("review")
-    .select("*")
-    .eq("book_id", bookId)
-    .order("created_at", { ascending: false });
-
-  const container = document.querySelector(".space-y-4");
-  container.innerHTML = ""; // Clear static reviews
-
-  if (reviews.length === 0) {
-    container.innerHTML = "<p class='text-gray-500'>No reviews yet.</p>";
-  }
-
+  // 💬 Display individual reviews
   reviews.forEach((review) => {
     const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+    const reviewer = review.reviewer_name || review.user?.email || "Anonymous";
+
     container.innerHTML += `
       <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
         <div class="flex justify-between items-center mb-1">
-          <strong class="text-gray-800">${review.reviewer_name}</strong>
+          <strong class="text-gray-800">${reviewer}</strong>
           <span class="text-yellow-500">${stars}</span>
         </div>
         <p class="text-sm text-gray-700">${review.comment}</p>
@@ -325,9 +193,67 @@ async function loadReviews() {
   });
 }
 
-loadReviews();
-</script>
 
+    async function saveToStorage(key, bookId) {
+      const { data: book } = await supabase.from('ebook').select('*').eq('id', bookId).single();
+      const list = JSON.parse(localStorage.getItem(key)) || [];
+      const exists = list.some(b => b.id === book.id);
+      if (!exists) {
+        list.push(book);
+        localStorage.setItem(key, JSON.stringify(list));
+        alert(`Added to ${key}`);
+      } else {
+        alert('Already added!');
+      }
+    }
 
+    function addToWishlist(bookId) {
+      saveToStorage('wishlist', bookId);
+    }
+
+    function addToLibrary(bookId) {
+      saveToStorage('library', bookId);
+    }
+
+    document.getElementById("reviewForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const bookId = new URLSearchParams(window.location.search).get("book_id");
+      const rating = document.getElementById("rating").value;
+      const comment = document.getElementById("reviewText").value.trim();
+
+      if (!bookId || !rating || !comment) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        alert("You must be logged in to submit a review.");
+        return;
+      }
+
+      const { error } = await supabase.from("review").insert([{
+        ebook_id: parseInt(bookId),
+        user_id: user.id,
+        reviewer_name: user.email,
+        rating: parseInt(rating),
+        comment,
+        datereview: new Date().toISOString(),
+      }]);
+
+      if (error) {
+        alert("Failed to submit review.");
+        console.error(error);
+        return;
+      }
+
+      alert("Review submitted!");
+      document.getElementById("reviewForm").reset();
+      loadReviews();
+    });
+
+    loadBookDetail();
+    loadReviews();
+  </script>
 </body>
 </html>
