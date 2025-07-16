@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Review - MyEbookMelayu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.6/dist/umd/supabase.min.js"></script>
+
+  <script>
+  const supabase = window.supabase.createClient(
+    'https://zfiaoyymowvjurqxrazu.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
+  );
+
+  let reviewId = null;
+  let currentUser = null;
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const params = new URLSearchParams(window.location.search);
+    reviewId = params.get("id");
+
+    if (!reviewId) {
+      alert("Missing review ID.");
+      return;
+    }
+
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+if (sessionError || !sessionData.session || !sessionData.session.user) {
+  alert("You must be logged in.");
+  return;
+}
+
+currentUser = sessionData.session.user;
+console.log("User ID:", currentUser.id);
+
+currentUser = user;
+
+    console.log("Review ID:", reviewId);
+    await loadReview();
+  });
+
+  async function loadReview() {
+    const { data, error } = await supabase
+      .from("review")
+      .select("rating, comment, ebook(title)")
+      .single();
+
+    if (error) {
+      console.error("Failed to load review:", error);
+      alert("Error loading review.");
+      return;
+    }
+
+    document.getElementById("ebookTitle").textContent = data.ebook.title;
+    document.getElementById("rating").value = data.rating;
+    document.getElementById("comment").value = data.comment;
+  }
+
+  async function updateReview(event) {
+    event.preventDefault();
+
+    const rating = parseInt(document.getElementById("rating").value);
+    const comment = document.getElementById("comment").value;
+    const datereview = new Date().toISOString();
+
+    const { data: updateData, error } = await supabase
+  .from("review")
+  .update({ rating, comment, datereview })
+  .eq("id", reviewId)
+  .eq("user_id", currentUser.id)
+  .select();  // <-- add .select() to see what was updated
+
+if (error) {
+  console.error("Update failed:", error);
+  alert("Could not update review: " + error.message);
+} else {
+  console.log("Updated review:", updateData);
+  alert("✅ Review updated successfully!");
+  window.location.href = "review.html";
+}
+
+  }
+</script>
+
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">✏️ Edit Your Review</h2>
+    <p class="text-gray-600 mb-4">For: <span id="ebookTitle" class="font-medium text-indigo-600"></span></p>
+
+    <form onsubmit="updateReview(event)" class="space-y-4">
+      <div>
+        <label for="rating" class="block font-medium text-gray-700">Rating (1–5):</label>
+        <input type="number" id="rating" min="1" max="5" class="w-full border rounded px-3 py-2 mt-1" required />
+      </div>
+
+      <div>
+        <label for="comment" class="block font-medium text-gray-700">Comment:</label>
+        <textarea id="comment" rows="4" class="w-full border rounded px-3 py-2 mt-1" required></textarea>
+      </div>
+
+      <div class="flex justify-between">
+        <a href="review.html" class="text-gray-500 hover:underline">← Cancel</a>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Update</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

@@ -56,7 +56,6 @@
       <a href="review.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">⭐ Reviews</a>
       <a href="wishlist.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">❤️ Wishlist</a>
       <a href="library.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">📚 Library</a>
-      <a href="profile.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">👤 Profile</a>
       <a href="/logout.html" class="block py-2 px-3 rounded-lg hover:bg-red-100 text-red-500">🚪 Logout</a>
     </nav>
   </aside>
@@ -217,41 +216,45 @@
     }
 
     document.getElementById("reviewForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const bookId = new URLSearchParams(window.location.search).get("book_id");
-      const rating = document.getElementById("rating").value;
-      const comment = document.getElementById("reviewText").value.trim();
+  e.preventDefault();
+  const bookId = new URLSearchParams(window.location.search).get("book_id");
+  const rating = document.getElementById("rating").value;
+  const comment = document.getElementById("reviewText").value.trim();
 
-      if (!bookId || !rating || !comment) {
-        alert("Please fill in all fields.");
-        return;
-      }
+  if (!bookId || !rating || !comment) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        alert("You must be logged in to submit a review.");
-        return;
-      }
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-      const { error } = await supabase.from("review").insert([{
-        ebook_id: parseInt(bookId),
-        user_id: user.id,
-        reviewer_name: user.email, // 👈 ADD this
-        rating: parseInt(rating),
-        comment,
-        datereview: new Date().toISOString(),
-      }]);
+  if (sessionError || !sessionData.session || !sessionData.session.user) {
+    alert("You must be logged in to submit a review.");
+    return;
+  }
 
-      if (error) {
-        alert("Failed to submit review.");
-        console.error(error);
-        return;
-      }
+  const user = sessionData.session.user;
 
-      alert("Review submitted!");
-      document.getElementById("reviewForm").reset();
-      loadReviews();
-    });
+  const { error } = await supabase.from("review").insert([{
+    ebook_id: parseInt(bookId),
+    user_id: user.id,
+    reviewer_name: user.email,
+    rating: parseInt(rating),
+    comment,
+    datereview: new Date().toISOString(),
+  }]);
+
+  if (error) {
+    alert("Failed to submit review.");
+    console.error(error);
+    return;
+  }
+
+  alert("✅ Review submitted!");
+  document.getElementById("reviewForm").reset();
+  loadReviews();
+});
+
 
     loadBookDetail();
     loadReviews();
