@@ -6,9 +6,9 @@
     <title>Manage Ebooks - Admin Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -115,29 +115,37 @@
             background: none;
             border: none;
             cursor: pointer;
-            padding: 5px;
+            padding: 5px 10px;
             margin: 0 3px;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
         .action-buttons button:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
-        .action-buttons svg {
-            width: 20px;
-            height: 20px;
-            color: #6c757d;
+        /* Styles for text buttons */
+        .action-buttons .view-btn {
+            background-color: #007bff;
+            color: white;
         }
-        .action-buttons button:hover svg {
-            color: #007bff;
+        .action-buttons .view-btn:hover {
+            background-color: #0056b3;
         }
-        .action-buttons .approve-icon:hover svg {
-            color: #28a745;
+        .action-buttons .approve-btn {
+            background-color: #28a745;
+            color: white;
         }
-        .action-buttons .reject-icon:hover svg {
-            color: #dc3545;
+        .action-buttons .approve-btn:hover {
+            background-color: #218838;
         }
-        .action-buttons .view-icon:hover svg {
-            color: #007bff;
+        .action-buttons .reject-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .action-buttons .reject-btn:hover {
+            background-color: #c82333;
         }
 
         /* Modal Styles */
@@ -212,37 +220,10 @@
             background-color: #218838;
         }
         .reject-button-modal {
-            background-color: #ffc107;
-            color: white;
-        }
-        .reject-button-modal:hover {
-            background-color: #e0a800;
-        }
-        #rejectionReasonBox {
-            margin-top: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        #rejectionReasonBox label {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        #rejectionReason {
-            width: 100%;
-            min-height: 80px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            margin-top: 5px;
-        }
-        #submitRejectionBtn {
             background-color: #dc3545;
             color: white;
         }
-        #submitRejectionBtn:hover {
+        .reject-button-modal:hover {
             background-color: #c82333;
         }
         /* Message box styles */
@@ -281,7 +262,6 @@
         }
 
         @media (max-width: 768px) {
-            /* Main content will adjust automatically with flex-1 and no fixed margin-left */
             .controls {
                 flex-direction: column;
                 align-items: stretch;
@@ -345,28 +325,28 @@
 </head>
 <body class="bg-gray-100 font-sans flex">
 
-  <aside class="hidden md:flex flex-col justify-between w-64 h-screen bg-gray-800 text-white p-6 sticky top-0">
-  <div>
-    <h2 class="text-2xl font-bold mb-6">Admin Menu</h2>
-    <nav class="space-y-2">
-      <a href="dashboardAdmin.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
-        <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
-      </a>
-      <a href="manageEbook.html" class="flex items-center px-4 py-2 rounded-lg bg-gray-700 text-blue-300">
-        <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
-      </a>
-      <a href="manageUser.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
-        <i class="lucide lucide-users mr-3"></i> Manage Users
-      </a>
-      <a href="approveBookList.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
-        <i class="lucide lucide-check-circle mr-3"></i> Approved Books
-      </a>
-    </nav>
-  </div>
-  <button onclick="window.location.href='../index.html'" class="flex items-center px-4 py-2 mt-4 rounded-lg hover:bg-gray-700 hover:text-red-400">
-      <i class="lucide lucide-log-out mr-3"></i> Logout
-    </button>
-</aside>
+    <aside class="hidden md:flex flex-col justify-between w-64 h-screen bg-gray-800 text-white p-6 sticky top-0">
+        <div>
+            <h2 class="text-2xl font-bold mb-6">Admin Menu</h2>
+            <nav class="space-y-2">
+                <a href="dashboardAdmin.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                    <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
+                </a>
+                <a href="manageEbook.html" class="flex items-center px-4 py-2 rounded-lg bg-gray-700 text-blue-300">
+                    <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
+                </a>
+                <a href="manageUser.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                    <i class="lucide lucide-users mr-3"></i> Manage Users
+                </a>
+                <a href="approveBookList.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                    <i class="lucide lucide-check-circle mr-3"></i> Approved Books
+                </a>
+            </nav>
+        </div>
+        <button onclick="window.location.href='../index.html'" class="flex items-center px-4 py-2 mt-4 rounded-lg hover:bg-gray-700 hover:text-red-400">
+            <i class="lucide lucide-log-out mr-3"></i> Logout
+        </button>
+    </aside>
     <main class="flex-1 p-6 overflow-y-auto">
         <div class="container-content">
             <h1>Manage eBooks - Admin Panel</h1>
@@ -376,7 +356,6 @@
                 </div>
                 <div class="filter-dropdown">
                     <select id="statusFilter" onchange="filterEbooks()">
-                        <option value="all">All Statuses</option>
                         <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
@@ -395,7 +374,7 @@
                     </tr>
                 </thead>
                 <tbody id="ebook-table-body">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </main>
@@ -408,16 +387,11 @@
             </div>
             <div class="modal-body">
                 <p id="synopsisText"></p>
-                <div id="rejectionReasonBox" style="display:none;">
-                    <label for="rejectionReason">Reason for Rejection:</label>
-                    <textarea id="rejectionReason" placeholder="Enter reason for rejection..."></textarea>
-                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn approve-button-modal" onclick="approveBookFromModal()">Approve</button>
-                <button class="btn reject-button-modal" onclick="toggleRejectionReason()">Reject</button>
-                <button class="btn btn-danger" id="submitRejectionBtn" style="display:none;" onclick="submitRejection()">Submit Rejection</button>
-                <button class="btn btn-cancel" onclick="closeModal('synopsisModal')">Cancel</button>
+                <button class="btn approve-button-modal" id="modalApproveBtn" onclick="approveBookFromModal()">Approve</button>
+                <button class="btn reject-button-modal" id="modalRejectBtn" onclick="rejectBookFromModal()">Reject</button>
+                <button class="btn btn-cancel" onclick="closeModal('synopsisModal')">Close</button>
             </div>
         </div>
     </div>
@@ -428,15 +402,25 @@
     </div>
 
     <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
         // Supabase Initialization (replace with your actual keys)
-        const SUPABASE_URL = typeof __supabase_url !== 'undefined' ? __supabase_url : 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'YOUR_SUPABASE_ANON_KEY';
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Your actual Supabase URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Your actual Supabase Anon Key
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allEbooks = []; // To store all fetched ebooks
+        let currentBookId = null; // Variable to store the ID of the book being processed
 
         document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
+            // Call the Lucide createIcons function directly (available globally from the script tag)
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+                console.log("Lucide icons should now be created.");
+            } else {
+                console.error("Lucide or createIcons is not available. Check script import.");
+            }
             fetchAndRenderEbooks(); // Fetch and render ebooks on page load
         });
 
@@ -454,7 +438,7 @@
          */
         async function fetchAndRenderEbooks() {
             const { data, error } = await supabase
-                .from('ebooks')
+                .from('ebook') // Corrected: Using 'ebook' (singular)
                 .select('*');
 
             if (error) {
@@ -463,8 +447,8 @@
                 return;
             }
 
-            allEbooks = data; // Store all fetched data
-            renderTableRows(allEbooks); // Render all initially
+            allEbooks = data;
+            filterEbooks(); // Apply the current filter immediately after fetching
         }
 
         /**
@@ -481,8 +465,8 @@
             }
 
             ebooks.forEach(ebook => {
-                const row = tbody.insertRow();
-                const submissionDate = new Date(ebook.submission_date).toLocaleDateString();
+                const row = document.createElement('tr'); // Create the table row element
+                const displayDate = new Date(ebook.statusDate).toLocaleDateString();
                 const statusClass = ebook.status === 'pending' ? 'status-pending' :
                                     ebook.status === 'approved' ? 'status-approved' :
                                     'status-rejected';
@@ -491,36 +475,34 @@
                     <td>${ebook.title}</td>
                     <td>${ebook.author}</td>
                     <td><span class="${statusClass}">${ebook.status.charAt(0).toUpperCase() + ebook.status.slice(1)}</span></td>
-                    <td>${submissionDate}</td>
+                    <td>${displayDate}</td>
                     <td class="action-buttons">
-                        <button onclick="openSynopsisModal('${ebook.id}', '${ebook.synopsis.replace(/'/g, "\\'")}')" class="view-icon" title="View Synopsis">
-                            <i class="lucide lucide-eye"></i>
+                        <button onclick="openSynopsisModal('${ebook.id}', '${ebook.synopsis.replace(/'/g, "\\'")}', '${ebook.status}')" class="view-btn">
+                            View
                         </button>
                         ${ebook.status === 'pending' ? `
-                            <button onclick="approveBook('${ebook.id}')" class="approve-icon" title="Approve">
-                                <i class="lucide lucide-check-circle"></i>
+                            <button onclick="approveBook('${ebook.id}')" class="approve-btn">
+                                Approve
                             </button>
-                            <button onclick="openRejectReason('${ebook.id}')" class="reject-icon" title="Reject">
-                                <i class="lucide lucide-x-circle"></i>
+                            <button onclick="rejectBook('${ebook.id}')" class="reject-btn">
+                                Reject
                             </button>
                         ` : ''}
                     </td>
                 `;
+                tbody.appendChild(row); // Append the created row to the tbody
             });
         }
 
-        /**
-         * Filters ebooks based on search input and status dropdown.
-         */
         function filterEbooks() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
 
             const filtered = allEbooks.filter(ebook => {
                 const matchesSearch = ebook.title.toLowerCase().includes(searchTerm) ||
-                                      ebook.author.toLowerCase().includes(searchTerm) ||
-                                      ebook.status.toLowerCase().includes(searchTerm);
-                const matchesStatus = statusFilter === 'all' || ebook.status === statusFilter;
+                                            ebook.author.toLowerCase().includes(searchTerm) ||
+                                            ebook.status.toLowerCase().includes(searchTerm);
+                const matchesStatus = ebook.status === statusFilter;
                 return matchesSearch && matchesStatus;
             });
             renderTableRows(filtered);
@@ -530,37 +512,24 @@
             filterEbooks(); // Call filter function as it handles both search and filter
         }
 
-        let currentBookId = null; // Variable to store the ID of the book being processed
-
-        function openSynopsisModal(id, synopsis) {
+        function openSynopsisModal(id, synopsis, status) {
             currentBookId = id; // Store the book ID
             document.getElementById('synopsisModalTitle').textContent = `Synopsis for Book ID: ${id}`;
             document.getElementById('synopsisText').textContent = synopsis;
-            document.getElementById('rejectionReasonBox').style.display = 'none'; // Hide rejection reason by default
-            document.getElementById('submitRejectionBtn').style.display = 'none'; // Hide submit rejection button
-            document.getElementById('synopsisModal').style.display = 'flex'; // Show modal
-            // Hide Approve and Reject buttons if book is not pending
-            const ebook = allEbooks.find(b => b.id === id);
-            if (ebook && ebook.status !== 'pending') {
-                document.querySelector('#synopsisModal .approve-button-modal').style.display = 'none';
-                document.querySelector('#synopsisModal .reject-button-modal').style.display = 'none';
-            } else {
-                document.querySelector('#synopsisModal .approve-button-modal').style.display = 'inline-block';
-                document.querySelector('#synopsisModal .reject-button-modal').style.display = 'inline-block';
-            }
-        }
+            
+            // Get modal buttons
+            const modalApproveBtn = document.getElementById('modalApproveBtn');
+            const modalRejectBtn = document.getElementById('modalRejectBtn');
 
-        function toggleRejectionReason() {
-            const rejectionBox = document.getElementById('rejectionReasonBox');
-            const submitBtn = document.getElementById('submitRejectionBtn');
-            if (rejectionBox.style.display === 'none') {
-                rejectionBox.style.display = 'block';
-                submitBtn.style.display = 'inline-block';
+            // Show/hide buttons based on book status
+            if (status === 'pending') {
+                modalApproveBtn.style.display = 'inline-block';
+                modalRejectBtn.style.display = 'inline-block';
             } else {
-                rejectionBox.style.display = 'none';
-                submitBtn.style.display = 'none';
-                document.getElementById('rejectionReason').value = ''; // Clear reason when hidden
+                modalApproveBtn.style.display = 'none';
+                modalRejectBtn.style.display = 'none';
             }
+            document.getElementById('synopsisModal').style.display = 'flex'; // Show modal
         }
 
         async function approveBookFromModal() {
@@ -569,14 +538,9 @@
             closeModal('synopsisModal');
         }
 
-        async function submitRejection() {
+        async function rejectBookFromModal() {
             if (!currentBookId) return;
-            const reason = document.getElementById('rejectionReason').value;
-            if (!reason) {
-                showMessageBox('Please provide a reason for rejection.');
-                return;
-            }
-            await updateBookStatus(currentBookId, 'rejected', reason);
+            await updateBookStatus(currentBookId, 'rejected');
             closeModal('synopsisModal');
         }
 
@@ -585,38 +549,41 @@
             approveBookFromModal();
         }
 
-        function openRejectReason(id) {
-             currentBookId = id; // Set current book ID for direct reject button
-             document.getElementById('synopsisModalTitle').textContent = `Reject Book ID: ${id}`; // Adjust title
-             document.getElementById('synopsisText').textContent = 'Please provide a reason for rejecting this book.'; // Provide context
-             document.getElementById('rejectionReasonBox').style.display = 'block'; // Show rejection reason
-             document.getElementById('submitRejectionBtn').style.display = 'inline-block'; // Show submit button
-             document.querySelector('#synopsisModal .approve-button-modal').style.display = 'none'; // Hide approve button
-             document.querySelector('#synopsisModal .reject-button-modal').style.display = 'none'; // Hide reject button
-             document.getElementById('synopsisModal').style.display = 'flex'; // Show modal
+        function rejectBook(id) {
+            currentBookId = id; // Set current book ID for direct reject button
+            rejectBookFromModal();
         }
 
+       async function updateBookStatus(id, status) {
+    const updateData = { status: status };
 
-        async function updateBookStatus(id, status, reason = null) {
-            const updateData = { status: status };
-            if (reason) {
-                updateData.rejection_reason = reason;
-            }
+    // *** FIX: Change 'rejection_reason' to 'reason' to match your database schema ***
+    if (status === 'approved') {
+        updateData.reason = null; // Clear reason if approving
+    } else if (status === 'rejected') {
+        updateData.reason = 'Rejected by Admin'; // Set a default reason if rejecting
+    }
+    
+    // Always update statusDate when status changes
+    updateData.statusDate = new Date().toISOString().split('T')[0];
 
-            const { error } = await supabase
-                .from('ebooks')
-                .update(updateData)
-                .eq('id', id);
+    console.log(`Attempting to update book ID: ${id} to status: ${status} with data:`, updateData);
 
-            if (error) {
-                console.error(`Error updating book ${id} status to ${status}:`, error);
-                showMessageBox(`Failed to update book status. Please try again.`);
-            } else {
-                console.log(`Book ${id} status updated to ${status}.`);
-                showMessageBox(`Book status updated to ${status} successfully!`);
-                fetchAndRenderEbooks(); // Refresh the list
-            }
-        }
+    const { error } = await supabase
+        .from('ebook') // This table name 'ebook' is correct
+        .update(updateData)
+        .eq('id', id); // This column name 'id' is correct
+
+    if (error) {
+        console.error(`Error updating book ${id} status to ${status}:`, error);
+        showMessageBox(`Failed to update book status: ${error.message || 'Unknown error'}`);
+    } else {
+        console.log(`Book ${id} status updated to ${status}.`);
+        showMessageBox(`Book status updated to ${status} successfully!`);
+        fetchAndRenderEbooks(); // Refresh the list
+    }
+}
+
 
         /**
          * Closes a modal.
@@ -625,10 +592,6 @@
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
             currentBookId = null; // Clear the stored ID when modal closes
-            // Reset rejection reason box state
-            document.getElementById('rejectionReasonBox').style.display = 'none';
-            document.getElementById('rejectionReason').value = '';
-            document.getElementById('submitRejectionBtn').style.display = 'none';
         }
 
         // Close modal when clicking outside of it
@@ -647,11 +610,10 @@
         window.searchEbooks = searchEbooks;
         window.filterEbooks = filterEbooks;
         window.openSynopsisModal = openSynopsisModal;
-        window.toggleRejectionReason = toggleRejectionReason;
         window.approveBookFromModal = approveBookFromModal;
-        window.submitRejection = submitRejection;
-        window.approveBook = approveBook; // Expose approveBook for direct use
-        window.openRejectReason = openRejectReason; // Expose openRejectReason for direct use
+        window.rejectBookFromModal = rejectBookFromModal;
+        window.approveBook = approveBook;
+        window.rejectBook = rejectBook;
         window.closeModal = closeModal;
     </script>
 </body>
