@@ -5,7 +5,7 @@
   <title>Available eBooks</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
+  <script src="https://cdn.tailwindcss.com"></script> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <style>
     :root {
       --primary: #1f2937; /* Dark Gray */
       --secondary: #4b5563; /* Medium Gray */
@@ -179,229 +179,257 @@
     .book-approved-date {
       font-size: 0.8rem;
       color: #888;
-      margin-top: auto; /* Pushes date to the bottom */
+      margin-top: auto; /* Pushes to the bottom */
     }
 
-    /* Modal styles */
+    /* Modal Styles */
     .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1000; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        justify-content: center;
-        align-items: center;
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      justify-content: center;
+      align-items: center;
     }
+
     .modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        max-width: 600px;
-        width: 90%;
-        position: relative;
+      background-color: #fefefe;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 600px;
+      position: relative;
     }
+
     .close-button {
-        color: #aaa;
-        position: absolute;
-        top: 15px;
-        right: 25px;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
     }
+
     .close-button:hover,
     .close-button:focus {
-        color: #333;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .modal-book-cover {
-      width: 120px;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-right: 20px;
-      border: 1px solid var(--border-color);
-    }
-    .modal-book-details {
-      flex-grow: 1;
-    }
-    .modal-book-details h2 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      color: var(--primary);
-    }
-    .modal-book-details p {
-      margin-bottom: 5px;
-      color: var(--text-dark);
-    }
-    .modal-synopsis {
-      margin-top: 20px;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: var(--secondary);
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
     }
 
-    @media (max-width: 768px) {
-      .controls-container {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .book-grid {
-        grid-template-columns: 1fr;
-      }
-      .modal-content {
-        flex-direction: column;
-        text-align: center;
-      }
-      .modal-book-cover {
-        margin: 0 auto 15px auto;
-      }
+    .modal-image {
+        width: 120px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 20px;
+        flex-shrink: 0;
+        border: 1px solid #eee;
+    }
+
+    .modal-details {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .modal-info {
+        flex-grow: 1;
+    }
+
+    .modal-info h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 5px;
+    }
+
+    .modal-info p {
+        font-size: 1rem;
+        color: var(--secondary);
+        margin-bottom: 5px;
+    }
+
+    .modal-synopsis {
+        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.6;
+        max-height: 200px; /* Limit height for synopsis */
+        overflow-y: auto; /* Add scroll for long synopsis */
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        padding: 15px;
+        border-radius: 8px;
     }
   </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div id="mySidebar" class="sidebar">
-        <a href="dashboardClerk.html">Dashboard</a>
-        <a href="currentEbook.html">All eBooks</a>
-        <a href="addNewBook.html">Add New eBook</a>
-        <a href="rejectedeBook.html">Rejected eBooks</a>
-        <a href="eBookStatus.html">eBook Status</a>
-        
-    </div>
+  <div id="mySidebar" class="sidebar">
+    <a href="dashboardClerk.html">Dashboard</a>
+    <a href="currentEbook.html">All eBooks</a>
+    <a href="addNewBook.html">Add New eBook</a>
+    <a href="rejectedeBook.html">Rejected eBooks</a>
+    <a href="eBookStatus.html">eBook Status</a>
+    <a href="/logout.html" id="logoutButton" class="logout-link">Logout</a>
+  </div>
 
-    <!-- Main Content -->
-    <div id="mainContent">
-        <div class="container-content">
-            <h1>Available eBooks</h1>
+  <div id="mainContent">
+    <div class="container-content">
+      <h1>Available eBooks</h1>
 
-            <div class="controls-container">
-                <input type="text" id="searchInput" placeholder="Search by title or author...">
-                <select id="genreSelect">
-                    <option value="all">All Genres</option>
-                    <option value="fiction">Fiction</option>
-                    <option value="science fiction">Science Fiction</option>
-                    <option value="fantasy">Fantasy</option>
-                    <option value="mystery">Mystery</option>
-                    <option value="thriller">Thriller</option>
-                    <option value="romance">Romance</option>
-                    <option value="self-help">Self-Help</option>
-                    <option value="biography">Biography</option>
-                    <option value="history">History</option>
-                    <option value="science">Science</option>
-                    <option value="cookbook">Cookbook</option>
-                </select>
-            </div>
-
-            <div class="book-grid" id="bookGrid">
-                <!-- Book cards will be dynamically loaded here -->
-            </div>
-        </div>
-    </div>
-
-  <!-- Book Details Modal -->
-  <div id="bookDetailsModal" class="modal">
-    <div class="modal-content">
-      <span class="close-button" onclick="closeModal('bookDetailsModal')">&times;</span>
-      <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
-        <img id="modalBookCover" src="" alt="Book Cover" class="modal-book-cover">
-        <div class="modal-book-details">
-          <h2 id="modalBookTitle"></h2>
-          <p><strong>Author:</strong> <span id="modalBookAuthor"></span></p>
-          <p><strong>Genre:</strong> <span id="modalBookGenre"></span></p>
-          <p><strong>Approved Date:</strong> <span id="modalApprovedDate"></span></p>
-        </div>
+      <div class="controls-container">
+        <input type="text" id="searchInput" placeholder="Search by title or author...">
+        <select id="genreSelect">
+          <option value="all">All Genres</option>
+          </select>
       </div>
-      <p class="modal-synopsis"><strong>Synopsis:</strong> <span id="modalBookSynopsis"></span></p>
+
+      <div id="bookGrid" class="book-grid">
+        </div>
     </div>
   </div>
 
-  <script type="module">
-    // Supabase Initialization (replace with your actual keys)
-    const SUPABASE_URL =  'https://zfiaoyymowvjurqxrazu.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
-;
+  <div id="bookDetailsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('bookDetailsModal')">&times;</span>
+      <div class="modal-details">
+        <img id="modalBookCover" src="" alt="Book Cover" class="modal-image">
+        <div class="modal-info">
+          <h2 id="modalBookTitle"></h2>
+          <p>Author: <span id="modalBookAuthor"></span></p>
+          <p>Genre: <span id="modalBookGenre"></span></p>
+          <p>Approved Date: <span id="modalApprovedDate"></span></p>
+        </div>
+      </div>
+      <h3>Synopsis:</h3>
+      <p id="modalBookSynopsis" class="modal-synopsis"></p>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Replace with your Supabase URL
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Replace with your Supabase Anon Key
+
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Logout functionality
+    document.getElementById('logoutButton').addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error logging out:', error.message);
+                alert('Error logging out: ' + error.message);
+            } else {
+                window.location.href = 'login.html'; // Redirect to your login page
+            }
+        } catch (err) {
+            console.error('Network error during logout:', err.message);
+            alert('Network error during logout: ' + err.message);
+        }
+    });
 
     const bookGrid = document.getElementById('bookGrid');
     const searchInput = document.getElementById('searchInput');
     const genreSelect = document.getElementById('genreSelect');
     const bookDetailsModal = document.getElementById('bookDetailsModal');
 
-    let allEbooks = []; // To store data fetched from Supabase
+    let allEbooks = []; // To store all fetched ebooks
 
     /**
-     * Fetches eBooks from Supabase and renders them.
+     * Fetches ebooks from Supabase and renders them.
      */
     async function fetchAndRenderEbooks() {
-      const { data, error } = await supabase
-        .from('ebooks')
-        .select('*')
-        .eq('status', 'approved'); // Only fetch approved books for this page
+      try {
+        const { data, error } = await supabase
+          .from('ebooks')
+          .select('*')
+          .eq('status', 'approved'); // Only fetch approved books
 
-      if (error) {
-        console.error('Error fetching approved eBooks:', error);
-        bookGrid.innerHTML = '<p class="text-center text-gray-500">Error loading eBooks.</p>';
-        return;
+        if (error) {
+          console.error('Error fetching ebooks:', error.message);
+          bookGrid.innerHTML = '<p class="text-center text-gray-500 col-span-full">Error loading ebooks.</p>';
+          return;
+        }
+
+        allEbooks = data; // Store all fetched books
+        populateGenres(); // Populate genre filter
+        filterBooks(); // Render initial filtered books (all approved)
+
+      } catch (networkError) {
+        console.error('Network error fetching ebooks:', networkError);
+        bookGrid.innerHTML = '<p class="text-center text-gray-500 col-span-full">Network error. Please check your connection.</p>';
       }
-
-      allEbooks = data; // Store fetched data
-      filterBooks(); // Apply initial filter/search
     }
 
     /**
-     * Renders book cards based on the filtered data.
-     * @param {Array<Object>} books - Array of book objects to render.
+     * Populates the genre select dropdown with unique genres from fetched ebooks.
      */
-    function renderBookCards(books) {
-      bookGrid.innerHTML = ''; // Clear existing cards
-      if (books.length === 0) {
+    function populateGenres() {
+      const genres = [...new Set(allEbooks.map(book => book.genre))].sort();
+      genreSelect.innerHTML = '<option value="all">All Genres</option>'; // Reset
+      genres.forEach(genre => {
+        const option = document.createElement('option');
+        option.value = genre;
+        option.textContent = genre;
+        genreSelect.appendChild(option);
+      });
+    }
+
+    /**
+     * Filters and renders books based on search input and genre selection.
+     */
+    function filterBooks() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedGenre = genreSelect.value;
+
+      const filteredEbooks = allEbooks.filter(book => {
+        const matchesSearch = book.title.toLowerCase().includes(searchTerm) ||
+                              book.author.toLowerCase().includes(searchTerm);
+        const matchesGenre = selectedGenre === 'all' || book.genre === selectedGenre;
+        return matchesSearch && matchesGenre;
+      });
+
+      renderEbooks(filteredEbooks);
+    }
+
+    /**
+     * Renders a list of ebooks into the book grid.
+     * @param {Array<Object>} ebooks - The list of ebook objects to render.
+     */
+    function renderEbooks(ebooks) {
+      bookGrid.innerHTML = ''; // Clear existing books
+      if (ebooks.length === 0) {
         bookGrid.innerHTML = '<p class="text-center text-gray-500 col-span-full">No eBooks found matching your criteria.</p>';
         return;
       }
 
-      books.forEach(book => {
-        const card = document.createElement('div');
-        card.className = 'book-card';
-        card.innerHTML = `
-          <img src="${book.imageUrl || 'https://placehold.co/250x350/cccccc/333333?text=No+Image'}" alt="${book.title} Cover" onerror="this.onerror=null;this.src='https://placehold.co/250x350/cccccc/333333?text=No+Image';">
+      ebooks.forEach(book => {
+        const bookCard = document.createElement('div');
+        bookCard.className = 'book-card';
+        bookCard.onclick = () => openModal(book);
+        bookCard.innerHTML = `
+          <img src="${book.imageUrl || 'https://placehold.co/200x250/cccccc/333333?text=No+Image'}" alt="${book.title} Cover" class="book-card-img">
           <div class="book-info">
-            <div class="book-title">${book.title}</div>
-            <div class="book-author">${book.author}</div>
-            <div class="book-genre">${book.genre}</div>
-            <div class="book-approved-date">Approved: ${book.statusDate}</div>
+            <h3 class="book-title">${book.title}</h3>
+            <p class="book-author">${book.author}</p>
+            <span class="book-genre">${book.genre}</span>
+            <p class="book-approved-date">Approved: ${book.statusDate}</p>
           </div>
         `;
-        card.addEventListener('click', () => openModal(book));
-        bookGrid.appendChild(card);
+        bookGrid.appendChild(bookCard);
       });
     }
 
     /**
-     * Filters books based on search input and genre selection.
-     */
-    function filterBooks() {
-      const searchInputVal = searchInput.value.toLowerCase();
-      const selectedGenre = genreSelect.value.toLowerCase();
-
-      const filtered = allEbooks.filter(book => {
-        const matchesSearch = book.title.toLowerCase().includes(searchInputVal) ||
-                              book.author.toLowerCase().includes(searchInputVal);
-        const matchesGenre = selectedGenre === 'all' || book.genre.toLowerCase() === selectedGenre;
-        return matchesSearch && matchesGenre;
-      });
-      renderBookCards(filtered);
-    }
-
-    /**
-     * Opens the book details modal.
+     * Opens the book details modal and populates it with book data.
      * @param {Object} book - The book object to display in the modal.
      */
     function openModal(book) {
@@ -436,7 +464,7 @@
     // Initial data fetch and render on page load
     document.addEventListener('DOMContentLoaded', fetchAndRenderEbooks);
 
-    // Expose closeModal to global scope for HTML onclick
+    // Expose closeModal to...
     window.closeModal = closeModal;
   </script>
 </body>

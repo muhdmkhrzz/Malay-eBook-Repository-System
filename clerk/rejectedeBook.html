@@ -211,80 +211,84 @@
     }
 
     .modal-image-preview-container {
-      width: 120px;
-      height: 160px;
-      border: 2px dashed #cbd5e1;
-      border-radius: 8px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      cursor: pointer;
-      background-color: #f8fafc;
-      position: relative;
-      margin-bottom: 1rem;
-      margin-right: 1rem; /* Added margin for layout */
+        width: 120px;
+        height: 160px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        cursor: pointer;
+        background-color: #f8fafc;
+        position: relative;
+        margin-bottom: 1rem;
+        margin-right: 1rem; /* Added margin for layout */
     }
 
     .modal-image-preview {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
     }
 
     .modal-image-placeholder-text {
-      color: #94a3b8;
-      font-size: 0.875rem;
-      text-align: center;
-      padding: 10px;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        text-align: center;
+        padding: 10px;
     }
 
     .modal-file-upload-label {
-      border: 2px solid var(--ok-button-color);
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      border-radius: theme('borderRadius.md');
-      background-color: var(--ok-button-color);
-      color: white;
-      transition: background-color 0.2s, border-color 0.2s;
+        border: 2px solid var(--ok-button-color);
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border-radius: theme('borderRadius.md');
+        background-color: var(--ok-button-color);
+        color: white;
+        transition: background-color 0.2s, border-color 0.2s;
     }
+
     .modal-file-upload-label:hover {
-      background-color: #3a7bd5;
-      border-color: #3a7bd5;
+        background-color: #3a7bd5;
+        border-color: #3a7bd5;
     }
+
     .modal-file-input {
-      display: none;
+        display: none;
     }
 
     .modal-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
     }
 
     .modal-buttons button {
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: 500;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
     }
 
     .modal-buttons .cancel-btn {
-      background-color: #ccc;
-      color: var(--text-dark);
+        background-color: #ccc;
+        color: var(--text-dark);
     }
+
     .modal-buttons .cancel-btn:hover {
-      background-color: #bbb;
+        background-color: #bbb;
     }
 
     .modal-buttons .save-btn {
-      background-color: var(--ok-button-color);
-      color: white;
+        background-color: var(--ok-button-color);
+        color: white;
     }
+
     .modal-buttons .save-btn:hover {
-      background-color: #3a7bd5;
+        background-color: #3a7bd5;
     }
 
     /* Responsive adjustments */
@@ -294,324 +298,320 @@
         font-size: 0.85rem;
       }
       .actions button {
-        padding: 6px 8px;
+        padding: 6px 10px;
         font-size: 0.8rem;
-      }
-      .modal-content {
-        padding: 20px;
-      }
-      .modal-buttons {
-        flex-direction: column;
-        align-items: stretch;
       }
     }
   </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div id="mySidebar" class="sidebar">
-        <a href="dashboardClerk.html">Dashboard</a>
-        <a href="currentEbook.html">All eBooks</a>
-        <a href="addNewBook.html">Add New eBook</a>
-        <a href="rejectedeBook.html">Rejected eBooks</a>
-        <a href="eBookStatus.html">eBook Status</a>
-        
+  <div id="mySidebar" class="sidebar">
+    <a href="dashboardClerk.html">Dashboard</a>
+    <a href="currentEbook.html">All eBooks</a>
+    <a href="addNewBook.html">Add New eBook</a>
+    <a href="rejectedeBook.html">Rejected eBooks</a>
+    <a href="eBookStatus.html">eBook Status</a>
+    <a href="/logout.html" id="logoutButton" class="logout-link">Logout</a>
+  </div>
+
+  <div id="mainContent">
+    <div class="container-content">
+      <h1>Rejected eBooks</h1>
+
+      <div class="search-container">
+        <input type="text" id="searchInput" onkeyup="searchBooks()" placeholder="Search by title, author, or reason...">
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white" id="rejectedEbooksTable">
+          <thead>
+            <tr>
+              <th>Cover</th>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Genre</th>
+              <th>Rejected Date</th>
+              <th>Reason</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
+      </div>
     </div>
+  </div>
 
-    <!-- Main Content -->
-    <div id="mainContent">
-        <div class="container-content">
-            <h1 class="text-3xl text-center" style="font-weight: bold;">Rejected eBooks - Clerk Panel</h1>
-
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search by title, author, or reason..." onkeyup="searchBooks()">
-            </div>
-
-            <table id="ebook-table">
-                <thead>
-                    <tr>
-                        <th>Cover</th>
-                        <th>Title</th>
-                        <th>Author</th>
-                        <th>Genre</th>
-                        <th>Reason</th>
-                        <th>Rejected Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- eBook rows will be dynamically inserted here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-  <!-- Edit eBook Modal -->
   <div id="editEbookModal" class="modal">
     <div class="modal-content">
       <span class="close-button" onclick="closeModal('editEbookModal')">&times;</span>
-      <h2 class="text-xl font-bold mb-4">Edit eBook</h2>
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Edit eBook Details</h2>
       <form id="editEbookForm" class="space-y-4">
         <input type="hidden" id="editBookId">
-
-        <div class="flex items-start">
-          <div id="modalImagePreviewContainer" class="modal-image-preview-container">
-            <img id="modalImagePreview" src="" alt="Book Cover Preview" class="modal-image-preview hidden">
-            <span id="modalImagePlaceholderText" class="modal-image-placeholder-text">Click to upload</span>
-          </div>
-          <div class="flex-grow">
-            <label for="editImageUpload" class="modal-file-upload-label">Upload New Cover</label>
-            <input type="file" id="editImageUpload" class="modal-file-input" accept="image/*">
-            <p class="text-sm text-gray-500 mt-2">OR</p>
-            <input type="url" id="editImageUrl" placeholder="Enter image URL"
-                   class="mt-2 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-          </div>
+        
+        <div class="flex flex-col items-center">
+            <div id="modalImagePreviewContainer" class="modal-image-preview-container">
+                <img id="modalImagePreview" src="#" alt="Image Preview" class="modal-image-preview hidden">
+                <span id="modalImagePlaceholderText" class="modal-image-placeholder-text">Click to add cover image</span>
+            </div>
+            <label for="modalImageUpload" class="modal-file-upload-label">
+                Upload Cover Image
+            </label>
+            <input type="file" id="modalImageUpload" accept="image/*" class="modal-file-input">
         </div>
 
         <div>
-          <label for="editBookTitle" class="block text-sm font-medium text-gray-700">Title</label>
-          <input type="text" id="editBookTitle" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+          <label for="editTitle" class="block text-gray-700 text-sm font-bold mb-2">Title:</label>
+          <input type="text" id="editTitle" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
         </div>
         <div>
-          <label for="editAuthor" class="block text-sm font-medium text-gray-700">Author</label>
-          <input type="text" id="editAuthor" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+          <label for="editAuthor" class="block text-gray-700 text-sm font-bold mb-2">Author:</label>
+          <input type="text" id="editAuthor" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
         </div>
         <div>
-          <label for="editGenre" class="block text-sm font-medium text-gray-700">Genre</label>
-          <input type="text" id="editGenre" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+          <label for="editGenre" class="block text-gray-700 text-sm font-bold mb-2">Genre:</label>
+          <input type="text" id="editGenre" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
         </div>
         <div>
-          <label for="editSynopsis" class="block text-sm font-medium text-gray-700">Synopsis</label>
-          <textarea id="editSynopsis" rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"></textarea>
+          <label for="editSynopsis" class="block text-gray-700 text-sm font-bold mb-2">Synopsis:</label>
+          <textarea id="editSynopsis" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32 resize-none" required></textarea>
         </div>
         <div>
-          <label for="editReason" class="block text-sm font-medium text-gray-700">Reason for Rejection</label>
-          <textarea id="editReason" rows="2" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"></textarea>
+            <label for="editReason" class="block text-gray-700 text-sm font-bold mb-2">Reason for Rejection:</label>
+            <textarea id="editReason" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-24 resize-none"></textarea>
         </div>
-
+        
         <div class="modal-buttons">
-          <button type="button" class="cancel-btn" onclick="closeModal('editEbookModal')">Cancel</button>
+          <button type="button" onclick="closeModal('editEbookModal')" class="cancel-btn">Cancel</button>
           <button type="submit" class="save-btn">Save Changes</button>
         </div>
       </form>
     </div>
   </div>
 
-  <script type="module">
-    // Supabase Initialization (replace with your actual keys)
-    const SUPABASE_URL =  'https://zfiaoyymowvjurqxrazu.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
-;
+  <script>
+    const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Replace with your Supabase URL
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Replace with your Supabase Anon Key
+
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const ebookTableBody = document.querySelector('#ebook-table tbody');
+    // Logout functionality
+    document.getElementById('logoutButton').addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error logging out:', error.message);
+                alert('Error logging out: ' + error.message);
+            } else {
+                window.location.href = 'login.html'; // Redirect to your login page
+            }
+        } catch (err) {
+            console.error('Network error during logout:', err.message);
+            alert('Network error during logout: ' + err.message);
+        }
+    });
+
+    const rejectedEbooksTable = document.getElementById('rejectedEbooksTable').getElementsByTagName('tbody')[0];
     const searchInput = document.getElementById('searchInput');
     const editEbookModal = document.getElementById('editEbookModal');
     const editEbookForm = document.getElementById('editEbookForm');
-
-    // Modal elements for image preview
     const modalImagePreviewContainer = document.getElementById('modalImagePreviewContainer');
     const modalImagePreview = document.getElementById('modalImagePreview');
     const modalImagePlaceholderText = document.getElementById('modalImagePlaceholderText');
-    const editImageUpload = document.getElementById('editImageUpload');
-    const editImageUrl = document.getElementById('editImageUrl');
+    const modalImageUpload = document.getElementById('modalImageUpload');
 
-    let allRejectedEbooks = []; // To store data fetched from Supabase
-
-    /**
-     * Updates the image preview in the modal.
-     * @param {string|null} src - The image source URL or data URL, or null to show placeholder.
-     * @param {boolean} isFileInput - True if the source is from a file input, false if from URL.
-     */
-    function updateModalImagePreview(src, isFileInput) {
-        if (src) {
-            modalImagePreview.src = src;
-            modalImagePreview.classList.remove('hidden');
-            modalImagePlaceholderText.classList.add('hidden');
-            if (isFileInput) {
-                editImageUrl.value = ''; // Clear URL if file is selected
-            } else {
-                editImageUpload.value = ''; // Clear file if URL is entered
-            }
-        } else {
-            modalImagePreview.src = '';
-            modalImagePreview.classList.add('hidden');
-            modalImagePlaceholderText.classList.remove('hidden');
-        }
-    }
+    let currentFileForUpload = null; // To store the file object for upload during edit
 
     /**
-     * Fetches rejected eBooks from Supabase and renders them.
+     * Fetches and renders rejected ebooks from Supabase.
      */
     async function fetchAndRenderRejectedEbooks() {
+      try {
         const { data, error } = await supabase
-            .from('ebooks')
-            .select('*')
-            .eq('status', 'rejected'); // Only fetch rejected books
+          .from('ebooks')
+          .select('*')
+          .eq('status', 'rejected'); // Only fetch rejected books
 
         if (error) {
-            console.error('Error fetching rejected eBooks:', error);
-            ebookTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">Error loading rejected eBooks.</td></tr>';
-            return;
+          console.error('Error fetching rejected ebooks:', error.message);
+          rejectedEbooksTable.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500">Error loading rejected ebooks.</td></tr>`;
+          return;
         }
 
-        allRejectedEbooks = data; // Store fetched data
-        renderTableRows(allRejectedEbooks); // Render all initially
+        renderTable(data);
+
+      } catch (networkError) {
+        console.error('Network error fetching rejected ebooks:', networkError);
+        rejectedEbooksTable.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500">Network error. Please check your connection.</td></tr>`;
+      }
     }
 
     /**
-     * Renders table rows based on the provided data.
-     * @param {Array<Object>} books - Array of book objects to render.
+     * Renders the rejected ebooks into the table.
+     * @param {Array<Object>} ebooks - The list of rejected ebook objects to render.
      */
-    function renderTableRows(books) {
-        ebookTableBody.innerHTML = ''; // Clear existing rows
-        if (books.length === 0) {
-            ebookTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">No rejected eBooks found.</td></tr>';
-            return;
-        }
+    function renderTable(ebooks) {
+      rejectedEbooksTable.innerHTML = ''; // Clear existing rows
+      if (ebooks.length === 0) {
+        rejectedEbooksTable.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500">No rejected eBooks found.</td></tr>`;
+        return;
+      }
 
-        books.forEach(book => {
-            const row = ebookTableBody.insertRow();
-            row.dataset.id = book.id; // Store ID for actions
-            row.innerHTML = `
-                <td class="py-2"><img src="${book.imageUrl || 'https://placehold.co/50x75/cccccc/333333?text=No+Image'}" alt="Cover" class="book-cover-thumbnail" onerror="this.onerror=null;this.src='https://placehold.co/50x75/cccccc/333333?text=No+Image';"></td>
-                <td class="title py-2">${book.title}</td>
-                <td class="author py-2">${book.author}</td>
-                <td class="genre py-2">${book.genre}</td>
-                <td class="reason py-2">${book.reason || 'N/A'}</td>
-                <td class="rejected-date py-2">${book.statusDate}</td>
-                <td class="actions py-2">
-                    <button class="approve-btn" data-id="${book.id}">Approve</button>
-                    <button class="edit-btn" data-id="${book.id}">Edit</button>
-                </td>
-            `;
-
-            row.querySelector('.approve-btn').addEventListener('click', () => approveEbook(book.id));
-            row.querySelector('.edit-btn').addEventListener('click', () => openEditModal(book.id));
-        });
+      ebooks.forEach(book => {
+        const row = rejectedEbooksTable.insertRow();
+        row.innerHTML = `
+          <td class="py-2 px-3"><img src="${book.imageUrl || 'https://placehold.co/50x75/cccccc/333333?text=No+Image'}" alt="Cover" class="book-cover-thumbnail"></td>
+          <td class="py-2 px-3">${book.title}</td>
+          <td class="py-2 px-3">${book.author}</td>
+          <td class="py-2 px-3">${book.genre}</td>
+          <td class="py-2 px-3">${book.statusDate}</td>
+          <td class="py-2 px-3">${book.reason || 'N/A'}</td>
+          <td class="py-2 px-3 actions">
+            <button class="approve-btn" onclick="approveEbook('${book.id}')">Approve</button>
+            <button class="edit-btn" onclick="openEditModal('${book.id}', '${book.title.replace(/'/g, "\\'")}', '${book.author.replace(/'/g, "\\'")}', '${book.genre.replace(/'/g, "\\'")}', '${book.synopsis.replace(/'/g, "\\'")}', '${book.reason ? book.reason.replace(/'/g, "\\'") : ''}', '${book.imageUrl || ''}')">Edit</button>
+          </td>
+        `;
+      });
     }
 
     /**
-     * Searches books based on input value.
+     * Searches the table based on input.
      */
     function searchBooks() {
-        const input = searchInput.value.toLowerCase();
-        const filtered = allRejectedEbooks.filter(book => {
-            return book.title.toLowerCase().includes(input) ||
-                   book.author.toLowerCase().includes(input) ||
-                   (book.reason && book.reason.toLowerCase().includes(input));
-        });
-        renderTableRows(filtered);
+      const filter = searchInput.value.toLowerCase();
+      const rows = rejectedEbooksTable.getElementsByTagName('tr');
+      for (let i = 0; i < rows.length; i++) {
+        let rowText = rows[i].textContent || rows[i].innerText;
+        if (rowText.toLowerCase().indexOf(filter) > -1) {
+          rows[i].style.display = '';
+        } else {
+          rows[i].style.display = 'none';
+        }
+      }
     }
 
     /**
-     * Approves an eBook by updating its status in Supabase.
-     * @param {string} id - The ID of the eBook to approve.
+     * Approves an ebook, changing its status to 'approved'.
+     * @param {string} ebookId - The ID of the ebook to approve.
      */
-    async function approveEbook(id) {
-        // IMPORTANT: Replaced window.confirm with a custom modal or message box for better UX in an iframe.
-        // For simplicity, this example uses a basic confirmation, but in a real app,
-        // you'd replace 'confirm' with your own custom modal logic.
+    async function approveEbook(ebookId) {
         if (!confirm('Are you sure you want to approve this eBook?')) {
             return;
         }
-        const { data, error } = await supabase
-            .from('ebooks')
-            .update({ status: 'approved', statusDate: new Date().toISOString().split('T')[0] }) // Set status to approved and current date
-            .eq('id', id);
 
-        if (error) {
-            console.error('Error approving eBook:', error);
-            // IMPORTANT: Replaced alert with a custom message box.
-            // For simplicity, this example uses a basic alert, but in a real app,
-            // you'd replace 'alert' with your own custom modal logic.
-            alert('Failed to approve eBook. Please try again.');
-        } else {
-            console.log('eBook approved:', data);
-            // Supabase real-time listener will automatically re-render the list
+        try {
+            const { error } = await supabase
+                .from('ebooks')
+                .update({ status: 'approved', reason: null, statusDate: new Date().toISOString().split('T')[0] })
+                .eq('id', ebookId);
+
+            if (error) {
+                console.error('Error approving eBook:', error);
+                alert('Failed to approve eBook. Please try again.');
+            } else {
+                alert('eBook approved successfully!');
+                fetchAndRenderRejectedEbooks(); // Re-fetch and render the list
+            }
+        } catch (networkError) {
+            console.error('Network error during approval:', networkError);
+            alert('Network error. Please check your connection and try again.');
         }
     }
 
     /**
-     * Opens the edit modal and populates it with book data.
-     * @param {string} id - The ID of the book to edit.
+     * Opens the edit modal and populates it with existing ebook data.
+     * @param {string} id - The ID of the ebook.
+     * @param {string} title - The title of the ebook.
+     * @param {string} author - The author of the ebook.
+     * @param {string} genre - The genre of the ebook.
+     * @param {string} synopsis - The synopsis of the ebook.
+     * @param {string} reason - The rejection reason.
+     * @param {string} imageUrl - The URL of the book cover image.
      */
-    function openEditModal(id) {
-        const book = allRejectedEbooks.find(b => b.id === id);
-        if (!book) {
-            console.error('Book not found for editing:', id);
-            return;
+    function openEditModal(id, title, author, genre, synopsis, reason, imageUrl) {
+        document.getElementById('editBookId').value = id;
+        document.getElementById('editTitle').value = title;
+        document.getElementById('editAuthor').value = author;
+        document.getElementById('editGenre').value = genre;
+        document.getElementById('editSynopsis').value = synopsis;
+        document.getElementById('editReason').value = reason;
+        
+        if (imageUrl) {
+            modalImagePreview.src = imageUrl;
+            modalImagePreview.classList.remove('hidden');
+            modalImagePlaceholderText.classList.add('hidden');
+        } else {
+            modalImagePreview.src = '#';
+            modalImagePreview.classList.add('hidden');
+            modalImagePlaceholderText.classList.remove('hidden');
         }
-
-        document.getElementById('editBookId').value = book.id;
-        document.getElementById('editBookTitle').value = book.title;
-        document.getElementById('editAuthor').value = book.author;
-        document.getElementById('editGenre').value = book.genre;
-        document.getElementById('editSynopsis').value = book.synopsis;
-        document.getElementById('editReason').value = book.reason || '';
-
-        // Set image preview
-        updateModalImagePreview(book.imageUrl, false); // Assume URL for existing
+        currentFileForUpload = null; // Reset file for upload
 
         editEbookModal.style.display = 'flex';
     }
 
     /**
-     * Closes a specified modal.
-     * @param {string} id - The ID of the modal element to close.
+     * Handles image upload for the edit modal.
      */
-    function closeModal(id) {
-        document.getElementById(id).style.display = 'none';
-        // Reset image preview when modal closes
-        if (id === 'editEbookModal') {
-            updateModalImagePreview(null, false);
-            editEbookForm.reset(); // Reset form fields
-        }
-    }
+    modalImagePreviewContainer.addEventListener('click', () => {
+        modalImageUpload.click();
+    });
 
-    // Event listener for edit modal image upload
-    editImageUpload.addEventListener('change', function(event) {
+    modalImageUpload.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
+            currentFileForUpload = file;
             const reader = new FileReader();
-            reader.onload = function(e) {
-                updateModalImagePreview(e.target.result, true);
+            reader.onload = (e) => {
+                modalImagePreview.src = e.target.result;
+                modalImagePreview.classList.remove('hidden');
+                modalImagePlaceholderText.classList.add('hidden');
             };
             reader.readAsDataURL(file);
         } else {
-            updateModalImagePreview(null, true);
+            currentFileForUpload = null;
+            // If no new file selected, retain existing image if any, otherwise show placeholder
+            if (!modalImagePreview.src || modalImagePreview.src === window.location.href + '#') { // Check for default empty src
+                modalImagePreview.classList.add('hidden');
+                modalImagePlaceholderText.classList.remove('hidden');
+            }
         }
     });
 
-    // Event listener for edit modal image URL input
-    editImageUrl.addEventListener('input', function() {
-        const url = this.value;
-        if (url) {
-            const img = new Image();
-            img.onload = () => updateModalImagePreview(url, false);
-            img.onerror = () => updateModalImagePreview(null, false); // Clear on error
-            img.src = url;
-        } else {
-            updateModalImagePreview(null, false);
-        }
-    });
 
-    // Event listener for clicking the image preview container in modal
-    modalImagePreviewContainer.addEventListener('click', function() {
-        editImageUpload.click(); // Programmatically click the hidden file input
-    });
-
-    // Handle form submission for editing eBook
-    editEbookForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
+    /**
+     * Handles the submission of the edit ebook form.
+     */
+    editEbookForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
         const bookId = document.getElementById('editBookId').value;
+        
+        let imageUrl = modalImagePreview.src; // Default to existing image URL
+
+        if (currentFileForUpload) {
+            const { data, error: uploadError } = await supabase.storage
+                .from('ebook-covers') // Your storage bucket name
+                .upload(`${Date.now()}-${currentFileForUpload.name}`, currentFileForUpload, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (uploadError) {
+                console.error('Error uploading new image:', uploadError);
+                alert('Failed to upload new image. Please try again.');
+                return;
+            }
+            imageUrl = data.path ? `${SUPABASE_URL}/storage/v1/object/public/ebook-covers/${data.path}` : null;
+        }
+
         const updatedData = {
-            title: document.getElementById('editBookTitle').value,
+            title: document.getElementById('editTitle').value,
             author: document.getElementById('editAuthor').value,
             genre: document.getElementById('editGenre').value,
             synopsis: document.getElementById('editSynopsis').value,
             reason: document.getElementById('editReason').value,
-            imageUrl: modalImagePreview.src // Use the current image preview source
+            imageUrl: imageUrl // Use the current image preview source
         };
 
         const { data, error } = await supabase

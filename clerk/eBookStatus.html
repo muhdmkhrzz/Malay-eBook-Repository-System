@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eBook Status Dashboard</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts - Poppins for all text -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
@@ -175,27 +172,22 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
     <div id="mySidebar" class="sidebar">
         <a href="dashboardClerk.html">Dashboard</a>
         <a href="currentEbook.html">All eBooks</a>
         <a href="addNewBook.html">Add New eBook</a>
         <a href="rejectedeBook.html">Rejected eBooks</a>
         <a href="eBookStatus.html">eBook Status</a>
-        
+        <a href="/logout.html" id="logoutButton" class="logout-link">Logout</a>
     </div>
 
-    <!-- Main Content -->
     <div id="mainContent">
         <div class="container-content">
             <h1 class="text-3xl text-center mb-8">eBook Status Dashboard</h1>
 
-            <!-- Filter and Search Section -->
             <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0 sm:space-x-4">
-                <input type="text" id="searchInput" placeholder="Search by title or author..."
-                       class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
-                <select id="statusFilter"
-                        class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                <input type="text" id="searchInput" placeholder="Search by title or author..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                <select id="statusFilter" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
                     <option value="all">All Statuses</option>
                     <option value="approved">Approved</option>
                     <option value="pending">Pending</option>
@@ -204,17 +196,13 @@
                 </select>
             </div>
 
-            <!-- Loading Indicator -->
             <div id="loadingIndicator">Loading eBooks...</div>
 
-            <!-- eBook List Container -->
             <div id="ebookList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- eBook cards will be dynamically inserted here -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Book Details Modal -->
     <div id="bookDetailsModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('bookDetailsModal')">&times;</span>
@@ -224,328 +212,170 @@
                     <h2 id="modalBookTitle" class="text-2xl font-bold text-gray-800 mb-1"></h2>
                     <p class="text-gray-600 mb-1">Author: <span id="modalBookAuthor" class="font-medium"></span></p>
                     <p class="text-gray-600 mb-1">Genre: <span id="modalBookGenre" class="font-medium"></span></p>
-                    <p class="text-gray-600 mb-1">Year Published: <span id="modalYearPublished" class="font-medium"></span></p>
                     <p class="text-gray-600 mb-1">Status: <span id="modalBookStatus" class="font-medium status-tag"></span></p>
-                    <p class="text-gray-600 mb-2">Status Date: <span id="modalStatusDate" class="font-medium"></span></p>
+                    <p class="text-gray-600 mb-1">Date: <span id="modalStatusDate" class="font-medium"></span></p>
                 </div>
             </div>
-            <div>
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Synopsis:</h3>
-                <p id="modalBookSynopsis" class="text-gray-600 text-sm leading-relaxed"></p>
+            <div id="modalReasonContainer" class="hidden mb-4">
+                <h3 class="text-lg font-semibold text-red-600 mb-2">Reason for Rejection:</h3>
+                <p id="modalReason" class="text-gray-700 bg-red-50 p-3 rounded-lg border border-red-200"></p>
             </div>
-            <div id="modalReasonContainer" class="mt-4 hidden">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Reason for Rejection:</h3>
-                <p id="modalReason" class="text-red-600 text-sm leading-relaxed"></p>
-            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Synopsis:</h3>
+            <p id="modalBookSynopsis" class="text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200 h-32 overflow-y-auto"></p>
         </div>
     </div>
 
-    <script type="module">
-        // Supabase Initialization
-        // This attempts to use global variables if provided by the environment,
-        // otherwise falls back to placeholders.
-        const SUPABASE_URL = typeof __supabase_url !== 'undefined' ? __supabase_url :  'https://zfiaoyymowvjurqxrazu.supabase.co';
-        const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
-;
+    <script>
+        const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Replace with your Supabase URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Replace with your Supabase Anon Key
+
         const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let allEbooks = []; // This array will store dynamic data from Supabase
+        // Logout functionality
+        document.getElementById('logoutButton').addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error logging out:', error.message);
+                alert('Error logging out: ' + error.message);
+            } else {
+                window.location.href = 'login.html'; // Redirect to your login page
+            }
+        } catch (err) {
+            console.error('Network error during logout:', err.message);
+            alert('Network error during logout: ' + err.message);
+        }
+    });
 
-        const ebookListContainer = document.getElementById('ebookList');
+        const ebookList = document.getElementById('ebookList');
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
-        const bookDetailsModal = document.getElementById('bookDetailsModal');
         const loadingIndicator = document.getElementById('loadingIndicator');
+        const bookDetailsModal = document.getElementById('bookDetailsModal');
+
+        let allEbooks = []; // To store all fetched ebooks
 
         /**
-         * Sample Data for initial seeding if the database table is empty.
-         * This data is used only once to populate the 'ebooks' table in Supabase.
-         * Ensure your 'ebooks' table in Supabase has columns matching these keys:
-         * id (optional, Supabase can auto-generate UUIDs), title, author, genre,
-         * yearPublished, synopsis, imageUrl, status, statusDate, reason (nullable).
-         */
-        const initialSampleEbooks = [
-            {
-                title: "The Midnight Library",
-                author: "Matt Haig",
-                genre: "Fiction",
-                yearPublished: 2020,
-                synopsis: "A novel about a woman who gets a chance to revisit different versions of her life, exploring how different choices might have led to different outcomes and seeking to find the perfect life.",
-                imageUrl: "https://placehold.co/70x100/A7D9FF/333333?text=Midnight+Library",
-                status: "approved",
-                statusDate: "2023-03-15"
-            },
-            {
-                title: "Project Hail Mary",
-                author: "Andy Weir",
-                genre: "Science Fiction",
-                yearPublished: 2021,
-                synopsis: "An astronaut wakes up on a spaceship with no memory of how he got there, tasked with a desperate mission to save humanity from an astrophysical phenomenon that threatens all life on Earth.",
-                imageUrl: "https://placehold.co/70x100/C0E0FF/333333?text=Project+Hail+Mary",
-                status: "approved",
-                statusDate: "2023-02-28"
-            },
-            {
-                title: "Atomic Habits",
-                author: "James Clear",
-                genre: "Self-Help",
-                yearPublished: 2018,
-                synopsis: "An easy and proven way to build good habits and break bad ones, offering a practical framework for improving every day. It emphasizes small, incremental changes for significant long-term results.",
-                imageUrl: "https://placehold.co/70x100/D9EDFF/333333?text=Atomic+Habits",
-                status: "approved",
-                statusDate: "2023-01-20"
-            },
-            {
-                title: "The Silent Patient",
-                author: "Alex Michaelides",
-                genre: "Thriller",
-                yearPublished: 2019,
-                synopsis: "A shocking psychological thriller about a famous painter who shoots her husband five times and then never speaks another word. A psychotherapist becomes obsessed with uncovering the truth behind her silence.",
-                imageUrl: "https://placehold.co/70x100/E6F5FF/333333?text=Silent+Patient",
-                status: "approved",
-                statusDate: "2023-04-01"
-            },
-            {
-                title: "The Whispering Woods",
-                author: "Alice B. Smith",
-                genre: "Mystery",
-                yearPublished: 2022,
-                synopsis: "A young detective investigates a series of mysterious disappearances in an ancient, enchanted forest, uncovering dark secrets and ancient curses.",
-                imageUrl: "https://placehold.co/70x100/FFD9D9/333333?text=Whispering+Woods",
-                status: "rejected",
-                statusDate: "2023-05-10",
-                reason: "Synopsis too vague; needs more detail about the conflict and character motivations to engage readers."
-            },
-            {
-                title: "Galactic Odyssey",
-                author: "John C. Doe",
-                genre: "Science Fiction",
-                yearPublished: 2023,
-                synopsis: "Humanity's last hope lies in a perilous journey across the galaxy to find a new home, facing unknown alien civilizations and cosmic dangers.",
-                imageUrl: "https://placehold.co/70x100/FFEDED/333333?text=Galactic+Odyssey",
-                status: "rejected",
-                statusDate: "2023-05-05",
-                reason: "Cover image quality is poor; resolution is too low and appears pixelated. Please provide a higher-resolution image."
-            },
-            {
-                title: "Forgotten Realms",
-                author: "Jane A. Doe",
-                genre: "Fantasy",
-                yearPublished: 2021,
-                synopsis: "A band of unlikely heroes embarks on a quest to restore ancient magic to a world where it has long been forgotten, battling dark forces and rediscovering their own destinies.",
-                imageUrl: "https://placehold.co/70x100/FFF2F2/333333?text=Forgotten+Realms",
-                status: "rejected",
-                statusDate: "2023-04-20",
-                reason: "Formatting issues; inconsistent paragraph breaks and unusual spacing throughout the manuscript. Please review and correct the formatting."
-            },
-            {
-                title: "The Algorithm of Love",
-                author: "Sophia Chen",
-                genre: "Romance",
-                yearPublished: 2024,
-                synopsis: "In a future where AI matches soulmates, a cynical programmer tries to hack the system, only to find love in the most unexpected place.",
-                imageUrl: "https://placehold.co/70x100/D1FAE5/333333?text=Algorithm+Love",
-                status: "pending",
-                statusDate: "2024-07-10"
-            },
-            {
-                title: "Chronicles of Eldoria",
-                author: "David Lee",
-                genre: "Fantasy",
-                yearPublished: 2024,
-                synopsis: "An epic fantasy saga following a young mage's journey to unite warring kingdoms against an encroaching darkness.",
-                imageUrl: "https://placehold.co/70x100/CFFCEE/333333?text=Eldoria",
-                status: "pending",
-                statusDate: "2024-07-05"
-            },
-            {
-                title: "The Quantum Enigma",
-                author: "Dr. Evelyn Reed",
-                genre: "Science",
-                yearPublished: 2023,
-                synopsis: "A deep dive into the mysteries of quantum physics, explaining complex concepts in an accessible way for the curious reader.",
-                imageUrl: "https://placehold.co/70x100/BFDBFE/333333?text=Quantum+Enigma",
-                status: "in-library",
-                statusDate: "2024-06-20"
-            },
-            {
-                title: "Culinary Journeys",
-                author: "Chef Antoine Dubois",
-                genre: "Cookbook",
-                yearPublished: 2022,
-                synopsis: "A collection of exquisite recipes and culinary stories from around the world, inspiring home cooks to explore new flavors.",
-                imageUrl: "https://placehold.co/70x100/DBEAFE/333333?text=Culinary+Journeys",
-                status: "in-library",
-                statusDate: "2024-06-10"
-            }
-        ];
-
-        /**
-         * Sets up the Supabase listener for real-time eBook data.
+         * Initializes Supabase client and fetches data.
          */
         async function setupSupabaseAndLoadData() {
-            loadingIndicator.style.display = 'flex'; // Show loading indicator
+            await fetchAndRenderEbooks();
+        }
 
+        /**
+         * Fetches ebooks from Supabase and renders them based on filters.
+         */
+        async function fetchAndRenderEbooks() {
+            loadingIndicator.style.display = 'flex'; // Show loading indicator
             try {
-                // Fetch initial data to check if the table is empty
-                let { data: ebooks, error } = await supabase
+                const { data, error } = await supabase
                     .from('ebooks')
                     .select('*');
 
                 if (error) {
-                    console.error("Error fetching initial eBooks:", error);
-                    loadingIndicator.textContent = 'Error loading eBooks. Please check console.';
+                    console.error('Error fetching ebooks:', error.message);
+                    ebookList.innerHTML = '<p class="text-center text-gray-500 col-span-full">Error loading ebooks.</p>';
                     return;
                 }
 
-                if (ebooks.length === 0) {
-                    console.log("eBooks table is empty. Seeding with initial data...");
-                    const { data, error: insertError } = await supabase
-                        .from('ebooks')
-                        .insert(initialSampleEbooks)
-                        .select(); // Select the inserted data to get IDs if auto-generated
-
-                    if (insertError) {
-                        console.error("Error seeding initial eBooks:", insertError);
-                        loadingIndicator.textContent = 'Error seeding initial data. Please check console.';
-                        return;
-                    }
-                    console.log("Initial data seeded successfully.");
-                    allEbooks = data; // Use the inserted data
-                } else {
-                    allEbooks = ebooks; // Use the fetched data
-                }
-
-                // Set up real-time listener for changes in the 'ebooks' table
-                supabase
-                    .channel('public:ebooks') // Channel name, can be anything unique
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'ebooks' }, payload => {
-                        console.log('Change received!', payload);
-                        // Re-fetch all data to ensure consistency after any change (insert, update, delete)
-                        fetchEbooksAndRender();
-                    })
-                    .subscribe();
-
-                filterAndSearchEbooks(); // Initial render with fetched/seeded data
-
-            } catch (error) {
-                console.error("Supabase setup or data loading error:", error);
-                loadingIndicator.textContent = 'Failed to initialize application. Check console for details.';
+                allEbooks = data; // Store all fetched books
+                filterAndSearchEbooks(); // Apply initial filters
+            } catch (networkError) {
+                console.error('Network error fetching ebooks:', networkError);
+                ebookList.innerHTML = '<p class="text-center text-gray-500 col-span-full">Network error. Please check your connection.</p>';
             } finally {
-                 // Hide loading indicator after initial load or error
-                loadingIndicator.style.display = 'none';
+                loadingIndicator.style.display = 'none'; // Hide loading indicator
             }
         }
 
         /**
-         * Fetches all eBooks from Supabase and re-renders the list.
-         * This is called by the real-time listener to ensure the data is always fresh.
-         */
-        async function fetchEbooksAndRender() {
-            const { data, error } = await supabase
-                .from('ebooks')
-                .select('*');
-
-            if (error) {
-                console.error("Error fetching eBooks for real-time update:", error);
-                return;
-            }
-            allEbooks = data;
-            filterAndSearchEbooks();
-        }
-
-        /**
-         * Renders the list of eBooks based on the provided data and filters.
-         * @param {Array<Object>} books - The array of eBook objects to render.
-         */
-        function renderEbooks(books) {
-            ebookListContainer.innerHTML = ''; // Clear existing cards
-            if (books.length === 0) {
-                ebookListContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">No eBooks found matching your criteria.</p>';
-                return;
-            }
-
-            books.forEach(book => {
-                const bookCard = document.createElement('div');
-                bookCard.className = 'book-card';
-                bookCard.dataset.id = book.id; // Store ID for modal
-
-                // Determine status class
-                let statusClass = '';
-                switch (book.status) {
-                    case 'approved':
-                        statusClass = 'status-approved';
-                        break;
-                    case 'pending':
-                        statusClass = 'status-pending';
-                        break;
-                    case 'rejected':
-                        statusClass = 'status-rejected';
-                        break;
-                    case 'in-library':
-                        statusClass = 'status-in-library';
-                        break;
-                    default:
-                        statusClass = 'bg-gray-400'; // Default gray for unknown status
-                }
-
-                bookCard.innerHTML = `
-                    <img src="${book.imageUrl}" alt="${book.title} Cover" class="book-cover" onerror="this.onerror=null;this.src='https://placehold.co/70x100/cccccc/333333?text=No+Image';">
-                    <div class="book-info flex-grow">
-                        <h3 class="text-lg font-bold text-gray-800">${book.title}</h3>
-                        <p class="text-sm text-gray-600">by ${book.author}</p>
-                        <p class="text-sm text-gray-600">Genre: ${book.genre}</p>
-                        <div class="flex items-center mt-2">
-                            <span class="status-tag ${statusClass}">${book.status.replace('-', ' ')}</span>
-                            <span class="text-xs text-gray-500 ml-2">(${book.statusDate})</span>
-                        </div>
-                    </div>
-                `;
-                bookCard.addEventListener('click', () => openBookDetailsModal(book));
-                ebookListContainer.appendChild(bookCard);
-            });
-        }
-
-        /**
-         * Filters and searches the eBooks based on user input.
+         * Filters and searches ebooks based on current input and selection.
          */
         function filterAndSearchEbooks() {
             const searchTerm = searchInput.value.toLowerCase();
             const selectedStatus = statusFilter.value;
 
-            const filteredBooks = allEbooks.filter(book => {
+            const filteredEbooks = allEbooks.filter(book => {
                 const matchesSearch = book.title.toLowerCase().includes(searchTerm) ||
                                       book.author.toLowerCase().includes(searchTerm);
                 const matchesStatus = selectedStatus === 'all' || book.status === selectedStatus;
                 return matchesSearch && matchesStatus;
             });
-            renderEbooks(filteredBooks);
+
+            renderEbooks(filteredEbooks);
         }
 
         /**
-         * Opens the book details modal and populates it with the selected book's data.
-         * @param {Object} book - The eBook object to display.
+         * Renders a list of ebooks into the ebook list container.
+         * @param {Array<Object>} ebooks - The list of ebook objects to render.
          */
-        function openBookDetailsModal(book) {
-            document.getElementById('modalBookCover').src = book.imageUrl;
+        function renderEbooks(ebooks) {
+            ebookList.innerHTML = ''; // Clear existing books
+            if (ebooks.length === 0) {
+                ebookList.innerHTML = '<p class="text-center text-gray-500 col-span-full">No eBooks found matching your criteria.</p>';
+                return;
+            }
+
+            ebooks.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                bookCard.onclick = () => openModal(book);
+                
+                // Determine status tag class
+                let statusClass = '';
+                if (book.status === 'approved') {
+                    statusClass = 'status-approved';
+                } else if (book.status === 'pending') {
+                    statusClass = 'status-pending';
+                } else if (book.status === 'rejected') {
+                    statusClass = 'status-rejected';
+                } else if (book.status === 'in-library') { // New status
+                    statusClass = 'status-in-library';
+                }
+
+                bookCard.innerHTML = `
+                    <img src="${book.imageUrl || 'https://placehold.co/70x100/cccccc/333333?text=No+Image'}" alt="${book.title} Cover" class="book-cover">
+                    <div class="book-info flex-grow">
+                        <h3 class="text-lg font-semibold text-gray-800">${book.title}</h3>
+                        <p class="text-gray-600">Author: ${book.author}</p>
+                        <p class="text-gray-600">Genre: ${book.genre}</p>
+                        <p class="text-gray-600">Status: <span class="status-tag ${statusClass}">${book.status.charAt(0).toUpperCase() + book.status.slice(1)}</span></p>
+                        <p class="text-gray-600">Date: ${book.statusDate}</p>
+                    </div>
+                `;
+                ebookList.appendChild(bookCard);
+            });
+        }
+
+        /**
+         * Opens the book details modal and populates it with book data.
+         * @param {Object} book - The book object to display in the modal.
+         */
+        function openModal(book) {
+            document.getElementById('modalBookCover').src = book.imageUrl || 'https://placehold.co/120x180/cccccc/333333?text=No+Image';
             document.getElementById('modalBookTitle').textContent = book.title;
             document.getElementById('modalBookAuthor').textContent = book.author;
             document.getElementById('modalBookGenre').textContent = book.genre;
-            document.getElementById('modalYearPublished').textContent = book.yearPublished || 'N/A';
-            document.getElementById('modalBookSynopsis').textContent = book.synopsis;
-            document.getElementById('modalStatusDate').textContent = book.statusDate;
-
-            const modalBookStatus = document.getElementById('modalBookStatus');
-            modalBookStatus.textContent = book.status.replace('-', ' ');
-            modalBookStatus.className = `font-medium status-tag`; // Reset classes
-            switch (book.status) {
-                case 'approved': modalBookStatus.classList.add('status-approved'); break;
-                case 'pending': modalBookStatus.classList.add('status-pending'); break;
-                case 'rejected': modalBookStatus.classList.add('status-rejected'); break;
-                case 'in-library': modalBookStatus.classList.add('status-in-library'); break;
-                default: modalBookStatus.classList.add('bg-gray-400'); break;
+            document.getElementById('modalBookStatus').textContent = book.status.charAt(0).toUpperCase() + book.status.slice(1);
+            
+            // Set status tag color in modal
+            const modalStatusTag = document.getElementById('modalBookStatus');
+            modalStatusTag.className = 'font-medium status-tag'; // Reset classes
+            if (book.status === 'approved') {
+                modalStatusTag.classList.add('status-approved');
+            } else if (book.status === 'pending') {
+                modalStatusTag.classList.add('status-pending');
+            } else if (book.status === 'rejected') {
+                modalStatusTag.classList.add('status-rejected');
+            } else if (book.status === 'in-library') {
+                modalStatusTag.classList.add('status-in-library');
             }
 
+            document.getElementById('modalStatusDate').textContent = book.statusDate;
+            document.getElementById('modalBookSynopsis').textContent = book.synopsis;
+
+            // Show/hide reason for rejection
             const reasonContainer = document.getElementById('modalReasonContainer');
             const reasonText = document.getElementById('modalReason');
             if (book.status === 'rejected' && book.reason) {

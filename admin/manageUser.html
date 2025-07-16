@@ -70,7 +70,7 @@
   </div>
 
   <script>
-    const supabase = supabase.createClient(
+    const supabase = window.supabase.createClient(
       'https://zfiaoyymowvjurqxrazu.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
 
@@ -153,7 +153,7 @@
 
     async function logout() {
       await supabase.auth.signOut();
-      window.location.href = '/login.html';
+      window.location.href = '../screens/login.html';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
