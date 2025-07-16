@@ -1,256 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body class="bg-gray-100 font-sans flex">
 
-  <!-- Sidebar -->
- <aside class="hidden md:flex flex-col justify-between w-64 h-screen bg-gray-800 text-white p-6 sticky top-0">
-  <div>
-    <h2 class="text-2xl font-bold mb-6">Admin Menu</h2>
-    <nav class="space-y-2">
-      <a href="dashboardAdmin.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
-        <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
-      </a>
-      <a href="manageEbook.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
-        <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
-      </a>
-      <a href="manageUser.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
-        <i class="lucide lucide-users mr-3"></i> Manage Users
-      </a>
-      <a href="approveBookList.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
-        <i class="lucide lucide-check-circle mr-3"></i> Approved Books
-      </a>
-    </nav>
-  </div>
-  <button onclick="logout()" class="flex items-center px-4 py-2 mt-4 rounded-lg hover:bg-gray-700 hover:text-red-400">
-    <i class="lucide lucide-log-out mr-3"></i> Logout
-  </button>
-</aside>
-
-  <!-- Main Content -->
-  <main class="flex-1 p-6 overflow-y-auto">
-    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <div class="bg-white p-6 rounded-lg shadow-md text-center">
-        <p class="text-sm text-gray-500 mb-2">Total Users</p>
-        <p id="totalUsersValue" class="text-3xl font-bold text-indigo-600">0</p>
-      </div>
-      <div class="bg-white p-6 rounded-lg shadow-md text-center">
-        <p class="text-sm text-gray-500 mb-2">Total Ebooks</p>
-        <p id="totalEbooksValue" class="text-3xl font-bold text-green-600">0</p>
-      </div>
-      <div class="bg-white p-6 rounded-lg shadow-md text-center">
-        <p class="text-sm text-gray-500 mb-2">Total Clerks</p>
-        <p id="totalClerksValue" class="text-3xl font-bold text-purple-600">0</p>
-      </div>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-8">
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold mb-4">Ebooks by Category</h2>
-        <canvas id="ebookPieChart"></canvas>
-        <p id="noDataEbook" class="text-center text-gray-500 mt-4 hidden">No data available</p>
-        <div class="text-right mt-4">
-          <button onclick="downloadChart('ebookPieChart')" class="text-blue-600 hover:underline text-sm">Download Chart</button>
+    <aside class="hidden md:flex flex-col justify-between w-64 h-screen bg-gray-800 text-white p-6 sticky top-0">
+        <div>
+            <h2 class="text-2xl font-bold mb-6">Admin Menu</h2>
+            <nav class="space-y-2">
+                <a href="dashboardAdmin.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                    <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
+                </a>
+                <a href="manageEbook.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                    <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
+                </a>
+                <a href="manageUser.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                    <i class="lucide lucide-users mr-3"></i> Manage Users
+                </a>
+                <a href="approveBookList.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                    <i class="lucide lucide-check-circle mr-3"></i> Approved Books
+                </a>
+            </nav>
         </div>
-      </div>
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold mb-4">User Roles</h2>
-        <canvas id="userRoleBarChart"></canvas>
-        <p id="noDataRole" class="text-center text-gray-500 mt-4 hidden">No data available</p>
-        <div class="text-right mt-4">
-          <button onclick="downloadChart('userRoleBarChart')" class="text-blue-600 hover:underline text-sm">Download Chart</button>
-        </div>
-      </div>
-    </div>
-  </main>
+        <button onclick="logout()" class="flex items-center px-4 py-2 mt-4 rounded-lg hover:bg-gray-700 hover:text-red-400">
+            <i class="lucide lucide-log-out mr-3"></i> Logout
+        </button>
+    </aside>
 
-  <script>
-    const supabase = window.supabase.createClient(
-      'https://zfiaoyymowvjurqxrazu.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
+    <main class="flex-1 p-6 overflow-y-auto">
+        <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <p class="text-sm text-gray-500 mb-2">Total Users</p>
+                <p id="totalUsersValue" class="text-3xl font-bold text-indigo-600">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <p class="text-sm text-gray-500 mb-2">Total Ebooks</p>
+                <p id="totalEbooksValue" class="text-3xl font-bold text-green-600">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <p class="text-sm text-gray-500 mb-2">Total Clerks</p>
+                <p id="totalClerksValue" class="text-3xl font-bold text-purple-600">0</p>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">Ebooks by Category</h2>
+                <canvas id="ebookPieChart"></canvas>
+                <p id="noDataEbook" class="text-center text-gray-500 mt-4 hidden">No data available</p>
+                <div class="text-right mt-4">
+                    <button onclick="downloadChart('ebookPieChart')" class="text-blue-600 hover:underline text-sm">Download Chart</button>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">User Roles</h2>
+                <canvas id="userRoleBarChart"></canvas>
+                <p id="noDataRole" class="text-center text-gray-500 mt-4 hidden">No data available</p>
+                <div class="text-right mt-4">
+                    <button onclick="downloadChart('userRoleBarChart')" class="text-blue-600 hover:underline text-sm">Download Chart</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    const { createClient } = supabase;
+    const supabaseClient = createClient(
+        'https://zfiaoyymowvjurqxrazu.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
     );
 
     async function fetchDashboardData() {
-  const [profilesRes, ebooksRes] = await Promise.all([
-    supabase.from('profiles').select('id, role'),
-    supabase.from('ebooks').select('id, category')
-  ]);
+        console.log("--- Starting fetchDashboardData ---");
 
-  if (profilesRes.error || ebooksRes.error) {
-    console.error('Supabase error:', profilesRes.error || ebooksRes.error);
-    return {
-      totalUsers: 0,
-      totalEbooks: 0,
-      totalClerks: 0,
-      userRoles: [],
-      ebookCategories: []
-    };
-  }
+        const [profilesRes, ebooksRes] = await Promise.all([
+            supabaseClient.from('profiles').select('id, role'),
+            supabaseClient.from('ebook').select('id, genre')
+        ]);
 
-  const users = profilesRes.data || [];
-  const ebooks = ebooksRes.data || [];
+        console.log("Supabase profiles response:", profilesRes);
+        console.log("Supabase ebooks response:", ebooksRes);
 
-  const totalUsers = users.length;
-  const totalEbooks = ebooks.length;
-  const totalClerks = users.filter(u => u.role === 'Clerk').length;
+        if (profilesRes.error) {
+            console.error('Supabase profiles error:', profilesRes.error);
+            // Optionally, display an error message on the dashboard
+            document.getElementById('totalUsersValue').textContent = 'Error';
+            document.getElementById('totalClerksValue').textContent = 'Error';
+        }
+        if (ebooksRes.error) {
+            console.error('Supabase ebooks error:', ebooksRes.error);
+            document.getElementById('totalEbooksValue').textContent = 'Error';
+        }
 
-  const userRoles = {};
-  users.forEach(user => {
-    if (user.role) {
-      userRoles[user.role] = (userRoles[user.role] || 0) + 1;
+        const users = profilesRes.data || [];
+        const ebooks = ebooksRes.data || [];
+
+        console.log("Raw users data (profiles table):", users);
+        console.log("Raw ebooks data (ebook table):", ebooks);
+
+
+        // Calculate total users (role 'user')
+        const usersWithRoleUser = users.filter(u => u.role?.toLowerCase() === 'user');
+        const totalUsers = usersWithRoleUser.length;
+        console.log("Users with role 'user':", usersWithRoleUser);
+        console.log("Calculated Total Users (role 'user'):", totalUsers);
+
+        // Calculate total clerks (role 'clerk')
+        const usersWithRoleClerk = users.filter(u => u.role?.toLowerCase() === 'clerk');
+        const totalClerks = usersWithRoleClerk.length;
+        console.log("Users with role 'clerk':", usersWithRoleClerk);
+        console.log("Calculated Total Clerks (role 'clerk'):", totalClerks);
+
+        const totalEbooks = ebooks.length;
+        console.log("Calculated Total Ebooks:", totalEbooks);
+
+
+        const userRoles = {};
+        users.forEach(user => {
+            if (user.role) {
+                const roleName = user.role.toLowerCase();
+                userRoles[roleName] = (userRoles[roleName] || 0) + 1;
+            }
+        });
+        console.log("Aggregated user roles for chart:", userRoles);
+
+
+        const ebookCategories = {};
+        ebooks.forEach(e => {
+            if (e.genre) {
+                const genreName = e.genre.toLowerCase();
+                ebookCategories[genreName] = (ebookCategories[genreName] || 0) + 1;
+            }
+        });
+        console.log("Aggregated ebook categories for chart:", ebookCategories);
+
+        console.log("--- Ending fetchDashboardData ---");
+
+        return {
+            totalUsers,
+            totalEbooks,
+            totalClerks,
+            userRoles: Object.entries(userRoles).map(([role, count]) => ({ role, count })),
+            ebookCategories: Object.entries(ebookCategories).map(([name, count]) => ({ name, count }))
+        };
     }
-  });
-
-  const ebookCategories = {};
-  ebooks.forEach(e => {
-    if (e.category) {
-      ebookCategories[e.category] = (ebookCategories[e.category] || 0) + 1;
-    }
-  });
-
-  return {
-    totalUsers,
-    totalEbooks,
-    totalClerks,
-    userRoles: Object.entries(userRoles).map(([role, count]) => ({ role, count })),
-    ebookCategories: Object.entries(ebookCategories).map(([name, count]) => ({ name, count }))
-  };
-}
-
 
     function getCategoryColor(index) {
-      const colors = ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b', '#a855f7', '#ec4899', '#6366f1', '#14b8a6'];
-      return colors[index % colors.length];
+        const colors = ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b', '#a855f7', '#ec4899', '#6366f1', '#14b8a6'];
+        return colors[index % colors.length];
     }
 
     function calculatePercentage(value, total) {
-      return total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+        return total > 0 ? ((value / total) * 100).toFixed(1) : '0';
     }
 
     function downloadChart(canvasId) {
-      const canvas = document.getElementById(canvasId);
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = canvasId + '.png';
-      link.click();
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.error("Canvas element not found for download:", canvasId);
+            return;
+        }
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = canvasId + '.png';
+        link.click();
     }
 
     async function logout() {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Logout failed:', error.message);
-        alert('Logout failed. Please try again.');
-      } else {
-        window.location.href = '../screens/login.html';
-      }
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) {
+            console.error('Logout failed:', error.message);
+            alert('Logout failed. Please try again.');
+        } else {
+            window.location.href = '../index.html';
+        }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        window.location.href = '../screens/login.html';
-        return;
-      }
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+            window.location.href = '../index.html';
+            return;
+        }
 
-      lucide.createIcons();
-      const data = await fetchDashboardData();
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
 
-      document.getElementById('totalUsersValue').textContent = data.totalUsers;
-      document.getElementById('totalEbooksValue').textContent = data.totalEbooks;
-      document.getElementById('totalClerksValue').textContent = data.totalClerks;
+        const data = await fetchDashboardData();
 
-      // Pie Chart
-      const pieCanvas = document.getElementById('ebookPieChart');
-      const pieMsg = document.getElementById('noDataEbook');
-      if (data.ebookCategories.length === 0) {
-        pieCanvas.style.display = 'none';
-        pieMsg.classList.remove('hidden');
-      } else {
-        pieCanvas.style.display = 'block';
-        pieMsg.classList.add('hidden');
+        document.getElementById('totalUsersValue').textContent = data.totalUsers;
+        document.getElementById('totalEbooksValue').textContent = data.totalEbooks;
+        document.getElementById('totalClerksValue').textContent = data.totalClerks;
 
-        const ctx = pieCanvas.getContext('2d');
-        new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: data.ebookCategories.map(c => c.name),
-            datasets: [{
-              data: data.ebookCategories.map(c => c.count),
-              backgroundColor: data.ebookCategories.map((_, i) => getCategoryColor(i))
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    const total = context.dataset.data.reduce((sum, v) => sum + v, 0);
-                    const percent = calculatePercentage(context.parsed, total);
-                    return `${context.label}: ${context.parsed} (${percent}%)`;
-                  }
+        // Pie Chart
+        const pieCanvas = document.getElementById('ebookPieChart');
+        const pieMsg = document.getElementById('noDataEbook');
+        if (data.ebookCategories.length === 0) {
+            pieCanvas.style.display = 'none';
+            pieMsg.classList.remove('hidden');
+            console.log("No ebook categories data to display.");
+        } else {
+            pieCanvas.style.display = 'block';
+            pieMsg.classList.add('hidden');
+            console.log("Ebook categories data for chart:", data.ebookCategories);
+
+            const ctx = pieCanvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.ebookCategories.map(c => c.name),
+                    datasets: [{
+                        data: data.ebookCategories.map(c => c.count),
+                        backgroundColor: data.ebookCategories.map((_, i) => getCategoryColor(i))
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const total = context.dataset.data.reduce((sum, v) => sum + v, 0);
+                                    const percent = calculatePercentage(context.parsed, total);
+                                    return `${context.label}: ${context.parsed} (${percent}%)`;
+                                }
+                            }
+                        },
+                        legend: { position: 'right' }
+                    }
                 }
-              },
-              legend: { position: 'right' }
-            }
-          }
-        });
-      }
+            });
+        }
 
-      // Bar Chart
-      const barCanvas = document.getElementById('userRoleBarChart');
-      const barMsg = document.getElementById('noDataRole');
-      if (data.userRoles.length === 0) {
-        barCanvas.style.display = 'none';
-        barMsg.classList.remove('hidden');
-      } else {
-        barCanvas.style.display = 'block';
-        barMsg.classList.add('hidden');
+        // Bar Chart
+        const barCanvas = document.getElementById('userRoleBarChart');
+        const barMsg = document.getElementById('noDataRole');
+        if (data.userRoles.length === 0) {
+            barCanvas.style.display = 'none';
+            barMsg.classList.remove('hidden');
+            console.log("No user roles data to display.");
+        } else {
+            barCanvas.style.display = 'block';
+            barMsg.classList.add('hidden');
+            console.log("User roles data for chart:", data.userRoles);
 
-        const ctx = barCanvas.getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: data.userRoles.map(c => c.role),
-            datasets: [{
-              label: 'Users',
-              data: data.userRoles.map(c => c.count),
-              backgroundColor: data.userRoles.map((_, i) => getCategoryColor(i))
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    const total = context.dataset.data.reduce((sum, v) => sum + v, 0);
-                    const percent = calculatePercentage(context.parsed.y, total);
-                    return `${context.label}: ${context.parsed.y} (${percent}%)`;
-                  }
+            const ctx = barCanvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.userRoles.map(c => c.role),
+                    datasets: [{
+                        label: 'Users',
+                        data: data.userRoles.map(c => c.count),
+                        backgroundColor: data.userRoles.map((_, i) => getCategoryColor(i))
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const total = context.dataset.data.reduce((sum, v) => sum + v, 0);
+                                    const percent = calculatePercentage(context.parsed.y, total);
+                                    return `${context.label}: ${context.parsed.y} (${percent}%)`;
+                                }
+                            }
+                        },
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
                 }
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: { stepSize: 1 }
-              }
-            }
-          }
-        });
-      }
+            });
+        }
     });
-  </script>
+</script>
 </body>
 </html>

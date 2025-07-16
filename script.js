@@ -148,6 +148,8 @@ if (authForm) {
                         data: {
                             username: username,
                             role: role,
+                            email: email, 
+                            registered: new Date().toISOString() 
                         },
                     }
                 });
