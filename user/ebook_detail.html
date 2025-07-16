@@ -56,6 +56,7 @@
       <a href="review.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">⭐ Reviews</a>
       <a href="wishlist.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">❤️ Wishlist</a>
       <a href="library.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">📚 Library</a>
+      <a href="profile.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">👤 Profile</a>
       <a href="/logout.html" class="block py-2 px-3 rounded-lg hover:bg-red-100 text-red-500">🚪 Logout</a>
     </nav>
   </aside>
@@ -235,7 +236,7 @@
       const { error } = await supabase.from("review").insert([{
         ebook_id: parseInt(bookId),
         user_id: user.id,
-        reviewer_name: user.email,
+        reviewer_name: user.email, // 👈 ADD this
         rating: parseInt(rating),
         comment,
         datereview: new Date().toISOString(),

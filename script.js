@@ -119,7 +119,7 @@ if (authForm) {
         const email = authEmailInput.value;
         const password = authPasswordInput.value;
         // Check if confirmPasswordInput exists to determine if it's a registration form
-        const isRegisterMode = !!confirmPasswordInput && document.getElementById('auth-page').classList.contains('signup'); 
+        const isRegisterMode = !!confirmPasswordInput && document.getElementById('auth-page').classList.contains('signup');
         console.log("Is Register Mode:", isRegisterMode);
 
         if (isRegisterMode) {
@@ -156,21 +156,32 @@ if (authForm) {
                     showCustomModal('Sign Up Error', error.message, false);
                 } else {
                     if (data.session) {
-                        showCustomModal('Sign Up Successful!', 'You have been signed up and logged in.');
-                        const userRole = data.user.user_metadata ? data.user.user_metadata.role : null;
-                        let redirectUrl = '../index.html'; // Default redirect
+                        // Insert into profiles table upon successful signup and session creation
+                        const { error: profileError } = await supabase.from('profiles').insert([
+                            { id: data.user.id, username: username }
+                        ]);
 
-                        if (userRole === 'user') {
-                            redirectUrl = '../user/dashboard.html';
-                        } else if (userRole === 'clerk') {
-                            redirectUrl = '../clerk/dashboardClerk.html';
-                        } else if (userRole === 'admin') {
-                            redirectUrl = '../admin/dashboardAdmin.html';
+                        if (profileError) {
+                            console.error("Error inserting profile:", profileError);
+                            showCustomModal('Sign Up Successful (but profile error)', 'Please check your email for a confirmation link, then log in. There was an issue saving your profile details.', false);
+                        } else {
+                            showCustomModal('Sign Up Successful!', 'You have been signed up and logged in.');
+                            const userRole = data.user.user_metadata ? data.user.user_metadata.role : null;
+                            let redirectUrl = '../index.html'; // Default redirect
+
+                            if (userRole === 'user') {
+                                redirectUrl = '../user/dashboard.html';
+                            } else if (userRole === 'clerk') {
+                                redirectUrl = '../clerk/dashboardClerk.html';
+                            } else if (userRole === 'admin') {
+                                redirectUrl = '../admin/dashboardAdmin.html';
+                            }
+                            setTimeout(() => {
+                                window.location.href = redirectUrl;
+                            }, 2000);
                         }
-                        setTimeout(() => {
-                            window.location.href = redirectUrl;
-                        }, 2000);
                     } else {
+                        // If no session, means email confirmation is required
                         showCustomModal('Sign Up Successful!', 'Please check your email for a confirmation link, then log in.');
                         setTimeout(() => {
                             window.location.href = '../screens/login.html';
@@ -398,7 +409,7 @@ async function fetchReviews(ebookId) {
 
     try {
         const { data: reviews, error } = await supabase
-            .from('reviews')
+            .from('reviews') // Ensure this is 'reviews'
             .select(`
                 *,
                 profiles (
@@ -419,7 +430,8 @@ async function fetchReviews(ebookId) {
             reviews.forEach(review => {
                 const reviewItem = document.createElement('div');
                 reviewItem.classList.add('review-item');
-                const reviewerName = review.profiles ? review.profiles.username : 'Anonymous';
+                // Correctly get reviewerName: prioritize profiles.username, then reviewer_name field, then Anonymous
+                const reviewerName = review.profiles ? review.profiles.username : review.reviewer_name || 'Anonymous';
                 reviewItem.innerHTML = `
                     <p><strong>${reviewerName}</strong> (${new Date(review.created_at).toLocaleDateString()}):</p>
                     <p>${review.review_text}</p>
@@ -443,11 +455,12 @@ async function addReview(ebookId, reviewText) {
 
     try {
         const { error } = await supabase
-            .from('reviews')
+            .from('reviews') // Ensure this is 'reviews'
             .insert({
                 ebook_id: ebookId,
                 user_id: user.id,
-                review_text: reviewText
+                review_text: reviewText,
+                reviewer_name: user.user_metadata.username || user.email // Store username or email if no username
             });
 
         if (error) throw error;
