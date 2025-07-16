@@ -4,674 +4,428 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Ebooks - Admin Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
-
-            // Function to generate random data for an ebook
-            function generateRandomEbook(id) {
-                const titles = [
-                    "The Forgotten Scroll", "Whispers of the Jungle", "Digital Dreams",
-                    "Ancient Wisdom Revived", "Future of AI", "Culinary Adventures",
-                    "Mysteries of the Deep", "Stars Beyond Reach", "Silent Echoes",
-                    "Journey to the East", "Chronicles of Time", "The Last Frontier"
-                ];
-                const authors = [
-                    "Ahmad Zaki", "Siti Nur", "Dr. Lim Wei", "Prof. Devi",
-                    "Encik Rahman", "Puan Aminah", "Cikgu Tan", "Ustaz Khalid"
-                ];
-                const statuses = ["Pending", "Approved", "Rejected"];
-                const currentYear = new Date().getFullYear();
-
-                const randomTitle = titles[Math.floor(Math.random() * titles.length)];
-                const randomAuthor = authors[Math.floor(Math.random() * authors.length)];
-                const randomYear = Math.floor(Math.random() * (currentYear - 1900 + 1)) + 1900;
-                const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-                const randomCoverWidth = Math.floor(Math.random() * (100 - 70 + 1)) + 70; // 70-100
-                const randomCoverHeight = Math.floor(Math.random() * (130 - 100 + 1)) + 100; // 100-130
-                const randomBgColor = Math.floor(Math.random()*16777215).toString(16);
-                const randomTextColor = Math.floor(Math.random()*16777215).toString(16);
-                const synopsis = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
-
-                return {
-                    id: id,
-                    cover: `https://placehold.co/${randomCoverWidth}x${randomCoverHeight}/${randomBgColor}/${randomTextColor}?text=Book+${id}`,
-                    title: randomTitle,
-                    author: randomAuthor,
-                    year: randomYear,
-                    status: randomStatus,
-                    synopsis: synopsis
-                };
-            }
-
-            // Generate 10 random ebooks
-            const ebooks = [];
-            for (let i = 1; i <= 10; i++) {
-                ebooks.push(generateRandomEbook(i));
-            }
-
-            // Custom Message Box (replaces alert())
-            function showMessageBox(message, type) {
-                const messageBox = document.createElement('div');
-                messageBox.className = `message-box ${type}`;
-                messageBox.innerHTML = `
-                    <p>${message}</p>
-                    <button class="message-box-close" onclick="this.parentNode.remove()">X</button>
-                `;
-                document.body.appendChild(messageBox);
-                setTimeout(() => { messageBox.remove(); }, 3000);
-            }
-
-            // --- Original Modal Functionality Re-integrated ---
-            let currentRow = null; // To keep track of the row being acted upon
-
-            window.openSynopsisModal = function(btn) {
-                currentRow = btn.closest('tr');
-                const title = currentRow.querySelector('.book-title').textContent;
-                const author = currentRow.querySelector('.book-author').textContent;
-                // Find the book data based on the row's ID
-                const bookId = parseInt(currentRow.id.replace('book-row-', ''));
-                const bookData = ebooks.find(book => book.id === bookId);
-
-                document.getElementById('synopsisModalTitle').textContent = `${title} by ${author}`;
-                document.getElementById('synopsisText').textContent = bookData ? bookData.synopsis : 'Synopsis not available.';
-                document.getElementById('synopsisModal').style.display = 'flex'; // Show modal
-
-                // Reset rejection reason box state
-                document.getElementById('rejectionReasonBox').style.display = 'none';
-                document.getElementById('rejectionReason').value = '';
-            };
-
-            window.approveBookFromModal = function() {
-                if (currentRow) {
-                    const title = currentRow.querySelector('.book-title').textContent;
-                    const statusCell = currentRow.querySelector('.status-cell');
-                    const actionsCell = currentRow.querySelector('.actions-cell');
-
-                    statusCell.innerHTML = '<span class="status-approved">Approved</span>';
-                    actionsCell.innerHTML = '<span class="text-gray-500 text-sm">Actioned</span>';
-                    showMessageBox(`✅ Approved: "${title}"`, 'success');
-                }
-                closeModal('synopsisModal');
-            };
-
-            window.toggleRejectionReason = function() {
-                const rejectionReasonBox = document.getElementById('rejectionReasonBox');
-                rejectionReasonBox.style.display = 'block'; // Always show when reject is clicked
-            };
-
-            window.submitRejection = function() {
-                const reason = document.getElementById('rejectionReason').value.trim();
-                if (reason === '') {
-                    showMessageBox('Please enter a rejection reason.', 'error');
-                    return;
-                }
-
-                if (currentRow) {
-                    const title = currentRow.querySelector('.book-title').textContent;
-                    const statusCell = currentRow.querySelector('.status-cell');
-                    const actionsCell = currentRow.querySelector('.actions-cell');
-
-                    statusCell.innerHTML = '<span class="status-rejected">Rejected</span>';
-                    actionsCell.innerHTML = '<span class="text-gray-500 text-sm">Actioned</span>';
-                    showMessageBox(`❌ Rejected: "${title}"\nReason: ${reason}`, 'error');
-                }
-                closeModal('synopsisModal');
-            };
-
-            window.closeModal = function(id) {
-                document.getElementById(id).style.display = 'none';
-                currentRow = null; // Clear currentRow when modal is closed
-            };
-
-            // Close modal when clicking outside
-            window.onclick = function(event) {
-                const synopsisModal = document.getElementById('synopsisModal');
-                if (event.target === synopsisModal) {
-                    closeModal('synopsisModal');
-                }
-            };
-
-            // Search Functionality
-            window.searchBooks = function() {
-                const input = document.getElementById('searchInput').value.toLowerCase();
-                const rows = document.querySelectorAll('#ebook-table tbody tr');
-
-                rows.forEach(row => {
-                    const title = row.querySelector('.book-title').textContent.toLowerCase();
-                    const author = row.querySelector('.book-author').textContent.toLowerCase();
-                    const year = row.querySelector('.book-year').textContent.toLowerCase();
-
-                    if (title.includes(input) || author.includes(input) || year.includes(input)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            };
-
-            // Render ebooks into the table
-            const tbody = document.querySelector('.book-table tbody');
-            ebooks.forEach(book => {
-                const row = document.createElement('tr');
-                row.id = `book-row-${book.id}`;
-                let statusHtml = '';
-                if (book.status === 'Pending') {
-                    statusHtml = `<span class="status-pending">${book.status}</span>`;
-                } else if (book.status === 'Approved') {
-                    statusHtml = `<span class="status-approved">${book.status}</span>`;
-                } else if (book.status === 'Rejected') {
-                    statusHtml = `<span class="status-rejected">${book.status}</span>`;
-                }
-
-                let actionsHtml = '';
-                if (book.status === 'Pending') {
-                    actionsHtml = `
-                        <button class="action-button view-synopsis-button" onclick="openSynopsisModal(this)">
-                            <i class="lucide lucide-book"></i> View Synopsis
-                        </button>
-                    `;
-                } else {
-                    actionsHtml = `<span class="text-gray-500 text-sm">Actioned</span>`;
-                }
-
-                row.innerHTML = `
-                    <td>
-                        <img src="${book.cover}" alt="Book Cover" class="book-cover" onerror="this.onerror=null;this.src='https://placehold.co/80x120/cccccc/333333?text=No+Cover';">
-                    </td>
-                    <td><span class="book-title">${book.title}</span></td>
-                    <td><span class="book-author">${book.author}</span></td>
-                    <td><span class="book-year">${book.year}</span></td>
-                    <td class="status-cell">${statusHtml}</td>
-                    <td class="actions-cell">${actionsHtml}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        });
-    </script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Root variables */
-        :root {
-            --primary: #1f2937;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --bg-light: #f7f9fc;
-            --text-dark: #333;
-            --gray: #6b7280;
-        }
-
-        /* General styling for the body */
         body {
-            background: var(--bg-light);
-            margin: 0;
             font-family: 'Poppins', sans-serif;
-            color: var(--text-dark);
-        }
-
-        /* Main layout container for sidebar and content */
-        .main-layout-container {
-            display: flex;
-            min-height: 100vh;
-            background-color: var(--bg-light);
-        }
-
-        /* Sidebar styling */
-        .sidebar {
-            width: 256px;
-            background-color: #1f2937;
-            color: #ffffff;
-            padding: 24px;
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            display: none;
-            flex-shrink: 0;
-        }
-
-        @media (min-width: 768px) {
-            .sidebar {
-                display: block;
-            }
-        }
-
-        .sidebar h2 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 24px;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
             margin: 0;
+            padding: 0; /* Changed to 0 for sidebar layout */
+            display: flex; /* Added for sidebar layout */
+            min-height: 100vh; /* Added for sidebar layout */
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
-
-        .sidebar li {
-            margin-bottom: 8px;
+        h1 {
+            text-align: center; /* This ensures the h1 title is centered */
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 700 !important; /* Ensure h1 is bold and prominent */
+            font-size: 2.25rem; /* Tailwind's text-3xl equivalent */
+        }
+        /* Sidebar styles */
+        .sidebar {
+            height: 100%;
+            width: 250px; /* Always open width */
+            position: fixed;
+            z-index: 10; /* Ensure sidebar is above main content */
+            top: 0;
+            left: 0;
+            background-color: #1A2B42; /* Deep, vibrant dark blue */
+            overflow-x: hidden;
+            transition: 0.5s; /* Keep transition for smooth initial load */
+            padding-top: 60px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar a {
-            display: flex;
-            align-items: center;
-            font-size: 1.125rem;
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: #ffffff;
+            padding: 15px 25px;
             text-decoration: none;
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            font-size: 18px;
+            color: #e2e8f0; /* Light text for links */
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .sidebar a:hover {
-            background-color: #374151;
-            color: #93c5fd;
+            color: #ffffff;
+            background-color: #334155; /* Slightly lighter hover background */
         }
 
-        .sidebar i {
-            margin-right: 12px;
+        /* Main content styles - always has margin-left */
+        #mainContent {
+            padding: 20px;
+            flex-grow: 1;
+            margin-left: 250px; /* Always have space from sidebar */
         }
 
-        /* Main Content Area */
-        .main-content {
-            flex: 1;
+        .container-content { /* Renamed from .container to avoid conflict with main layout */
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
             padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
-        /* Page Header */
-        .page-header {
-            text-align: center;
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            color: var(--primary);
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 15px; /* Space between items when wrapped */
         }
-
-        .page-header h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .page-header .date-info {
-            font-size: 0.9rem;
-            color: var(--gray);
-        }
-
-        /* Search Bar */
         .search-bar {
-            text-align: center;
-            margin-bottom: 20px;
+            flex-grow: 1;
+            margin-right: 15px;
+            max-width: 300px; /* Limit search bar width */
         }
-
         .search-bar input {
-            padding: 10px;
-            width: 500px;
-            border-radius: 6px;
+            width: 100%;
+            padding: 10px 15px;
             border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
         }
-
-        /* Table Container */
-        .table-container {
-            max-width: 1100px;
-            margin: auto;
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            overflow-x: auto;
+        .filter-dropdown {
+            position: relative;
+            display: inline-block;
         }
-
-        .book-table {
+        .filter-dropdown select {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        table {
             width: 100%;
             border-collapse: collapse;
-            border-spacing: 0 15px;
-            min-width: 600px;
+            margin-top: 20px;
         }
-
-        .book-table th, .book-table td {
-            padding: 1rem;
-            text-align: center;
-            border-bottom: 1px solid #e5e7eb;
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
-
-        .book-table th {
-            background-color: var(--primary);
-            color: #fff;
-            padding: 12px;
-            border-radius: 10px 10px 0 0;
+        th {
+            background-color: #f8f8f8;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.875rem;
+            color: #555;
         }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .status-pending { color: #ffc107; font-weight: 600; }
+        .status-approved { color: #28a745; font-weight: 600; }
+        .status-rejected { color: #dc3545; font-weight: 600; }
 
-        .book-table tbody tr:hover {
-            background-color: #f3f4f6;
-        }
-
-        .book-cover {
-            width: 60px;
-            height: 90px;
-            object-fit: cover;
-            border-radius: 6px;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-
-        .book-title {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .book-author, .book-year {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .actions-cell {
-            white-space: nowrap;
-        }
-
-        .action-button {
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            transition: 0.2s ease;
-            margin-right: 0.5rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .action-button:hover {
-            opacity: 0.85;
-        }
-
-        .view-synopsis-button {
-            background-color: #3b82f6; /* A shade of blue for view */
-            color: #ffffff;
-        }
-        .view-synopsis-button:hover {
-            background-color: #2563eb;
-        }
-
-        .approve-button-modal { /* Renamed to avoid conflict with old handleAction */
-            background-color: var(--success);
-            color: #ffffff;
-        }
-
-        .approve-button-modal:hover {
-            background-color: #218838;
-        }
-
-        .reject-button-modal { /* Renamed to avoid conflict with old handleAction */
-            background-color: var(--danger);
-            color: #ffffff;
-        }
-
-        .reject-button-modal:hover {
-            background-color: #a71d2a;
-        }
-
-        .status-pending {
-            background-color: var(--warning);
-            color: var(--text-dark);
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .status-approved {
-            background-color: var(--success);
-            color: #ffffff;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .status-rejected {
-            background-color: var(--danger);
-            color: #ffffff;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        /* Custom Message Box Styles */
-        .message-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            color: white;
-            font-weight: bold;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            animation: fadeInOut 3s forwards;
-        }
-
-        .message-box.success {
-            background-color: var(--success);
-        }
-
-        .message-box.error {
-            background-color: var(--danger);
-        }
-
-        .message-box.info {
-            background-color: #17a2b8;
-        }
-
-        .message-box-close {
+        .action-buttons button {
             background: none;
             border: none;
-            color: white;
-            font-size: 1.2em;
             cursor: pointer;
-            padding: 0 5px;
+            padding: 5px;
+            margin: 0 3px;
+            transition: transform 0.2s ease;
+        }
+        .action-buttons button:hover {
+            transform: scale(1.1);
+        }
+        .action-buttons svg {
+            width: 20px;
+            height: 20px;
+            color: #6c757d;
+        }
+        .action-buttons button:hover svg {
+            color: #007bff;
+        }
+        .action-buttons .approve-icon:hover svg {
+            color: #28a745;
+        }
+        .action-buttons .reject-icon:hover svg {
+            color: #dc3545;
+        }
+        .action-buttons .view-icon:hover svg {
+            color: #007bff;
         }
 
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(-20px); }
-            10% { opacity: 1; transform: translateY(0); }
-            90% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-20px); }
-        }
-
-        /* Modal Styling (for Synopsis and Rejection Reason) */
+        /* Modal Styles */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
             left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            animation: fadeIn 0.3s ease-in-out;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
             justify-content: center;
             align-items: center;
         }
-
         .modal-content {
             background-color: #fefefe;
-            margin: auto;
             padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px; /* Increased max-width for synopsis */
-            border-radius: 10px;
+            border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
             position: relative;
-            text-align: left;
         }
-
         .modal-header {
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 15px;
         }
-
         .modal-header h2 {
             margin: 0;
-            color: var(--primary);
             font-size: 1.5rem;
+            color: #2c3e50;
         }
-
         .modal-close-btn {
             color: #aaa;
-            float: right;
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
         }
-
         .modal-close-btn:hover,
         .modal-close-btn:focus {
             color: #000;
             text-decoration: none;
-            cursor: pointer;
         }
-
-        .modal-body label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--text-dark);
+        .modal-body {
+            margin-bottom: 20px;
         }
-
-        .modal-body textarea {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1rem;
-            min-height: 80px;
-            resize: vertical;
+        .modal-body p {
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
-
         .modal-footer {
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            text-align: right;
-            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
         }
-
-        .modal-footer .btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.2s ease;
-            margin-left: 10px;
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
         }
-        .modal-footer .btn-primary {
-            background-color: var(--primary);
-            color: #fff;
+        .btn-cancel:hover {
+            background-color: #5a6268;
         }
-        .modal-footer .btn-primary:hover {
-            opacity: 0.85;
+        .approve-button-modal {
+            background-color: #28a745;
+            color: white;
         }
-        .modal-footer .btn-cancel {
-            background-color: var(--gray);
-            color: #fff;
+        .approve-button-modal:hover {
+            background-color: #218838;
         }
-        .modal-footer .btn-cancel:hover {
-            opacity: 0.85;
+        .reject-button-modal {
+            background-color: #ffc107;
+            color: white;
         }
-        .modal-footer .btn-danger {
-            background-color: var(--danger);
-            color: #fff;
+        .reject-button-modal:hover {
+            background-color: #e0a800;
         }
-        .modal-footer .btn-danger:hover {
-            opacity: 0.85;
-        }
-
-        /* Specific styles for rejection reason box within synopsis modal */
         #rejectionReasonBox {
             margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed #e5e7eb;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        #rejectionReasonBox label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        #rejectionReason {
+            width: 100%;
+            min-height: 80px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+        #submitRejectionBtn {
+            background-color: #dc3545;
+            color: white;
+        }
+        #submitRejectionBtn:hover {
+            background-color: #c82333;
+        }
+        /* Message box styles */
+        .message-box {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+        }
+        .message-box h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        .message-box button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 15px;
+        }
+        .message-box button:hover {
+            background-color: #2563eb;
+        }
+
+        @media (max-width: 768px) {
+            #mainContent {
+                margin-left: 0;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-bar {
+                margin-right: 0;
+            }
+            .filter-dropdown {
+                width: 100%;
+            }
+            .filter-dropdown select {
+                width: 100%;
+            }
+            .btn {
+                width: 100%;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            td:before {
+                position: absolute;
+                top: 12px;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: #555;
+            }
+            td:nth-of-type(1):before { content: "ID"; }
+            td:nth-of-type(2):before { content: "Title"; }
+            td:nth-of-type(3):before { content: "Author"; }
+            td:nth-of-type(4):before { content: "Status"; }
+            td:nth-of-type(5):before { content: "Submission Date"; }
+            td:nth-of-type(6):before { content: "Actions"; }
+            .action-buttons {
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="main-layout-container">
-        <!-- Sidebar (Embedded HTML) -->
-        <div class="sidebar">
-            <h2>Admin Menu</h2>
-            <nav>
-                <ul>
-                    <li class="mb-2">
-                        <a href="dashboardAdmin.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="manageEbook.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="manageUser.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-users mr-3"></i> Manage Users
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="approveBookList.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-check-circle mr-3"></i> Approved Books
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+    <!-- Sidebar -->
+    <div id="mySidebar" class="sidebar">
+        <a href="dashboardAdmin.html">Dashboard</a>
+        <a href="manageEbook.html">Manage eBooks</a>
+        <a href="approveBookList.html">Approved eBooks</a>
+        <a href="manageUser.html">Manage Users</a>
+    </div>
 
-        <div class="main-content">
-            <div class="page-header">
-                <h1>Manage Ebooks</h1>
-                <div class="date-info">
-                    <p>Welcome, Administrator!</p>
-                    <p><script>document.write(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));</script></p>
+    <!-- Main Content -->
+    <div id="mainContent">
+        <div class="container-content">
+            <h1>Manage eBooks - Admin Panel</h1>
+
+            <div class="controls">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search by title, author, or status..." onkeyup="searchEbooks()">
+                </div>
+                <div class="filter-dropdown">
+                    <select id="statusFilter" onchange="filterEbooks()">
+                        <option value="all">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="search-bar">
-                <input type="text" id="searchInput" onkeyup="searchBooks()" placeholder="Search by title, author, or year...">
-            </div>
-
-            <div class="table-container">
-                <table id="ebook-table">
-                    <thead>
-                        <tr>
-                            <th>Cover</th>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Year Published</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Ebook rows will be dynamically inserted here by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Status</th>
+                        <th>Submission Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ebook-table-body">
+                    <!-- Ebook rows will be dynamically inserted here by JavaScript -->
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -697,5 +451,309 @@
             </div>
         </div>
     </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <h3 id="messageText"></h3>
+        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
+    </div>
+
+    <script type="module">
+        // Supabase Initialization (replace with your actual keys)
+        const SUPABASE_URL = typeof __supabase_url !== 'undefined' ? __supabase_url : 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let allEbooks = []; // To store all fetched ebooks
+
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            fetchAndRenderEbooks(); // Fetch and render ebooks on page load
+        });
+
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            document.getElementById('messageText').textContent = message;
+            document.getElementById('messageBox').style.display = 'block';
+        }
+
+        /**
+         * Fetches all eBooks from Supabase and renders them.
+         */
+        async function fetchAndRenderEbooks() {
+            const { data, error } = await supabase
+                .from('ebooks')
+                .select('*');
+
+            if (error) {
+                console.error('Error fetching eBooks:', error);
+                document.getElementById('ebook-table-body').innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">Error loading eBooks.</td></tr>';
+                return;
+            }
+
+            allEbooks = data; // Store all fetched data
+            renderTableRows(allEbooks); // Render all initially
+        }
+
+        /**
+         * Renders table rows based on the provided data.
+         * @param {Array<Object>} ebooks - Array of ebook objects to render.
+         */
+        function renderTableRows(ebooks) {
+            const tbody = document.getElementById('ebook-table-body');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            if (ebooks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">No eBooks found.</td></tr>';
+                return;
+            }
+
+            ebooks.forEach(ebook => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${ebook.id}</td>
+                    <td>${ebook.title}</td>
+                    <td>${ebook.author}</td>
+                    <td><span class="status-${ebook.status.toLowerCase()}">${ebook.status}</span></td>
+                    <td>${ebook.statusDate || 'N/A'}</td>
+                    <td class="action-buttons">
+                        <button onclick="openSynopsisModal('${ebook.id}')" class="view-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                        </button>
+                        ${ebook.status === 'pending' ?
+                            `<button onclick="approveEbook('${ebook.id}')" class="approve-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-square"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            </button>
+                            <button onclick="openRejectReason('${ebook.id}')" class="reject-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-square"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                            </button>` : ''
+                        }
+                    </td>
+                `;
+            });
+            lucide.createIcons(); // Re-render Lucide icons for new rows
+        }
+
+        let currentBookId = null; // To store the ID of the book currently in the synopsis modal
+
+        /**
+         * Opens the synopsis modal and populates it with book data.
+         * @param {string} id - The ID of the book to display.
+         */
+        function openSynopsisModal(id) {
+            const book = allEbooks.find(b => b.id === id);
+            if (book) {
+                currentBookId = id; // Store the current book ID
+                document.getElementById('synopsisModalTitle').textContent = `Synopsis: ${book.title}`;
+                document.getElementById('synopsisText').textContent = book.synopsis;
+
+                const rejectionReasonBox = document.getElementById('rejectionReasonBox');
+                const rejectionReasonTextarea = document.getElementById('rejectionReason');
+                const submitRejectionBtn = document.getElementById('submitRejectionBtn');
+                const approveButtonModal = document.querySelector('.approve-button-modal');
+                const rejectButtonModal = document.querySelector('.reject-button-modal');
+
+                // Reset modal state
+                rejectionReasonBox.style.display = 'none';
+                rejectionReasonTextarea.value = '';
+                submitRejectionBtn.style.display = 'none';
+                approveButtonModal.style.display = 'inline-block';
+                rejectButtonModal.style.display = 'inline-block';
+
+                // If the book is rejected, show the reason and hide action buttons
+                if (book.status === 'rejected' && book.reason) {
+                    rejectionReasonTextarea.value = book.reason;
+                    rejectionReasonBox.style.display = 'block';
+                    approveButtonModal.style.display = 'none';
+                    rejectButtonModal.style.display = 'none';
+                } else if (book.status !== 'pending') {
+                    // Hide action buttons if not pending (e.g., already approved)
+                    approveButtonModal.style.display = 'none';
+                    rejectButtonModal.style.display = 'none';
+                }
+
+                document.getElementById('synopsisModal').style.display = 'flex';
+            }
+        }
+
+        /**
+         * Toggles the visibility of the rejection reason input.
+         */
+        function toggleRejectionReason() {
+            const rejectionReasonBox = document.getElementById('rejectionReasonBox');
+            const submitRejectionBtn = document.getElementById('submitRejectionBtn');
+            const approveButtonModal = document.querySelector('.approve-button-modal');
+            const rejectButtonModal = document.querySelector('.reject-button-modal');
+
+            if (rejectionReasonBox.style.display === 'none' || rejectionReasonBox.style.display === '') {
+                rejectionReasonBox.style.display = 'block';
+                submitRejectionBtn.style.display = 'inline-block';
+                approveButtonModal.style.display = 'none'; // Hide approve when rejecting
+                rejectButtonModal.style.display = 'none'; // Hide reject to show submit
+            } else {
+                rejectionReasonBox.style.display = 'none';
+                submitRejectionBtn.style.display = 'none';
+                approveButtonModal.style.display = 'inline-block';
+                rejectButtonModal.style.display = 'inline-block';
+            }
+        }
+
+        /**
+         * Approves an eBook from the synopsis modal.
+         */
+        async function approveBookFromModal() {
+            if (!currentBookId) return;
+
+            // IMPORTANT: Replaced window.confirm with a custom message box.
+            if (!confirm('Are you sure you want to approve this eBook?')) {
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('ebooks')
+                    .update({ status: 'approved', statusDate: new Date().toISOString().split('T')[0] })
+                    .eq('id', currentBookId);
+
+                if (error) {
+                    console.error('Error approving eBook:', error);
+                    showMessageBox('Failed to approve eBook. Please try again.');
+                } else {
+                    console.log('eBook approved:', data);
+                    showMessageBox('eBook approved successfully!');
+                    closeModal('synopsisModal');
+                    fetchAndRenderEbooks(); // Refresh the list
+                }
+            } catch (networkError) {
+                console.error('Network error during approval:', networkError);
+                showMessageBox('Network error. Please check your connection and try again.');
+            }
+        }
+
+        /**
+         * Submits the rejection reason for an eBook.
+         */
+        async function submitRejection() {
+            if (!currentBookId) return;
+
+            const reason = document.getElementById('rejectionReason').value;
+            if (!reason.trim()) {
+                showMessageBox('Please provide a reason for rejection.');
+                return;
+            }
+
+            // IMPORTANT: Replaced window.confirm with a custom message box.
+            if (!confirm('Are you sure you want to reject this eBook with the provided reason?')) {
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('ebooks')
+                    .update({ status: 'rejected', reason: reason, statusDate: new Date().toISOString().split('T')[0] })
+                    .eq('id', currentBookId);
+
+                if (error) {
+                    console.error('Error rejecting eBook:', error);
+                    showMessageBox('Failed to reject eBook. Please try again.');
+                } else {
+                    console.log('eBook rejected:', data);
+                    showMessageBox('eBook rejected successfully!');
+                    closeModal('synopsisModal');
+                    fetchAndRenderEbooks(); // Refresh the list
+                }
+            } catch (networkError) {
+                console.error('Network error during rejection:', networkError);
+                showMessageBox('Network error. Please check your connection and try again.');
+            }
+        }
+
+        /**
+         * Filters and searches eBooks based on input and selected status.
+         */
+        function searchEbooks() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = allEbooks.filter(ebook => {
+                const matchesSearch = ebook.title.toLowerCase().includes(searchInput) ||
+                                      ebook.author.toLowerCase().includes(searchInput) ||
+                                      ebook.status.toLowerCase().includes(searchInput);
+                const matchesStatus = statusFilter === 'all' || ebook.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+            renderTableRows(filtered);
+        }
+
+        /**
+         * Filters eBooks based on the selected status.
+         */
+        function filterEbooks() {
+            searchEbooks(); // Reuse search function, it handles filtering by status
+        }
+
+        /**
+         * Opens the rejection reason input box directly from the table row.
+         * @param {string} id - The ID of the book to reject.
+         */
+        function openRejectReason(id) {
+            const book = allEbooks.find(b => b.id === id);
+            if (book) {
+                currentBookId = id;
+                document.getElementById('synopsisModalTitle').textContent = `Reject: ${book.title}`;
+                document.getElementById('synopsisText').textContent = book.synopsis;
+
+                const rejectionReasonBox = document.getElementById('rejectionReasonBox');
+                const submitRejectionBtn = document.getElementById('submitRejectionBtn');
+                const approveButtonModal = document.querySelector('.approve-button-modal');
+                const rejectButtonModal = document.querySelector('.reject-button-modal');
+
+                rejectionReasonBox.style.display = 'block';
+                submitRejectionBtn.style.display = 'inline-block';
+                approveButtonModal.style.display = 'none';
+                rejectButtonModal.style.display = 'none';
+
+                document.getElementById('synopsisModal').style.display = 'flex';
+            }
+        }
+
+        /**
+         * Closes a specified modal.
+         * @param {string} id - The ID of the modal element to close.
+         */
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+            currentBookId = null; // Clear the stored ID when modal closes
+            // Reset rejection reason box state
+            document.getElementById('rejectionReasonBox').style.display = 'none';
+            document.getElementById('rejectionReason').value = '';
+            document.getElementById('submitRejectionBtn').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const synopsisModal = document.getElementById('synopsisModal');
+            const messageBox = document.getElementById('messageBox');
+            if (event.target === synopsisModal) {
+                closeModal('synopsisModal');
+            }
+            if (event.target === messageBox) {
+                messageBox.style.display = 'none';
+            }
+        };
+
+        // Expose functions to global scope for HTML onclick attributes
+        window.searchEbooks = searchEbooks;
+        window.filterEbooks = filterEbooks;
+        window.openSynopsisModal = openSynopsisModal;
+        window.toggleRejectionReason = toggleRejectionReason;
+        window.approveBookFromModal = approveBookFromModal;
+        window.submitRejection = submitRejection;
+        window.openRejectReason = openRejectReason;
+        window.closeModal = closeModal;
+    </script>
 </body>
 </html>

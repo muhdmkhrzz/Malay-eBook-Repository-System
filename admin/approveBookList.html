@@ -3,485 +3,338 @@
 <head>
   <meta charset="UTF-8">
   <title>Approved eBooks</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        lucide.createIcons();
-
-        // Placeholder data for demonstration (now in JavaScript)
-        const approvedBooks = [
-            {
-                id: 101,
-                cover: 'https://placehold.co/80x120/A7FFEB/000?text=Appr1',
-                title: 'The Art of War',
-                author: 'Sun Tzu',
-                genre: 'Strategy',
-                year: 500,
-            },
-            {
-                id: 102,
-                cover: 'https://placehold.co/80x120/FFECB3/000?text=Appr2',
-                title: 'Pride and Prejudice',
-                author: 'Jane Austen',
-                genre: 'Romance',
-                year: 1813,
-            },
-            {
-                id: 103,
-                cover: 'https://placehold.co/80x120/E1BEE7/000?text=Appr3',
-                title: 'Sapiens: A Brief History of Humankind',
-                author: 'Yuval Noah Harari',
-                genre: 'History',
-                year: 2011,
-            },
-            {
-                id: 104,
-                cover: 'https://placehold.co/80x120/BBDEFB/000?text=Appr4',
-                title: 'The Lord of the Rings',
-                author: 'J.R.R. Tolkien',
-                genre: 'Fantasy',
-                year: 1954,
-            },
-            {
-                id: 105,
-                cover: 'https://placehold.co/80x120/C8E6C9/000?text=Appr5',
-                title: 'To Kill a Mockingbird',
-                author: 'Harper Lee',
-                genre: 'Fiction',
-                year: 1960,
-            },
-        ];
-
-        // Custom Message Box (replaces alert())
-        function showMessageBox(message, type) {
-            const messageBox = document.createElement('div');
-            messageBox.className = `message-box ${type}`;
-            messageBox.innerHTML = `
-                <p>${message}</p>
-                <button class="message-box-close" onclick="this.parentNode.remove()">X</button>
-            `;
-            document.body.appendChild(messageBox);
-            setTimeout(() => { messageBox.remove(); }, 3000);
-        }
-
-        // Delete Confirmation Modal functions (replaces confirm())
-        let currentRowToDelete = null;
-        window.openDeleteModal = function(btn) {
-            currentRowToDelete = btn.closest('tr');
-            const title = currentRowToDelete.querySelector('.title').textContent;
-            document.getElementById('deleteText').textContent = `Are you sure you want to permanently delete "${title}"?`;
-            document.getElementById('deleteModal').style.display = 'flex';
-        };
-
-        window.closeModal = function() {
-            document.getElementById('deleteModal').style.display = 'none';
-            currentRowToDelete = null;
-        };
-
-        window.confirmDelete = function() {
-            if (currentRowToDelete) {
-                const title = currentRowToDelete.querySelector('.title').textContent;
-                currentRowToDelete.remove();
-                showMessageBox(`"${title}" has been permanently deleted.`, 'success');
-            }
-            closeModal();
-        };
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('deleteModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
-
-        // Search functionality
-        window.searchBooks = function() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#approved-table tbody tr');
-
-            rows.forEach(row => {
-                const title = row.querySelector('.title').textContent.toLowerCase();
-                const author = row.querySelector('.author').textContent.toLowerCase();
-                const genre = row.querySelector('.genre').textContent.toLowerCase();
-
-                if (title.includes(input) || author.includes(input) || genre.includes(input)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        };
-
-        // Render approved books into the table
-        const tbody = document.querySelector('#approved-table tbody');
-        approvedBooks.forEach(book => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <img src="${book.cover}" alt="Book Cover" class="cover" onerror="this.onerror=null;this.src='https://placehold.co/80x120/cccccc/333333?text=No+Cover';">
-                </td>
-                <td class="title">${book.title}</td>
-                <td class="author">${book.author}</td>
-                <td class="genre">${book.genre}</td>
-                <td class="year">${book.year}</td>
-                <td>
-                    <button class="btn delete-btn" onclick="openDeleteModal(this)">
-                        <i class="lucide lucide-trash-2"></i> Delete
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    });
-  </script>
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* Root variables */
-    :root {
-      --primary: #1f2937;
-      --danger: #dc3545;
-      --bg-light: #f7f9fc;
-      --text-dark: #333;
-      --gray: #6b7280;
-      --success: #28a745;
-    }
-
-    /* General styling for the body */
     body {
-      background: var(--bg-light);
-      margin: 0;
       font-family: 'Poppins', sans-serif;
-      color: var(--text-dark);
+      background-color: #f4f7f6;
+      color: #333;
+      margin: 0;
+      padding: 0; /* Changed to 0 for sidebar layout */
+      display: flex; /* Added for sidebar layout */
+      min-height: 100vh; /* Added for sidebar layout */
+      overflow-x: hidden; /* Prevent horizontal scroll */
     }
-
-    /* Main layout container for sidebar and content */
-    .main-layout-container {
-        display: flex;
-        min-height: 100vh;
-        background-color: var(--bg-light);
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-weight: 700 !important; /* Ensure h1 is bold and prominent */
+      font-size: 2.25rem; /* Tailwind's text-3xl equivalent */
     }
-
-    /* Sidebar styling */
+    /* Sidebar styles */
     .sidebar {
-        width: 256px;
-        background-color: #1f2937;
-        color: #ffffff;
-        padding: 24px;
-        border-top-right-radius: 12px;
-        border-bottom-right-radius: 12px;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        display: none;
-        flex-shrink: 0;
-    }
-
-    @media (min-width: 768px) {
-        .sidebar {
-            display: block;
-        }
-    }
-
-    .sidebar h2 {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-bottom: 24px;
-    }
-
-    .sidebar ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .sidebar li {
-        margin-bottom: 8px;
+        height: 100%;
+        width: 250px; /* Always open width */
+        position: fixed;
+        z-index: 10; /* Ensure sidebar is above main content */
+        top: 0;
+        left: 0;
+        background-color: #1A2B42; /* Deep, vibrant dark blue */
+        overflow-x: hidden;
+        transition: 0.5s; /* Keep transition for smooth initial load */
+        padding-top: 60px;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
     }
 
     .sidebar a {
-        display: flex;
-        align-items: center;
-        font-size: 1.125rem;
-        padding: 8px 16px;
-        border-radius: 8px;
-        color: #ffffff;
+        padding: 15px 25px;
         text-decoration: none;
-        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        font-size: 18px;
+        color: #e2e8f0; /* Light text for links */
+        display: block;
+        transition: 0.3s;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
     .sidebar a:hover {
-        background-color: #374151;
-        color: #93c5fd;
+        color: #ffffff;
+        background-color: #334155; /* Slightly lighter hover background */
     }
 
-    .sidebar i {
-        margin-right: 12px;
+    /* Main content styles - always has margin-left */
+    #mainContent {
+        padding: 20px;
+        flex-grow: 1;
+        margin-left: 250px; /* Always have space from sidebar */
     }
 
-    /* Main Content Area */
-    .main-content {
-        flex: 1;
-        padding: 30px;
+    .container-content { /* Renamed from .container to avoid conflict with main layout */
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-
-    /* Page Header */
-    .page-header {
-        text-align: center;
-        margin-bottom: 20px;
-        color: var(--primary);
-    }
-
-    .page-header h1 {
-        font-size: 2.5rem;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-
-    .page-header .date-info {
-        font-size: 0.9rem;
-        color: var(--gray);
-    }
-
-    /* Search Bar */
-    .search-bar {
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
-      text-align: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-
+    .search-bar {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
     .search-bar input {
-      padding: 10px;
-      width: 500px;
-      border-radius: 6px;
+      width: 100%;
+      padding: 10px 15px;
       border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
     }
-
-    /* Table Container */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
     .table-container {
-      max-width: 1100px;
-      margin: auto;
+      overflow-x: auto;
     }
-
     table {
       width: 100%;
-      border-spacing: 0 15px;
+      border-collapse: collapse;
+      margin-top: 20px;
     }
-
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
     th {
-      background-color: var(--primary);
-      color: #fff;
-      padding: 12px;
-      border-radius: 10px 10px 0 0;
-      text-align: center;
+      background-color: #f8f8f8;
+      font-weight: 600;
+      color: #555;
     }
-
-    td {
-      background-color: #fff;
-      text-align: center;
-      padding: 15px;
-      border-radius: 0 0 10px 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    tr:hover {
+      background-color: #f1f1f1;
     }
-
-    img.cover {
-      width: 60px;
-      height: 90px;
-      border-radius: 6px;
+    .book-cover-thumbnail {
+      width: 50px;
+      height: 75px;
       object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #eee;
     }
-
-    .title {
-        font-weight: 600;
-        color: var(--text-dark);
-    }
-
-    .author, .genre, .year {
-        color: var(--gray);
-        font-size: 0.9rem;
-    }
-
-    .btn {
-      padding: 8px 14px;
+    .action-buttons button {
+      background: none;
       border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: 500;
       cursor: pointer;
-      transition: 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
+      padding: 5px;
+      margin: 0 3px;
+      transition: transform 0.2s ease;
     }
-
-    .btn:hover {
-      opacity: 0.85;
+    .action-buttons button:hover {
+      transform: scale(1.1);
     }
-
-    .delete-btn {
-      background-color: var(--danger);
+    .action-buttons svg {
+      width: 20px;
+      height: 20px;
+      color: #6c757d;
     }
-
-    .cancel-btn {
-      background-color: var(--gray);
+    .action-buttons button:hover svg {
+      color: #007bff;
     }
-
-    /* Custom Message Box Styles */
-    .message-box {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        color: white;
-        font-weight: bold;
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 15px;
-        animation: fadeInOut 3s forwards;
+    .action-buttons .delete-icon:hover svg {
+      color: #dc3545;
     }
-
-    .message-box.success {
-        background-color: var(--success);
-    }
-
-    .message-box.error {
-        background-color: var(--danger);
-    }
-
-    .message-box-close {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2em;
-        cursor: pointer;
-        padding: 0 5px;
-    }
-
-    @keyframes fadeInOut {
-        0% { opacity: 0; transform: translateY(-20px); }
-        10% { opacity: 1; transform: translateY(0); }
-        90% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-20px); }
-    }
-
-    /* Modal Styling */
     .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-        animation: fadeIn 0.3s ease-in-out;
-        justify-content: center;
-        align-items: center;
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
     }
-
     .modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 25px;
-        border: 1px solid #888;
-        width: 80%;
-        max-width: 400px;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        position: relative;
-        text-align: center;
+      background-color: #fefefe;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 400px;
+      position: relative;
     }
-
     .modal-header {
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-        margin-bottom: 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
     }
-
     .modal-header h2 {
-        margin: 0;
-        color: var(--primary);
-        font-size: 1.5rem;
+      margin: 0;
+      font-size: 1.5rem;
+      color: #2c3e50;
     }
-
     .modal-close-btn {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
     }
-
     .modal-close-btn:hover,
     .modal-close-btn:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
+      color: #000;
+      text-decoration: none;
     }
-
-    .modal-body p {
-        font-size: 1.1rem;
-        margin-bottom: 20px;
+    .modal-body {
+      margin-bottom: 20px;
     }
-
     .modal-footer {
-        padding-top: 15px;
-        border-top: 1px solid #eee;
-        text-align: right;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .cancel-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+    .cancel-btn:hover {
+      background-color: #5a6268;
+    }
+    /* Message box styles */
+    .message-box {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        z-index: 10000;
+        text-align: center;
+        max-width: 350px;
+        width: 90%;
+    }
+    .message-box h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #1e293b;
+    }
+    .message-box button {
+        background-color: #3b82f6;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
         margin-top: 15px;
     }
-    .modal-footer .btn {
-        margin-left: 10px;
+    .message-box button:hover {
+        background-color: #2563eb;
+    }
+
+    @media (max-width: 768px) {
+      #mainContent {
+          margin-left: 0;
+      }
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-bar {
+        margin-right: 0;
+      }
+      .btn {
+        width: 100%;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+      td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+      }
+      td:before {
+        position: absolute;
+        top: 12px;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 600;
+        color: #555;
+      }
+      td:nth-of-type(1):before { content: "Cover"; }
+      td:nth-of-type(2):before { content: "Title"; }
+      td:nth-of-type(3):before { content: "Author"; }
+      td:nth-of-type(4):before { content: "Genre"; }
+      td:nth-of-type(5):before { content: "Year Published"; }
+      td:nth-of-type(6):before { content: "Actions"; }
+      .action-buttons {
+        justify-content: flex-end;
+        margin-top: 10px;
+      }
     }
   </style>
 </head>
 <body>
-    <div class="main-layout-container">
-        <!-- Sidebar (Embedded HTML) -->
-        <div class="sidebar">
-            <h2>Admin Menu</h2>
-            <nav>
-                <ul>
-                    <li class="mb-2">
-                        <a href="dashboardAdmin.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="manageEbook.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="manageUser.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-users mr-3"></i> Manage Users
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="approveBookList.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-check-circle mr-3"></i> Approved Books
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+    <!-- Sidebar -->
+    <div id="mySidebar" class="sidebar">
+        <a href="dashboardAdmin.html">Dashboard</a>
+        <a href="manageEbook.html">Manage eBooks</a>
+        <a href="approveBookList.html">Approved eBooks</a>
+        <a href="manageUser.html">Manage Users</a>
+    </div>
 
-        <div class="main-content">
-            <div class="page-header">
-                <h1>Approved eBooks</h1>
-                <div class="date-info">
-                    <p>Welcome, Administrator!</p>
-                    <p><script>document.write(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));</script></p>
+    <!-- Main Content -->
+    <div id="mainContent">
+        <div class="container-content">
+            <h1>Approved eBooks</h1>
+
+            <div class="controls">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search by title, author, or genre..." onkeyup="searchBooks()">
                 </div>
-            </div>
-
-            <div class="search-bar">
-                <input type="text" id="searchInput" onkeyup="searchBooks()" placeholder="Search by title, author, or genre...">
             </div>
 
             <div class="table-container">
@@ -509,16 +362,172 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Confirm Deletion</h2>
-                <span class="modal-close-btn" onclick="closeModal()">&times;</span>
+                <span class="modal-close-btn" onclick="closeModal('deleteModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <p id="deleteText">Are you sure you want to permanently delete this book?</p>
             </div>
             <div class="modal-footer">
-                <button class="btn delete-btn" onclick="confirmDelete()">Delete</button>
-                <button class="btn cancel-btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                <button class="btn cancel-btn" onclick="closeModal('deleteModal')">Cancel</button>
             </div>
         </div>
     </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <h3 id="messageText"></h3>
+        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
+    </div>
+
+  <script type="module">
+    // Supabase Initialization (replace with your actual keys)
+    const SUPABASE_URL = typeof __supabase_url !== 'undefined' ? __supabase_url : 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'YOUR_SUPABASE_ANON_KEY';
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let approvedBooksData = []; // To store data fetched from Supabase
+    let bookToDeleteId = null; // To store the ID of the book to be deleted
+
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        fetchAndRenderApprovedBooks(); // Fetch and render books on page load
+    });
+
+    /**
+     * Displays a custom message box.
+     * @param {string} message - The message to display.
+     */
+    function showMessageBox(message) {
+        document.getElementById('messageText').textContent = message;
+        document.getElementById('messageBox').style.display = 'block';
+    }
+
+    /**
+     * Fetches approved eBooks from Supabase and renders them.
+     */
+    async function fetchAndRenderApprovedBooks() {
+        const { data, error } = await supabase
+            .from('ebooks')
+            .select('*')
+            .eq('status', 'approved'); // Only fetch approved books
+
+        if (error) {
+            console.error('Error fetching approved eBooks:', error);
+            document.querySelector('#approved-table tbody').innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">Error loading approved eBooks.</td></tr>';
+            return;
+        }
+
+        approvedBooksData = data; // Store fetched data
+        renderTableRows(approvedBooksData); // Render all initially
+    }
+
+    /**
+     * Renders table rows based on the provided data.
+     * @param {Array<Object>} books - Array of book objects to render.
+     */
+    function renderTableRows(books) {
+        const tbody = document.querySelector('#approved-table tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+
+        if (books.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">No approved eBooks found.</td></tr>';
+            return;
+        }
+
+        books.forEach(book => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td><img src="${book.imageUrl || 'https://placehold.co/80x120/cccccc/333333?text=No+Image'}" alt="Cover" class="book-cover-thumbnail" onerror="this.onerror=null;this.src='https://placehold.co/80x120/cccccc/333333?text=No+Image';"></td>
+                <td>${book.title}</td>
+                <td>${book.author}</td>
+                <td>${book.genre}</td>
+                <td>${book.yearPublished || 'N/A'}</td>
+                <td class="action-buttons">
+                    <button onclick="openDeleteModal('${book.id}')" class="delete-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    </button>
+                </td>
+            `;
+        });
+        lucide.createIcons(); // Re-render Lucide icons for new rows
+    }
+
+    /**
+     * Searches books based on input value.
+     */
+    function searchBooks() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const filteredBooks = approvedBooksData.filter(book =>
+            book.title.toLowerCase().includes(input) ||
+            book.author.toLowerCase().includes(input) ||
+            book.genre.toLowerCase().includes(input)
+        );
+        renderTableRows(filteredBooks);
+    }
+
+    /**
+     * Opens the delete confirmation modal.
+     * @param {string} id - The ID of the book to delete.
+     */
+    function openDeleteModal(id) {
+        bookToDeleteId = id;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    /**
+     * Closes a specified modal.
+     * @param {string} id - The ID of the modal element to close.
+     */
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+        bookToDeleteId = null; // Clear the stored ID when modal closes
+    }
+
+    /**
+     * Confirms and deletes a book.
+     */
+    async function confirmDelete() {
+        if (!bookToDeleteId) return;
+
+        try {
+            const { error } = await supabase
+                .from('ebooks')
+                .delete()
+                .eq('id', bookToDeleteId);
+
+            if (error) {
+                console.error('Error deleting book:', error);
+                showMessageBox('Failed to delete book. Please try again.');
+            } else {
+                console.log('Book deleted:', bookToDeleteId);
+                showMessageBox('Book deleted successfully!');
+                closeModal('deleteModal');
+                fetchAndRenderApprovedBooks(); // Refresh the list
+            }
+        } catch (networkError) {
+            console.error('Network error during book deletion:', networkError);
+            showMessageBox('Network error. Please check your connection and try again.');
+        }
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const deleteModal = document.getElementById('deleteModal');
+        const messageBox = document.getElementById('messageBox');
+        if (event.target === deleteModal) {
+            closeModal('deleteModal');
+        }
+        if (event.target === messageBox) {
+            messageBox.style.display = 'none';
+        }
+    };
+
+    // Expose functions to global scope for HTML onclick attributes
+    window.searchBooks = searchBooks;
+    window.openDeleteModal = openDeleteModal;
+    window.closeModal = closeModal;
+    window.confirmDelete = confirmDelete;
+  </script>
 </body>
 </html>

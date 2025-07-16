@@ -4,474 +4,219 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
-
-           
-            const dashboardData = {
-                totalUsers: 5234,
-                totalEbooks: 1876,
-                totalClerks: 7,
-                newEbooksLast30Days: 45,
-                newUsersLast30Days: 120,
-                activeUsersYesterday: 850,
-                mostPopularEbooks: [
-                    { title: 'Hikayat Hang Tuah', reads: 2100 },
-                    { title: 'Tingkat-Tingkat Syurga', reads: 1850 },
-                    { title: 'Resepi Warisan Nenek', reads: 1520 },
-                ],
-                ebookCategories: [
-                    { name: 'Fiction', count: 600 },
-                    { name: 'History', count: 300 },
-                    { name: 'Religion', count: 250 },
-                    { name: 'Children', count: 200 },
-                    { name: 'Science', count: 150 },
-                    { name: 'Others', count: 376 },
-                ],
-                userRoles: [
-                    { role: 'Admin', count: 2 },
-                    { role: 'Clerk', count: 7 },
-                    { role: 'Regular User', count: 5225 },
-                ],
-            };
-
-            // Helper function to calculate percentage
-            function calculatePercentage(value, total) {
-                return total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-            }
-
-            // Helper function to get a color for chart segments (basic example)
-            function getCategoryColor(index) {
-                const colors = [
-                    '#3b82f6', // blue-500
-                    '#22c55e', // green-500
-                    '#ef4444', // red-500
-                    '#f59e0b', // yellow-500
-                    '#a855f7', // purple-500
-                    '#ec4899', // pink-500',
-                    '#6366f1', // indigo-500
-                    '#14b8a6'  // teal-500
-                ];
-                return colors[index % colors.length];
-            }
-
-            // Populate dynamic data
-            document.getElementById('totalUsersValue').textContent = dashboardData.totalUsers;
-            document.getElementById('totalEbooksValue').textContent = dashboardData.totalEbooks;
-            document.getElementById('totalClerksValue').textContent = dashboardData.totalClerks;
-            document.getElementById('newEbooksLast30DaysValue').textContent = dashboardData.newEbooksLast30Days;
-            document.getElementById('newUsersLast30DaysValue').textContent = dashboardData.newUsersLast30Days;
-            document.getElementById('activeUsersYesterdayValue').textContent = dashboardData.activeUsersYesterday;
-
-            // Populate Most Popular Ebooks
-            const mostPopularEbooksList = document.getElementById('mostPopularEbooksList');
-            dashboardData.mostPopularEbooks.forEach(ebook => {
-                const li = document.createElement('li');
-                li.className = "mb-1";
-                li.innerHTML = `<span class="font-medium">${ebook.title}</span> (${ebook.reads} Reads)`;
-                mostPopularEbooksList.appendChild(li);
-            });
-
-            // Populate Ebooks by Category
-            const ebookCategoriesList = document.getElementById('ebookCategoriesList');
-            dashboardData.ebookCategories.forEach((category, index) => {
-                const div = document.createElement('div');
-                div.className = "flex items-center";
-                div.innerHTML = `
-                    <span class="w-3 h-3 rounded-full mr-2" style="background-color: ${getCategoryColor(index)};"></span>
-                    <span>${category.name} (${calculatePercentage(category.count, dashboardData.totalEbooks)}%)</span>
-                `;
-                ebookCategoriesList.appendChild(div);
-            });
-
-            // Populate User Role Distribution
-            const userRoleList = document.getElementById('userRoleList');
-            dashboardData.userRoles.forEach((role, index) => {
-                const div = document.createElement('div');
-                div.className = "flex items-center";
-                div.innerHTML = `
-                    <span class="w-24 text-sm font-medium">${role.role}:</span>
-                    <div class="flex-grow bg-gray-200 rounded-full h-6 overflow-hidden">
-                        <div
-                            class="h-full rounded-full"
-                            style="width: ${calculatePercentage(role.count, dashboardData.totalUsers)}%; background-color: ${getCategoryColor(index)};"
-                        ></div>
-                    </div>
-                    <span class="ml-2 text-sm">${role.count}</span>
-                `;
-                userRoleList.appendChild(div);
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* General styling for the body */
         body {
-            margin: 0;
             font-family: 'Poppins', sans-serif;
-            color: #1f2937;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0; /* Changed to 0 for sidebar layout */
+            display: flex; /* Added for sidebar layout */
+            min-height: 100vh; /* Added for sidebar layout */
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
-
-        /* Main layout container for sidebar and content */
-        .main-layout-container {
-            display: flex;
-            min-height: 100vh;
-            background-color: #f7f9fc; /* bg-light */
+        h1 {
+            text-align: center; /* This ensures the h1 title is centered */
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 700 !important; /* Ensure h1 is bold and prominent */
+            font-size: 2.25rem; /* Tailwind's text-3xl equivalent */
         }
-
-        /* Sidebar styling */
+        /* Sidebar styles */
         .sidebar {
-            width: 256px; /* w-64 in Tailwind */
-            background-color: #1f2937; /* bg-gray-800 in Tailwind */
-            color: #ffffff; /* text-white in Tailwind */
-            padding: 24px; /* p-6 in Tailwind */
-            border-top-right-radius: 12px; /* rounded-r-xl in Tailwind */
-            border-bottom-right-radius: 12px; /* rounded-r-xl in Tailwind */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg in Tailwind */
-            display: none; /* hidden by default */
-            flex-shrink: 0; /* Prevents sidebar from shrinking on smaller screens */
+            height: 100%;
+            width: 250px; /* Always open width */
+            position: fixed;
+            z-index: 10; /* Ensure sidebar is above main content */
+            top: 0;
+            left: 0;
+            background-color: #1A2B42; /* Deep, vibrant dark blue */
+            overflow-x: hidden;
+            transition: 0.5s; /* Keep transition for smooth initial load */
+            padding-top: 60px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Media query for medium screens and up (md:block in Tailwind) */
-        @media (min-width: 768px) {
-            .sidebar {
-                display: block; /* md:block */
-            }
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #e2e8f0; /* Light text for links */
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Styling for the menu title */
-        .sidebar h2 {
-            font-size: 1.5rem; /* text-2xl in Tailwind */
-            font-weight: bold;
-            margin-bottom: 24px; /* mb-6 in Tailwind */
+        .sidebar a:hover {
+            color: #ffffff;
+            background-color: #334155; /* Slightly lighter hover background */
         }
 
-        /* Styling for list items */
-        .sidebar ul {
-            list-style: none; /* Remove default list bullets */
+        /* Main content styles - always has margin-left */
+        #mainContent {
+            padding: 20px;
+            flex-grow: 1;
+            margin-left: 250px; /* Always have space from sidebar */
+        }
+
+        .container-content { /* Renamed from .container to avoid conflict with main layout */
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .stat-panel {
+            background-color: #fefefe;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .stat-panel h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stat-panel h2 svg {
+            width: 28px;
+            height: 28px;
+            color: #3498db;
+        }
+        .metric p {
+            font-size: 1.1rem;
+            color: #555;
+            margin: 5px 0;
+        }
+        .metric .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-right: 8px;
+        }
+        .popular-list, .role-list {
+            list-style: none;
             padding: 0;
             margin: 0;
         }
-
-        .sidebar li {
-            margin-bottom: 8px; /* mb-2 in Tailwind */
-        }
-
-        /* Styling for anchor tags (menu items) */
-        .sidebar a {
-            display: flex; /* flex in Tailwind */
-            align-items: center; /* items-center in Tailwind */
-            font-size: 1.125rem; /* text-lg in Tailwind */
-            padding: 8px 16px; /* px-4 py-2 in Tailwind */
-            border-radius: 8px; /* rounded-lg in Tailwind */
-            color: #ffffff; /* text-white initially */
-            text-decoration: none; /* Remove underline */
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* transition-colors duration-200 */
-        }
-
-        /* Hover effect for menu items */
-        .sidebar a:hover {
-            background-color: #374151; /* hover:bg-gray-700 in Tailwind */
-            color: #93c5fd; /* hover:text-blue-300 in Tailwind */
-        }
-
-        /* Styling for icons */
-        .sidebar i {
-            margin-right: 12px; /* mr-3 in Tailwind */
-        }
-
-        /* Main Content Area */
-        .main-content {
-            flex: 1;
-            padding: 2rem; /* p-8 */
-        }
-
-        /* Dashboard Header */
-        .dashboard-header {
+        .popular-list li, .role-list li {
+            background-color: #f8f8f8;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem; /* mb-8 */
+            font-size: 0.95rem;
+            color: #444;
         }
-
-        .dashboard-header h1 {
-            font-size: 2.5rem; /* text-4xl */
-            font-weight: 800; /* font-extrabold */
-            color: #1f2937; /* primary */
-        }
-
-        .dashboard-header .date-info {
-            text-align: right;
-            font-size: 0.9rem; /* text-sm */
-            color: #6b7280; /* gray */
-        }
-
-        /* Overview Cards */
-        .overview-cards {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem; /* gap-6 */
-            margin-bottom: 2rem; /* mb-8 */
-        }
-
-        @media (min-width: 768px) { /* md:grid-cols-3 */
-            .overview-cards {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .card {
-            background-color: #ffffff; /* bg-white */
-            border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-            padding: 1.5rem; /* p-6 */
+        .chart-placeholder {
+            background-color: #eceff1;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #78909c;
+            min-height: 150px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .card:hover {
-            transform: scale(1.05);
-        }
-
-        .card .icon-value {
-            font-size: 3rem; /* text-5xl */
-            font-weight: bold;
-            margin-bottom: 0.5rem; /* mb-2 */
-            display: flex;
-            align-items: center;
-        }
-
-        .card .icon-value i {
-            font-size: 2.5rem; /* text-4xl */
-            margin-right: 0.5rem;
-        }
-
-        .card .label {
-            font-size: 1.25rem; /* text-xl */
-            font-weight: 600;
-            color: #4b5563; /* text-gray-700 */
-        }
-
-        /* Specific card colors */
-        .card.users .icon-value { color: #4f46e5; } /* indigo-600 */
-        .card.ebooks .icon-value { color: #16a34a; } /* green-600 */
-        .card.clerks .icon-value { color: #9333ea; } /* purple-600 */
-
-        /* Detailed Statistics Section */
-        .detailed-stats {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem; /* gap-6 */
-            margin-bottom: 2rem; /* mb-8 */
-        }
-
-        @media (min-width: 1024px) { /* lg:grid-cols-2 */
-            .detailed-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .stat-panel {
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-        }
-
-        .stat-panel h2 {
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: bold;
-            color: #1f2937; /* primary */
-            margin-bottom: 1rem; /* mb-4 */
-            display: flex;
-            align-items: center;
-        }
-
-        .stat-panel h2 i {
-            margin-right: 0.5rem;
-        }
-
-        .stat-panel .metric {
-            font-size: 1.125rem; /* text-lg */
-            margin-bottom: 1rem;
-        }
-
-        .stat-panel .metric .value {
-            font-weight: 600;
-            color: #2563eb; /* blue-600 */
-        }
-
-        .stat-panel h3 {
-            font-size: 1.25rem; /* text-xl */
-            font-weight: 600;
-            color: #1f2937; /* primary */
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-panel ul {
-            list-style: disc;
-            list-style-position: inside;
-            color: #4b5563; /* text-gray-700 */
-        }
-
-        .stat-panel ul li {
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-panel ul li .title {
-            font-weight: 500;
-        }
-
-        .chart-placeholder {
-            margin-top: 1rem;
-            background-color: #f9fafb;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            color: #6b7280;
             font-style: italic;
+            font-size: 0.9rem;
         }
-
-        .category-list, .role-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            font-size: 0.875rem;
+        /* Message box styles */
+        .message-box {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
         }
-
-        .category-item, .role-item {
-            display: flex;
-            align-items: center;
+        .message-box h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1e293b;
         }
-
-        .color-box {
-            width: 0.75rem;
-            height: 0.75rem;
-            border-radius: 9999px;
-            margin-right: 0.5rem;
+        .message-box button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 15px;
         }
-
-        .role-bar-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
+        .message-box button:hover {
+            background-color: #2563eb;
         }
-
-        .role-bar-label {
-            width: 96px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .role-bar-fill {
-            flex-grow: 1;
-            background-color: #e5e7eb;
-            border-radius: 9999px;
-            height: 1.5rem;
-            overflow: hidden;
-        }
-
-        .role-bar-inner {
-            height: 100%;
-            border-radius: 9999px;
-        }
-
-        .role-bar-count {
-            margin-left: 0.5rem;
-            font-size: 0.875rem;
+        @media (max-width: 768px) {
+            #mainContent {
+                margin-left: 0;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="main-layout-container">
-        <!-- Sidebar (Embedded HTML) -->
-        <div class="sidebar">
-            <h2>Admin Menu</h2>
-            <nav>
-                <ul>
-                    <li class="mb-2">
-                        <a href="dashboardAdmin.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="manageEbook.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="manageUser.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-users mr-3"></i> Manage Users
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="approveBookList.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-check-circle mr-3"></i> Approved Books
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+    <!-- Sidebar -->
+    <div id="mySidebar" class="sidebar">
+        <a href="dashboardAdmin.html">Dashboard</a>
+        <a href="manageEbook.html">Manage eBooks</a>
+        <a href="approveBookList.html">Approved eBooks</a>
+        <a href="manageUser.html">Manage Users</a>
+    </div>
 
-        <div class="main-content">
-            <div class="dashboard-header">
-                <h1>Admin Dashboard</h1>
-                <div class="date-info">
-                    <p>Welcome, Administrator!</p>
-                    <p><script>document.write(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));</script></p>
-                </div>
-            </div>
+    <!-- Main Content -->
+    <div id="mainContent">
+        <div class="container-content">
+            <h1>Admin Dashboard</h1>
 
-            <div class="overview-cards">
-                <div class="card users">
-                    <div class="icon-value">
-                        <i class="lucide lucide-users"></i> <span id="totalUsersValue"></span>
-                    </div>
-                    <p class="label">Total Registered Users</p>
-                </div>
-
-                <div class="card ebooks">
-                    <div class="icon-value">
-                        <i class="lucide lucide-book-open"></i> <span id="totalEbooksValue"></span>
-                    </div>
-                    <p class="label">Total Ebooks</p>
-                </div>
-
-                <div class="card clerks">
-                    <div class="icon-value">
-                        <i class="lucide lucide-user-cog"></i> <span id="totalClerksValue"></span>
-                    </div>
-                    <p class="label">Total Clerks</p>
-                </div>
-            </div>
-
-            <div class="detailed-stats">
+            <div class="dashboard-grid">
                 <div class="stat-panel">
                     <h2>
-                        <i class="lucide lucide-bar-chart-2"></i> Ebook Statistics
+                        <i class="lucide lucide-book-open"></i> eBook Statistics
                     </h2>
                     <div class="metric">
                         <p>
-                            <span class="value" id="newEbooksLast30DaysValue"></span> New Ebooks (Last 30 Days)
+                            <span class="value" id="totalEbooksValue"></span> Total eBooks
                         </p>
                     </div>
-                    <div class="mb-4">
-                        <h3>Most Popular Ebooks</h3>
-                        <ul id="mostPopularEbooksList">
-                            <!-- Ebooks populated by JavaScript -->
-                        </ul>
+                    <div class="metric">
+                        <p>
+                            <span class="value" id="newEbooksLast30DaysValue"></span> New eBooks (Last 30 Days)
+                        </p>
                     </div>
                     <div>
-                        <h3>Ebooks by Category</h3>
-                        <div class="category-list" id="ebookCategoriesList">
-                            <!-- Categories populated by JavaScript -->
-                        </div>
+                        <h3>Most Popular eBooks</h3>
+                        <ul class="popular-list" id="mostPopularEbooksList">
+                            <!-- Popular ebooks populated by JavaScript -->
+                        </ul>
                         <div class="chart-placeholder">
                             <p>Pie chart for ebook categories will be displayed here using a charting library (e.g., Chart.js).</p>
                         </div>
@@ -482,6 +227,16 @@
                     <h2>
                         <i class="lucide lucide-users-round"></i> User Statistics
                     </h2>
+                    <div class="metric">
+                        <p>
+                            <span class="value" id="totalUsersValue"></span> Total Users
+                        </p>
+                    </div>
+                    <div class="metric">
+                        <p>
+                            <span class="value" id="totalClerksValue"></span> Total Clerks
+                        </p>
+                    </div>
                     <div class="metric">
                         <p>
                             <span class="value" id="newUsersLast30DaysValue"></span> New Users (Last 30 Days)
@@ -505,5 +260,165 @@
             </div>
         </div>
     </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <h3 id="messageText"></h3>
+        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
+    </div>
+
+    <script type="module">
+        // Supabase Initialization (replace with your actual keys)
+        const SUPABASE_URL = typeof __supabase_url !== 'undefined' ? __supabase_url : 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            fetchDashboardStats();
+        });
+
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            document.getElementById('messageText').textContent = message;
+            document.getElementById('messageBox').style.display = 'block';
+        }
+
+        /**
+         * Fetches dashboard statistics from Supabase.
+         */
+        async function fetchDashboardStats() {
+            try {
+                // Fetch total ebooks
+                const { count: totalEbooks, error: ebooksError } = await supabase
+                    .from('ebooks')
+                    .select('*', { count: 'exact', head: true });
+
+                if (ebooksError) throw ebooksError;
+
+                // Fetch new ebooks last 30 days (example logic, adjust as needed)
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                const { count: newEbooksLast30Days, error: newEbooksError } = await supabase
+                    .from('ebooks')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('created_at', thirtyDaysAgo.toISOString()); // Assuming 'created_at' column
+
+                if (newEbooksError) throw newEbooksError;
+
+                // Fetch most popular ebooks (example: top 3 by a 'reads' column)
+                const { data: popularEbooks, error: popularEbooksError } = await supabase
+                    .from('ebooks')
+                    .select('title, reads')
+                    .order('reads', { ascending: false })
+                    .limit(3);
+
+                if (popularEbooksError) throw popularEbooksError;
+
+                // Fetch total users
+                const { count: totalUsers, error: usersError } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true });
+
+                if (usersError) throw usersError;
+
+                // Fetch total clerks
+                const { count: totalClerks, error: clerksError } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('role', 'Clerk');
+
+                if (clerksError) throw clerksError;
+
+                // Fetch new users last 30 days (example logic)
+                const { count: newUsersLast30Days, error: newUsersError } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('registered', thirtyDaysAgo.toISOString()); // Assuming 'registered' column
+
+                if (newUsersError) throw newUsersError;
+
+                // Simulate active users yesterday (requires more complex backend or analytics)
+                // For demonstration, we'll use a placeholder.
+                const activeUsersYesterday = 850; // Placeholder value
+
+                // Fetch user role distribution
+                const { data: userRoles, error: userRolesError } = await supabase
+                    .from('users')
+                    .select('role');
+
+                if (userRolesError) throw userRolesError;
+
+                const roleCounts = userRoles.reduce((acc, user) => {
+                    acc[user.role] = (acc[user.role] || 0) + 1;
+                    return acc;
+                }, {});
+
+                // Update the DOM with fetched data
+                document.getElementById('totalEbooksValue').textContent = totalEbooks;
+                document.getElementById('newEbooksLast30DaysValue').textContent = newEbooksLast30Days;
+                renderPopularEbooks(popularEbooks);
+
+                document.getElementById('totalUsersValue').textContent = totalUsers;
+                document.getElementById('totalClerksValue').textContent = totalClerks;
+                document.getElementById('newUsersLast30DaysValue').textContent = newUsersLast30Days;
+                document.getElementById('activeUsersYesterdayValue').textContent = activeUsersYesterday;
+                renderUserRoleDistribution(roleCounts);
+
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+                showMessageBox('Failed to load dashboard statistics. Please check console and Supabase configuration.');
+                // Set fallback values or error messages on the dashboard
+                document.getElementById('totalEbooksValue').textContent = 'Error';
+                document.getElementById('newEbooksLast30DaysValue').textContent = 'Error';
+                document.getElementById('mostPopularEbooksList').innerHTML = '<li class="text-gray-500">Error loading popular ebooks.</li>';
+                document.getElementById('totalUsersValue').textContent = 'Error';
+                document.getElementById('totalClerksValue').textContent = 'Error';
+                document.getElementById('newUsersLast30DaysValue').textContent = 'Error';
+                document.getElementById('activeUsersYesterdayValue').textContent = 'Error';
+                document.getElementById('userRoleList').innerHTML = '<li class="text-gray-500">Error loading user roles.</li>';
+            }
+        }
+
+        /**
+         * Renders the list of most popular eBooks.
+         * @param {Array<Object>} ebooks - Array of popular eBook objects.
+         */
+        function renderPopularEbooks(ebooks) {
+            const list = document.getElementById('mostPopularEbooksList');
+            list.innerHTML = '';
+            if (ebooks.length === 0) {
+                list.innerHTML = '<li class="text-gray-500">No popular eBooks to display.</li>';
+                return;
+            }
+            ebooks.forEach(book => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${book.title}</span> <span>${book.reads} reads</span>`;
+                list.appendChild(li);
+            });
+        }
+
+        /**
+         * Renders the user role distribution.
+         * @param {Object} roleCounts - An object with role names as keys and counts as values.
+         */
+        function renderUserRoleDistribution(roleCounts) {
+            const list = document.getElementById('userRoleList');
+            list.innerHTML = '';
+            const sortedRoles = Object.keys(roleCounts).sort((a, b) => roleCounts[b] - roleCounts[a]);
+            if (sortedRoles.length === 0) {
+                list.innerHTML = '<li class="text-gray-500">No user roles to display.</li>';
+                return;
+            }
+            sortedRoles.forEach(role => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${role}</span> <span>${roleCounts[role]}</span>`;
+                list.appendChild(li);
+            });
+        }
+    </script>
 </body>
 </html>

@@ -4,792 +4,429 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users - Admin Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
-
-            // Placeholder data for demonstration (now in JavaScript)
-            const users = [
-                {
-                    id: 1,
-                    username: 'john.doe',
-                    email: 'john.doe@example.com',
-                    role: 'Regular User',
-                    status: 'Active',
-                    registered: 'Jan 15, 2023'
-                },
-                {
-                    id: 2,
-                    username: 'jane.smith',
-                    email: 'jane.smith@example.com',
-                    role: 'Clerk',
-                    status: 'Active',
-                    registered: 'Feb 20, 2023'
-                },
-                {
-                    id: 3,
-                    username: 'admin.user',
-                    email: 'admin.user@example.com',
-                    role: 'Admin',
-                    status: 'Active',
-                    registered: 'Mar 01, 2023'
-                },
-                {
-                    id: 4,
-                    username: 'inactive.user',
-                    email: 'inactive.user@example.com',
-                    role: 'Regular User',
-                    status: 'Inactive',
-                    registered: 'Apr 10, 2023'
-                },
-                {
-                    id: 5,
-                    username: 'suspended.clerk',
-                    email: 'suspended.clerk@example.com',
-                    role: 'Clerk',
-                    status: 'Suspended',
-                    registered: 'May 05, 2023'
-                },
-            ];
-
-            // Function to handle user actions (client-side simulation)
-            window.handleUserAction = function(userId, action, username) {
-                const row = document.getElementById('user-row-' + userId);
-                if (!row) return;
-
-                const statusCell = row.querySelector('.status-cell');
-                const actionsCell = row.querySelector('.actions-cell');
-                const currentStatusSpan = statusCell.querySelector('span');
-
-                let newStatus = '';
-                let message = '';
-                let messageType = 'success';
-
-                if (action === 'toggleStatus') {
-                    if (currentStatusSpan.classList.contains('status-active')) {
-                        newStatus = 'Inactive';
-                        message = `User ${username} Deactivated!`;
-                    } else {
-                        newStatus = 'Active';
-                        message = `User ${username} Activated!`;
-                    }
-                    statusCell.innerHTML = `<span class="status-${newStatus.toLowerCase()}">${newStatus}</span>`;
-                    const toggleButton = actionsCell.querySelector('.toggle-status-button');
-                    if (toggleButton) {
-                        toggleButton.innerHTML = `<i class="lucide lucide-${newStatus === 'Active' ? 'user-x' : 'user-check'}"></i> ${newStatus === 'Active' ? 'Deactivate' : 'Activate'}`;
-                        toggleButton.className = `action-button toggle-status-button ${newStatus === 'Active' ? 'deactivate-button' : 'activate-button'}`;
-                    }
-
-                } else if (action === 'resetPassword') {
-                    message = `Password for User ${username} Reset!`;
-                    messageType = 'success';
-                } else if (action === 'delete') {
-                    openConfirmModal(userId, username);
-                    return;
-                } else if (action === 'edit') {
-                    message = `Editing User ${username}... (Not implemented in preview)`;
-                    messageType = 'info';
-                }
-
-                showMessageBox(message, messageType);
-            };
-
-            // Custom Message Box
-            function showMessageBox(message, type) {
-                const messageBox = document.createElement('div');
-                messageBox.className = `message-box ${type}`;
-                messageBox.innerHTML = `
-                    <p>${message}</p>
-                    <button class="message-box-close" onclick="this.parentNode.remove()">X</button>
-                `;
-                document.body.appendChild(messageBox);
-                setTimeout(() => { messageBox.remove(); }, 3000);
-            }
-
-            // Custom Confirmation Modal
-            let userToDeleteRow = null;
-            window.openConfirmModal = function(userId, username) {
-                userToDeleteRow = document.getElementById('user-row-' + userId);
-                document.getElementById('confirmDeleteText').textContent = `Are you sure you want to permanently delete user "${username}"?`;
-                document.getElementById('confirmModal').style.display = 'flex';
-            };
-
-            window.closeConfirmModal = function() {
-                document.getElementById('confirmModal').style.display = 'none';
-                userToDeleteRow = null;
-            };
-
-            window.confirmDeleteUser = function() {
-                if (userToDeleteRow) {
-                    const username = userToDeleteRow.querySelector('.user-username').textContent;
-                    userToDeleteRow.remove();
-                    showMessageBox(`User "${username}" Deleted!`, 'error');
-                }
-                closeConfirmModal();
-            };
-
-            window.onclick = function(event) {
-                const modal = document.getElementById('confirmModal');
-                const addModal = document.getElementById('addClerkModal');
-                if (event.target === modal) {
-                    closeConfirmModal();
-                }
-                if (event.target === addModal) {
-                    closeAddClerkModal();
-                }
-            };
-
-            // Add Clerk Modal Functions
-            window.openAddClerkModal = function() {
-                document.getElementById('addClerkModal').style.display = 'flex';
-            };
-
-            window.closeAddClerkModal = function() {
-                document.getElementById('addClerkModal').style.display = 'none';
-                document.getElementById('newUsername').value = '';
-                document.getElementById('newEmail').value = '';
-            };
-
-            window.addClerk = function() {
-                const username = document.getElementById('newUsername').value.trim();
-                const email = document.getElementById('newEmail').value.trim();
-
-                if (username === '' || email === '') {
-                    showMessageBox('Please fill in both username and email.', 'error');
-                    return;
-                }
-
-                const newId = Date.now();
-                const newClerk = {
-                    id: newId,
-                    username: username,
-                    email: email,
-                    role: 'Clerk',
-                    status: 'Active',
-                    registered: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-                };
-
-                const tbody = document.querySelector('.user-table tbody');
-                const row = document.createElement('tr');
-                row.id = `user-row-${newId}`;
-                row.innerHTML = `
-                    <td><span class="user-username">${newClerk.username}</span></td>
-                    <td><span class="user-email">${newClerk.email}</span></td>
-                    <td><span class="user-role">${newClerk.role}</span></td>
-                    <td class="status-cell"><span class="status-active">Active</span></td>
-                    <td><span class="user-registered">${newClerk.registered}</span></td>
-                    <td class="actions-cell">
-                        <button class="action-button edit-button" onclick="handleUserAction(${newClerk.id}, 'edit', '${newClerk.username}')">
-                            <i class="lucide lucide-edit"></i> Edit
-                        </button>
-                        <button class="action-button deactivate-button toggle-status-button" onclick="handleUserAction(${newClerk.id}, 'toggleStatus', '${newClerk.username}')">
-                            <i class="lucide lucide-user-x"></i> Deactivate
-                        </button>
-                        <button class="action-button reset-password-button" onclick="handleUserAction(${newClerk.id}, 'resetPassword', '${newClerk.username}')">
-                            <i class="lucide lucide-key-round"></i> Reset Password
-                        </button>
-                        <button class="action-button delete-button" onclick="handleUserAction(${newClerk.id}, 'delete', '${newClerk.username}')">
-                            <i class="lucide lucide-trash-2"></i> Delete
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-                showMessageBox('New Clerk Added!', 'success');
-                closeAddClerkModal();
-            };
-
-            // Search Functionality
-            window.searchUsers = function() {
-                const input = document.getElementById('searchInput').value.toLowerCase();
-                const rows = document.querySelectorAll('.user-table tbody tr');
-
-                rows.forEach(row => {
-                    const username = row.querySelector('.user-username').textContent.toLowerCase();
-                    const email = row.querySelector('.user-email').textContent.toLowerCase();
-                    const role = row.querySelector('.user-role').textContent.toLowerCase();
-
-                    if (username.includes(input) || email.includes(input) || role.includes(input)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            };
-
-            // Initial render of users
-            const tbody = document.querySelector('.user-table tbody');
-            users.forEach(user => {
-                const row = document.createElement('tr');
-                row.id = `user-row-${user.id}`;
-                let statusHtml = '';
-                if (user.status === 'Active') {
-                    statusHtml = `<span class="status-active">${user.status}</span>`;
-                } else if (user.status === 'Inactive') {
-                    statusHtml = `<span class="status-inactive">${user.status}</span>`;
-                } else if (user.status === 'Suspended') {
-                    statusHtml = `<span class="status-suspended">${user.status}</span>`;
-                }
-
-                const toggleStatusText = user.status === 'Active' ? 'Deactivate' : 'Activate';
-                const toggleStatusIcon = user.status === 'Active' ? 'user-x' : 'user-check';
-                const toggleStatusButtonClass = user.status === 'Active' ? 'deactivate-button' : 'activate-button';
-
-                row.innerHTML = `
-                    <td><span class="user-username">${user.username}</span></td>
-                    <td><span class="user-email">${user.email}</span></td>
-                    <td><span class="user-role">${user.role}</span></td>
-                    <td class="status-cell">${statusHtml}</td>
-                    <td><span class="user-registered">${user.registered}</span></td>
-                    <td class="actions-cell">
-                        <button class="action-button edit-button" onclick="handleUserAction(${user.id}, 'edit', '${user.username}')">
-                            <i class="lucide lucide-edit"></i> Edit
-                        </button>
-                        <button class="action-button ${toggleStatusButtonClass} toggle-status-button" onclick="handleUserAction(${user.id}, 'toggleStatus', '${user.username}')">
-                            <i class="lucide lucide-${toggleStatusIcon}"></i> ${toggleStatusText}
-                        </button>
-                        <button class="action-button reset-password-button" onclick="handleUserAction(${user.id}, 'resetPassword', '${user.username}')">
-                            <i class="lucide lucide-key-round"></i> Reset Password
-                        </button>
-                        <button class="action-button delete-button" onclick="handleUserAction(${user.id}, 'delete', '${user.username}')">
-                            <i class="lucide lucide-trash-2"></i> Delete
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        });
-    </script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Root variables */
-        :root {
-            --primary: #253449;
-            --danger: #dc3545;
-            --bg-light: #f7f9fc;
-            --text-dark: #333;
-            --success: #28a745;
-            --warning: #ffc107;
-            --gray: #6b7280; /* Added for consistency */
-        }
-
-        /* General styling for the body */
         body {
-            margin: 0;
             font-family: 'Poppins', sans-serif;
-            color: var(--text-dark);
-        }
-
-        /* Main container for sidebar and content */
-        .main-layout-container {
-            display: flex;
-            min-height: 100vh;
-            background-color: var(--bg-light);
-        }
-
-        /* Sidebar styling */
-        .sidebar {
-            width: 256px;
-            background-color: #1f2937;
-            color: #ffffff;
-            padding: 24px;
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            display: none;
-            flex-shrink: 0;
-        }
-
-        @media (min-width: 768px) {
-            .sidebar {
-                display: block;
-            }
-        }
-
-        .sidebar h2 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 24px;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
             margin: 0;
+            padding: 0; /* Changed to 0 for sidebar layout */
+            display: flex; /* Added for sidebar layout */
+            min-height: 100vh; /* Added for sidebar layout */
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
-
-        .sidebar li {
-            margin-bottom: 8px;
+        h1 {
+            text-align: center; /* This ensures the h1 title is centered */
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 700 !important; /* Ensure h1 is bold and prominent */
+            font-size: 2.25rem; /* Tailwind's text-3xl equivalent */
+        }
+        /* Sidebar styles */
+        .sidebar {
+            height: 100%;
+            width: 250px; /* Always open width */
+            position: fixed;
+            z-index: 10; /* Ensure sidebar is above main content */
+            top: 0;
+            left: 0;
+            background-color: #1A2B42; /* Deep, vibrant dark blue */
+            overflow-x: hidden;
+            transition: 0.5s; /* Keep transition for smooth initial load */
+            padding-top: 60px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar a {
-            display: flex;
-            align-items: center;
-            font-size: 1.125rem;
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: #ffffff;
+            padding: 15px 25px;
             text-decoration: none;
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            font-size: 18px;
+            color: #e2e8f0; /* Light text for links */
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .sidebar a:hover {
-            background-color: #374151;
-            color: #93c5fd;
+            color: #ffffff;
+            background-color: #334155; /* Slightly lighter hover background */
         }
 
-        .sidebar i {
-            margin-right: 12px;
+        /* Main content styles - always has margin-left */
+        #mainContent {
+            padding: 20px;
+            flex-grow: 1;
+            margin-left: 250px; /* Always have space from sidebar */
+            /* Removed position: relative; and z-index: 1; as they are not strictly needed here */
         }
 
-        /* Main Content Area */
-        .main-content {
-            flex: 1;
+        .container-content { /* Renamed from .container to avoid conflict with main layout */
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
             padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
-        /* Page Header */
-        .page-header {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary);
-        }
-
-        .page-header h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .page-header .date-info {
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-
-        /* Action Bar (Search and Add User) */
-        .action-bar {
+        .controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 15px; /* Space between items when wrapped */
+            /* Removed position: relative; and z-index: 2; as they are not strictly needed here */
         }
-
-        .add-btn {
-            background-color: var(--primary);
-            color: #fff;
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.2s ease;
+        .search-bar {
+            flex-grow: 1;
+            margin-right: 15px;
+            max-width: 300px; /* Limit search bar width */
         }
-        .add-btn:hover {
-            opacity: 0.85;
-        }
-
-        .search-input {
-            padding: 8px;
-            width: 250px;
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
             border: 1px solid #ccc;
-            border-radius: 6px;
+            border-radius: 5px;
+            font-size: 1rem;
         }
-
-        /* User List Table */
-        .user-list-container {
-            max-width: 1000px;
-            margin: auto;
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            overflow-x: auto;
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
         }
-
-        .user-table {
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        table {
             width: 100%;
             border-collapse: collapse;
-            border-spacing: 0 15px;
-            margin-bottom: 30px;
-            min-width: 700px;
+            margin-top: 20px;
         }
-
-        .user-table th, .user-table td {
-            padding: 1rem;
-            text-align: center;
-            border-bottom: 1px solid #e5e7eb;
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
-
-        .user-table th {
-            background-color: var(--primary);
-            color: #fff;
-            padding: 12px;
-            border-radius: 10px 10px 0 0;
+        th {
+            background-color: #f8f8f8;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.875rem;
+            color: #555;
         }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .status-active { color: #28a745; font-weight: 600; }
+        .status-inactive { color: #dc3545; font-weight: 600; }
+        .status-pending { color: #ffc107; font-weight: 600; }
 
-        .user-table tbody tr:hover {
-            background-color: #f3f4f6;
-        }
-
-        .user-username, .user-email {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .user-role, .user-registered {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .actions-cell {
-            white-space: nowrap;
-        }
-
-        .action-button {
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            transition: 0.2s ease;
-            margin-right: 0.5rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .action-button:hover {
-            opacity: 0.85;
-        }
-
-        /* Specific button styles */
-        .edit-button {
-            background-color: var(--warning);
-            color: var(--text-dark);
-        }
-        .edit-button:hover {
-            background-color: #e0a800;
-        }
-
-        .deactivate-button {
-            background-color: #f59e0b;
-            color: #ffffff;
-        }
-        .deactivate-button:hover {
-            background-color: #d97706;
-        }
-
-        .activate-button {
-            background-color: var(--success);
-            color: #ffffff;
-        }
-        .activate-button:hover {
-            background-color: #218838;
-        }
-
-        .reset-password-button {
-            background-color: #6c757d;
-            color: #ffffff;
-        }
-        .reset-password-button:hover {
-            background-color: #5a6268;
-        }
-
-        .delete-button {
-            background-color: var(--danger);
-            color: #ffffff;
-        }
-        .delete-button:hover {
-            opacity: 0.85;
-        }
-
-        /* Status badges */
-        .status-active {
-            background-color: #d1fae5;
-            color: #065f46;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .status-inactive {
-            background-color: #fee2e2;
-            color: #991b1b;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .status-suspended {
-            background-color: #fffbeb;
-            color: #92400e;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        /* Custom Message Box Styles */
-        .message-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            color: white;
-            font-weight: bold;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            animation: fadeInOut 3s forwards;
-        }
-
-        .message-box.success {
-            background-color: var(--success);
-        }
-
-        .message-box.error {
-            background-color: var(--danger);
-        }
-
-        .message-box.info {
-            background-color: #17a2b8;
-        }
-
-        .message-box-close {
+        .action-buttons button {
             background: none;
             border: none;
-            color: white;
-            font-size: 1.2em;
             cursor: pointer;
-            padding: 0 5px;
+            padding: 5px;
+            margin: 0 3px;
+            transition: transform 0.2s ease;
+        }
+        .action-buttons button:hover {
+            transform: scale(1.1);
+        }
+        .action-buttons svg {
+            width: 20px;
+            height: 20px;
+            color: #6c757d;
+        }
+        .action-buttons button:hover svg {
+            color: #007bff;
+        }
+        .action-buttons .delete-icon:hover svg {
+            color: #dc3545;
+        }
+        .action-buttons .edit-icon:hover svg {
+            color: #ffc107;
         }
 
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(-20px); }
-            10% { opacity: 1; transform: translateY(0); }
-            90% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-20px); }
-        }
-
-        /* Modal Styling */
+        /* Modal Styles */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
             left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            animation: fadeIn 0.3s ease-in-out;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
             justify-content: center;
             align-items: center;
+            pointer-events: none; /* Crucial: Prevents clicks when hidden */
         }
-
         .modal-content {
             background-color: #fefefe;
-            margin: auto;
             padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 10px;
+            border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
             position: relative;
-            text-align: left;
         }
-
         .modal-header {
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 15px;
         }
-
         .modal-header h2 {
             margin: 0;
-            color: var(--primary);
             font-size: 1.5rem;
+            color: #2c3e50;
         }
-
         .modal-close-btn {
             color: #aaa;
-            float: right;
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
         }
-
         .modal-close-btn:hover,
         .modal-close-btn:focus {
             color: #000;
             text-decoration: none;
-            cursor: pointer;
         }
-
         .modal-body label {
             display: block;
             margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--text-dark);
+            font-weight: 500;
+            color: #555;
         }
-
         .modal-body input[type="text"],
-        .modal-body input[type="email"] {
-            width: calc(100% - 20px);
+        .modal-body input[type="email"],
+        .modal-body select {
+            width: 100%;
             padding: 10px;
             margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
-
         .modal-footer {
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        /* Message box styles */
+        .message-box {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            pointer-events: none; /* Crucial: Prevents clicks when hidden */
+        }
+        .message-box h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        .message-box button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
             margin-top: 15px;
         }
-
-        .modal-footer .btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.2s ease;
-            margin-left: 10px;
-        }
-        .modal-footer .btn-primary {
-            background-color: var(--primary);
-            color: #fff;
-        }
-        .modal-footer .btn-primary:hover {
-            opacity: 0.85;
-        }
-        .modal-footer .btn-cancel {
-            background-color: var(--gray);
-            color: #fff;
-        }
-        .modal-footer .btn-cancel:hover {
-            opacity: 0.85;
-        }
-        .modal-footer .btn-danger {
-            background-color: var(--danger);
-            color: #fff;
-        }
-        .modal-footer .btn-danger:hover {
-            opacity: 0.85;
+        .message-box button:hover {
+            background-color: #2563eb;
         }
 
-        /* Specific styles for confirmation modal */
-        #confirmModal .modal-content {
-            text-align: center;
-        }
-        #confirmModal .modal-body p {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            /* Adjust main content margin for smaller screens when sidebar might be hidden */
+            #mainContent {
+                margin-left: 0;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-bar {
+                margin-right: 0;
+                max-width: 100%;
+            }
+            .btn {
+                width: 100%;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            td:before {
+                position: absolute;
+                top: 12px;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: #555;
+            }
+            td:nth-of-type(1):before { content: "ID"; }
+            td:nth-of-type(2):before { content: "Username"; }
+            td:nth-of-type(3):before { content: "Email"; }
+            td:nth-of-type(4):before { content: "Role"; }
+            td:nth-of-type(5):before { content: "Status"; }
+            td:nth-of-type(6):before { content: "Registered"; }
+            td:nth-of-type(7):before { content: "Actions"; }
+            .action-buttons {
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="main-layout-container">
-        <!-- Sidebar (Embedded HTML) -->
-        <div class="sidebar">
-            <h2>Admin Menu</h2>
-            <nav>
-                <ul>
-                    <li class="mb-2">
-                        <a href="dashboardAdmin.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="manageEbook.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="manageUser.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-users mr-3"></i> Manage Users
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="approveBookList.html" class="flex items-center text-lg px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300 transition-colors duration-200">
-                            <i class="lucide lucide-check-circle mr-3"></i> Approved Books
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+    <!-- Sidebar -->
+    <div id="mySidebar" class="sidebar">
+        <a href="dashboardAdmin.html">Dashboard</a>
+        <a href="manageEbook.html">Manage eBooks</a>
+        <a href="approveBookList.html">Approved eBooks</a>
+        <a href="manageUser.html">Manage Users</a>
+    </div>
 
-        <div class="main-content">
-            <div class="page-header">
-                <h1>Manage Users</h1>
-                <div class="date-info">
-                    <p>Welcome, Administrator!</p>
-                    <p><script>document.write(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));</script></p>
+    <!-- Main Content -->
+    <div id="mainContent">
+        <div class="container-content">
+            <h1>User Management - Admin Panel</h1>
+            <div id="currentTime" class="text-center text-gray-600 text-sm mb-4"></div>
+
+            <div class="controls">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search users..." onkeyup="searchUsers()">
                 </div>
+                <button class="btn btn-primary" onclick="openAddClerkModal()">Add New Clerk</button>
             </div>
 
-            <div class="action-bar">
-                <button class="add-btn" onclick="openAddClerkModal()">Add New Clerk</button>
-                <input type="text" id="searchInput" class="search-input" onkeyup="searchUsers()" placeholder="Search users...">
-            </div>
-
-            <div class="user-list-container">
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Registered On</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- User rows will be dynamically inserted here by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Registered</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- User rows will be dynamically inserted here -->
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Add Clerk Modal -->
+    <!-- Add New Clerk Modal -->
     <div id="addClerkModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Add New Clerk</h2>
                 <span class="modal-close-btn" onclick="closeAddClerkModal()">&times;</span>
             </div>
-            <div class="modal-body">
-                <label for="newUsername">Username:</label>
-                <input type="text" id="newUsername" placeholder="Enter username">
-                <label for="newEmail">Email:</label>
-                <input type="email" id="newEmail" placeholder="Enter email">
+            <form id="addClerkForm">
+                <div class="modal-body">
+                    <label for="newUsername">Username:</label>
+                    <input type="text" id="newUsername" placeholder="Enter username" required>
+                    <label for="newEmail">Email:</label>
+                    <input type="email" id="newEmail" placeholder="Enter email" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Clerk</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeAddClerkModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit User</h2>
+                <span class="modal-close-btn" onclick="closeEditUserModal()">&times;</span>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="addClerk()">Add Clerk</button>
-                <button class="btn btn-cancel" onclick="closeAddClerkModal()">Cancel</button>
-            </div>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="modal-body">
+                    <label for="editUsername">Username:</label>
+                    <input type="text" id="editUsername">
+                    <label for="editEmail">Email:</label>
+                    <input type="email" id="editEmail">
+                    <label for="editRole">Role:</label>
+                    <select id="editRole">
+                        <option value="Regular User">Regular User</option>
+                        <option value="Clerk">Clerk</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                    <label for="editStatus">Status:</label>
+                    <select id="editStatus">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeEditUserModal()">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -801,13 +438,329 @@
                 <span class="modal-close-btn" onclick="closeConfirmModal()">&times;</span>
             </div>
             <div class="modal-body">
-                <p id="confirmDeleteText">Are you sure you want to permanently delete this user?</p>
+                <p id="confirmDeleteText">Are you sure you want to permanently remove this user?</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" onclick="confirmDeleteUser()">Delete</button>
+                <button class="btn btn-danger" onclick="confirmDeleteUser()">Remove</button>
                 <button class="btn btn-cancel" onclick="closeConfirmModal()">Cancel</button>
             </div>
         </div>
     </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <h3 id="messageText"></h3>
+        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
+    </div>
+
+    <script type="module">
+        // Supabase Initialization (replace with your actual keys)
+        const SUPABASE_URL = typeof __supabase_url !== 'undefined' ? __supabase_url : 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let users = []; // This will store the fetched users
+
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            fetchAndRenderUsers(); // Fetch users on page load
+            // The current time display is specific to the dashboard, not typically on management pages.
+            // If you still want it here, uncomment the lines below:
+            // updateCurrentTime();
+            // setInterval(updateCurrentTime, 1000);
+
+            // Event listener for Add Clerk form submission
+            document.getElementById('addClerkForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                addClerk();
+            });
+
+            // Event listener for Edit User form submission
+            document.getElementById('editUserForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                saveUserChanges();
+            });
+        });
+
+        /**
+         * Updates the current time displayed on the page.
+         * This function is typically used on dashboards.
+         */
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true };
+            const timeElement = document.getElementById('currentTime');
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            document.getElementById('messageText').textContent = message;
+            document.getElementById('messageBox').style.display = 'block';
+            document.getElementById('messageBox').style.pointerEvents = 'auto'; // Enable clicks on message box
+        }
+
+        /**
+         * Fetches users from Supabase and renders them into the table.
+         */
+        async function fetchAndRenderUsers() {
+            const { data, error } = await supabase
+                .from('users') // Assuming you have a 'users' table
+                .select('*');
+
+            if (error) {
+                console.error('Error fetching users:', error);
+                showMessageBox('Error loading users. Please check console.');
+                return;
+            }
+            users = data;
+            renderUsers(users);
+        }
+
+        /**
+         * Renders the user data into the table.
+         * @param {Array<Object>} userList - The list of user objects to render.
+         */
+        function renderUsers(userList) {
+            const userTableBody = document.getElementById('userTableBody');
+            userTableBody.innerHTML = ''; // Clear existing rows
+
+            if (userList.length === 0) {
+                userTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">No users found.</td></tr>';
+                return;
+            }
+
+            userList.forEach(user => {
+                const row = userTableBody.insertRow();
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td><span class="role">${user.role}</span></td>
+                    <td><span class="status-${user.status.toLowerCase()}">${user.status}</span></td>
+                    <td>${user.registered}</td>
+                    <td class="action-buttons">
+                        <button onclick="openEditUserModal('${user.id}')" class="edit-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                        </button>
+                        <button onclick="openConfirmModal('${user.id}')" class="delete-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        </button>
+                    </td>
+                `;
+            });
+            lucide.createIcons(); // Re-render Lucide icons for new rows
+        }
+
+        /**
+         * Searches users based on input value.
+         */
+        function searchUsers() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const filteredUsers = users.filter(user =>
+                user.username.toLowerCase().includes(input) ||
+                user.email.toLowerCase().includes(input) ||
+                user.role.toLowerCase().includes(input)
+            );
+            renderUsers(filteredUsers);
+        }
+
+        let userToDeleteId = null; // To store the ID of the user to be deleted
+
+        /**
+         * Opens the "Add New Clerk" modal.
+         */
+        function openAddClerkModal() {
+            console.log('openAddClerkModal called'); // Added for debugging
+            document.getElementById('addClerkModal').style.display = 'flex';
+            document.getElementById('addClerkModal').style.pointerEvents = 'auto'; // Enable clicks on this modal
+        }
+
+        /**
+         * Closes the "Add New Clerk" modal.
+         */
+        function closeAddClerkModal() {
+            document.getElementById('addClerkModal').style.display = 'none';
+            document.getElementById('addClerkModal').style.pointerEvents = 'none'; // Disable clicks when hidden
+            document.getElementById('addClerkForm').reset(); // Clear form fields
+        }
+
+        /**
+         * Handles adding a new clerk.
+         */
+        async function addClerk() {
+            const newUsername = document.getElementById('newUsername').value;
+            const newEmail = document.getElementById('newEmail').value;
+
+            if (!newUsername || !newEmail) {
+                showMessageBox('Please fill in both username and email.');
+                return;
+            }
+
+            // Placeholder for Supabase user creation (e.g., using auth.signUp or a server-side function)
+            // In a real application, you would typically use Supabase Auth to create new users,
+            // and then potentially add their role to a 'profiles' or 'users' table.
+            // For this front-end only example, we'll simulate adding to the 'users' table.
+            const newUser = {
+                username: newUsername,
+                email: newEmail,
+                role: 'Clerk',
+                status: 'Active',
+                registered: new Date().toISOString().split('T')[0] // Current date
+            };
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([newUser])
+                    .select(); // Use .select() to return the inserted data
+
+                if (error) {
+                    console.error('Error adding new clerk:', error);
+                    showMessageBox('Failed to add new clerk. Please try again.');
+                } else {
+                    console.log('New clerk added successfully:', data); // Added console.log for success
+                    showMessageBox('New clerk added successfully!');
+                    closeAddClerkModal();
+                    fetchAndRenderUsers(); // Refresh the user list
+                }
+            } catch (networkError) {
+                console.error('Network error during clerk addition:', networkError);
+                showMessageBox('Network error. Please check your connection and try again.');
+            }
+        }
+
+        /**
+         * Opens the edit user modal and populates it with data.
+         * @param {string} id - The ID of the user to edit.
+         */
+        function openEditUserModal(id) {
+            const user = users.find(u => u.id == id);
+            if (user) {
+                document.getElementById('editUserId').value = user.id;
+                document.getElementById('editUsername').value = user.username;
+                document.getElementById('editEmail').value = user.email;
+                document.getElementById('editRole').value = user.role;
+                document.getElementById('editStatus').value = user.status;
+                document.getElementById('editUserModal').style.display = 'flex';
+                document.getElementById('editUserModal').style.pointerEvents = 'auto'; // Enable clicks on this modal
+            }
+        }
+
+        /**
+         * Closes the edit user modal.
+         */
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+            document.getElementById('editUserModal').style.pointerEvents = 'none'; // Disable clicks when hidden
+        }
+
+        /**
+         * Saves changes to a user.
+         */
+        async function saveUserChanges() {
+            const userId = document.getElementById('editUserId').value;
+            const updatedData = {
+                username: document.getElementById('editUsername').value,
+                email: document.getElementById('editEmail').value,
+                role: document.getElementById('editRole').value,
+                status: document.getElementById('editStatus').value
+            };
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .update(updatedData)
+                    .eq('id', userId)
+                    .select();
+
+                if (error) {
+                    console.error('Error updating user:', error);
+                    showMessageBox('Failed to update user. Please try again.');
+                } else {
+                    console.log('User updated:', data);
+                    showMessageBox('User updated successfully!');
+                    closeEditUserModal();
+                    fetchAndRenderUsers(); // Refresh the user list
+                }
+            } catch (networkError) {
+                console.error('Network error during user update:', networkError);
+                showMessageBox('Network error. Please check your connection and try again.');
+            }
+        }
+
+        /**
+         * Opens the delete confirmation modal.
+         * @param {string} id - The ID of the user to delete.
+         */
+        function openConfirmModal(id) {
+            userToDeleteId = id;
+            document.getElementById('confirmModal').style.display = 'flex';
+            document.getElementById('confirmModal').style.pointerEvents = 'auto'; // Enable clicks on this modal
+        }
+
+        /**
+         * Closes the delete confirmation modal.
+         */
+        function closeConfirmModal() {
+            userToDeleteId = null;
+            document.getElementById('confirmModal').style.display = 'none';
+            document.getElementById('confirmModal').style.pointerEvents = 'none'; // Disable clicks when hidden
+        }
+
+        /**
+         * Confirms and deletes a user.
+         */
+        async function confirmDeleteUser() {
+            if (!userToDeleteId) return;
+
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .delete()
+                    .eq('id', userToDeleteId);
+
+                if (error) {
+                    console.error('Error deleting user:', error);
+                    showMessageBox('Failed to remove user. Please try again.');
+                } else {
+                    console.log('User removed:', userToDeleteId);
+                    showMessageBox('User removed successfully!');
+                    closeConfirmModal();
+                    fetchAndRenderUsers(); // Refresh the user list
+                }
+            } catch (networkError) {
+                console.error('Network error during user deletion:', networkError);
+                showMessageBox('Network error. Please check your connection and try again.');
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const addClerkModal = document.getElementById('addClerkModal');
+            const editUserModal = document.getElementById('editUserModal');
+            const confirmModal = document.getElementById('confirmModal');
+            const messageBox = document.getElementById('messageBox');
+
+            if (event.target == addClerkModal) {
+                closeAddClerkModal();
+            }
+            if (event.target == editUserModal) {
+                closeEditUserModal();
+            }
+            if (event.target == confirmModal) {
+                closeConfirmModal();
+            }
+            if (event.target == messageBox) {
+                messageBox.style.display = 'none';
+                messageBox.style.pointerEvents = 'none'; // Disable clicks when hidden
+            }
+        };
+    </script>
 </body>
 </html>
