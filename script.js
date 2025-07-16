@@ -1,4 +1,4 @@
-const SUPABASE_URL = https://zfiaoyymowvjurqxrazu.supabase.co;
+const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -155,11 +155,12 @@ if (authForm) {
                 if (error) {
                     showCustomModal('Sign Up Error', error.message, false);
                 } else {
-                    if (data.session) {
-                        // Insert into profiles table upon successful signup and session creation
-                        const { error: profileError } = await supabase.from('profiles').insert([
-                            { id: data.user.id, username: username }
+                        if (data.session) {
+                            // Insert into profiles table including role
+                            const { error: profileError } = await supabase.from('profiles').insert([
+                            { id: data.user.id, username: username, role: role }
                         ]);
+
 
                         if (profileError) {
                             console.error("Error inserting profile:", profileError);

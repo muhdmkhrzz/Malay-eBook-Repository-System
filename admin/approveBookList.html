@@ -5,8 +5,9 @@
   <title>Approved eBooks</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
-  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
@@ -14,58 +15,19 @@
       background-color: #f4f7f6;
       color: #333;
       margin: 0;
-      padding: 0; /* Changed to 0 for sidebar layout */
-      display: flex; /* Added for sidebar layout */
-      min-height: 100vh; /* Added for sidebar layout */
-      overflow-x: hidden; /* Prevent horizontal scroll */
+      padding: 0;
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
     h1 {
       text-align: center;
       color: #2c3e50;
       margin-bottom: 30px;
-      font-weight: 700 !important; /* Ensure h1 is bold and prominent */
-      font-size: 2.25rem; /* Tailwind's text-3xl equivalent */
+      font-weight: 700 !important;
+      font-size: 2.25rem;
     }
-    /* Sidebar styles */
-    .sidebar {
-        height: 100%;
-        width: 250px; /* Always open width */
-        position: fixed;
-        z-index: 10; /* Ensure sidebar is above main content */
-        top: 0;
-        left: 0;
-        background-color: #1A2B42; /* Deep, vibrant dark blue */
-        overflow-x: hidden;
-        transition: 0.5s; /* Keep transition for smooth initial load */
-        padding-top: 60px;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.2);
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sidebar a {
-        padding: 15px 25px;
-        text-decoration: none;
-        font-size: 18px;
-        color: #e2e8f0; /* Light text for links */
-        display: block;
-        transition: 0.3s;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .sidebar a:hover {
-        color: #ffffff;
-        background-color: #334155; /* Slightly lighter hover background */
-    }
-
-    /* Main content styles - always has margin-left */
-    #mainContent {
-        padding: 20px;
-        flex-grow: 1;
-        margin-left: 250px; /* Always have space from sidebar */
-    }
-
-    .container-content { /* Renamed from .container to avoid conflict with main layout */
+    .container-content {
       max-width: 1200px;
       margin: 0 auto;
       background-color: #fff;
@@ -225,7 +187,7 @@
     }
     /* Message box styles */
     .message-box {
-        display: none; /* Hidden by default */
+        display: none;
         position: fixed;
         top: 50%;
         left: 50%;
@@ -257,11 +219,8 @@
     .message-box button:hover {
         background-color: #2563eb;
     }
-
     @media (max-width: 768px) {
-      #mainContent {
-          margin-left: 0;
-      }
+      /* Main content will adjust automatically with flex-1 and no fixed margin-left */
       .controls {
         flex-direction: column;
         align-items: stretch;
@@ -317,68 +276,78 @@
     }
   </style>
 </head>
-<body>
-    <!-- Sidebar -->
-    <div id="mySidebar" class="sidebar">
-        <a href="dashboardAdmin.html">Dashboard</a>
-        <a href="manageEbook.html">Manage eBooks</a>
-        <a href="approveBookList.html">Approved eBooks</a>
-        <a href="manageUser.html">Manage Users</a>
+<body class="bg-gray-100 font-sans flex">
+
+  <aside class="hidden md:flex flex-col justify-between w-64 h-screen bg-gray-800 text-white p-6 sticky top-0">
+    <div>
+        <h2 class="text-2xl font-bold mb-6">Admin Menu</h2>
+        <nav class="space-y-2">
+            <a href="dashboardAdmin.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
+            </a>
+            <a href="manageEbook.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
+            </a>
+            <a href="manageUser.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+                <i class="lucide lucide-users mr-3"></i> Manage Users
+            </a>
+            <a href="approveBookList.html" class="flex items-center px-4 py-2 rounded-lg bg-gray-700 text-blue-300">
+                <i class="lucide lucide-check-circle mr-3"></i> Approved Books
+            </a>
+        </nav>
     </div>
+    <button onclick="window.location.href='../screens/login.html'" class="flex items-center px-4 py-2 mt-4 rounded-lg hover:bg-gray-700 hover:text-red-400">
+      <i class="lucide lucide-log-out mr-3"></i> Logout
+    </button>
+</aside>
 
-    <!-- Main Content -->
-    <div id="mainContent">
-        <div class="container-content">
-            <h1>Approved eBooks</h1>
-
-            <div class="controls">
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="Search by title, author, or genre..." onkeyup="searchBooks()">
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table id="approved-table">
-                    <thead>
-                        <tr>
-                            <th>Cover</th>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Genre</th>
-                            <th>Year Published</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Book rows will be dynamically inserted here by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+  <main class="flex-1 p-6 overflow-y-auto">
+    <div class="container-content">
+      <h1>Approved eBooks</h1>
+      <div class="controls">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search by title, author, or genre..." onkeyup="searchBooks()">
         </div>
+      </div>
+      <div class="table-container">
+        <table id="approved-table">
+          <thead>
+            <tr>
+              <th>Cover</th>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Genre</th>
+              <th>Year Published</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
+      </div>
     </div>
+  </main>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Confirm Deletion</h2>
-                <span class="modal-close-btn" onclick="closeModal('deleteModal')">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p id="deleteText">Are you sure you want to permanently delete this book?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
-                <button class="btn cancel-btn" onclick="closeModal('deleteModal')">Cancel</button>
-            </div>
-        </div>
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Confirm Deletion</h2>
+        <span class="modal-close-btn" onclick="closeModal('deleteModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete "<span id="bookToDeleteTitle"></span>"? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn cancel-btn" onclick="closeModal('deleteModal')">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Message Box -->
-    <div id="messageBox" class="message-box">
-        <h3 id="messageText"></h3>
-        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
-    </div>
+  <div id="messageBox" class="message-box">
+    <h3 id="messageText"></h3>
+    <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
+  </div>
 
   <script type="module">
     // Supabase Initialization (replace with your actual keys)
@@ -386,12 +355,12 @@
     const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'YOUR_SUPABASE_ANON_KEY';
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let approvedBooksData = []; // To store data fetched from Supabase
-    let bookToDeleteId = null; // To store the ID of the book to be deleted
+    let allApprovedBooks = [];
+    let bookToDeleteId = null;
 
     document.addEventListener('DOMContentLoaded', function() {
-        lucide.createIcons();
-        fetchAndRenderApprovedBooks(); // Fetch and render books on page load
+      lucide.createIcons();
+      fetchAndRenderApprovedBooks(); // Fetch and render books on page load
     });
 
     /**
@@ -403,90 +372,70 @@
         document.getElementById('messageBox').style.display = 'block';
     }
 
-    /**
-     * Fetches approved eBooks from Supabase and renders them.
-     */
     async function fetchAndRenderApprovedBooks() {
-        const { data, error } = await supabase
-            .from('ebooks')
-            .select('*')
-            .eq('status', 'approved'); // Only fetch approved books
+      const { data, error } = await supabase
+        .from('ebooks')
+        .select('*')
+        .eq('status', 'approved'); // Filter for approved books
 
-        if (error) {
-            console.error('Error fetching approved eBooks:', error);
-            document.querySelector('#approved-table tbody').innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">Error loading approved eBooks.</td></tr>';
-            return;
-        }
+      if (error) {
+        console.error('Error fetching approved books:', error);
+        document.getElementById('approved-table-body').innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">Error loading approved books.</td></tr>';
+        return;
+      }
 
-        approvedBooksData = data; // Store fetched data
-        renderTableRows(approvedBooksData); // Render all initially
+      allApprovedBooks = data;
+      renderTableRows(allApprovedBooks);
     }
 
-    /**
-     * Renders table rows based on the provided data.
-     * @param {Array<Object>} books - Array of book objects to render.
-     */
     function renderTableRows(books) {
-        const tbody = document.querySelector('#approved-table tbody');
-        tbody.innerHTML = ''; // Clear existing rows
+      const tbody = document.querySelector('#approved-table tbody');
+      tbody.innerHTML = ''; // Clear existing rows
 
-        if (books.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">No approved eBooks found.</td></tr>';
-            return;
-        }
+      if (books.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">No approved books found.</td></tr>';
+        return;
+      }
 
-        books.forEach(book => {
-            const row = tbody.insertRow();
-            row.innerHTML = `
-                <td><img src="${book.imageUrl || 'https://placehold.co/80x120/cccccc/333333?text=No+Image'}" alt="Cover" class="book-cover-thumbnail" onerror="this.onerror=null;this.src='https://placehold.co/80x120/cccccc/333333?text=No+Image';"></td>
-                <td>${book.title}</td>
-                <td>${book.author}</td>
-                <td>${book.genre}</td>
-                <td>${book.yearPublished || 'N/A'}</td>
-                <td class="action-buttons">
-                    <button onclick="openDeleteModal('${book.id}')" class="delete-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                    </button>
-                </td>
-            `;
-        });
-        lucide.createIcons(); // Re-render Lucide icons for new rows
+      books.forEach(book => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img src="${book.cover_image_url || 'placeholder.jpg'}" alt="${book.title}" class="book-cover-thumbnail"></td>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.genre}</td>
+          <td>${book.year_published}</td>
+          <td class="action-buttons">
+            <button onclick="openDeleteModal('${book.id}', '${book.title}')" class="delete-icon" title="Delete">
+              <i class="lucide lucide-trash-2"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    /**
-     * Searches books based on input value.
-     */
     function searchBooks() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const filteredBooks = approvedBooksData.filter(book =>
-            book.title.toLowerCase().includes(input) ||
-            book.author.toLowerCase().includes(input) ||
-            book.genre.toLowerCase().includes(input)
-        );
-        renderTableRows(filteredBooks);
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filteredBooks = allApprovedBooks.filter(book =>
+        book.title.toLowerCase().includes(searchTerm) ||
+        book.author.toLowerCase().includes(searchTerm) ||
+        book.genre.toLowerCase().includes(searchTerm)
+      );
+      renderTableRows(filteredBooks);
     }
 
-    /**
-     * Opens the delete confirmation modal.
-     * @param {string} id - The ID of the book to delete.
-     */
-    function openDeleteModal(id) {
-        bookToDeleteId = id;
-        document.getElementById('deleteModal').style.display = 'flex';
+    function openDeleteModal(bookId, bookTitle) {
+      bookToDeleteId = bookId;
+      document.getElementById('bookToDeleteTitle').textContent = bookTitle;
+      document.getElementById('deleteModal').style.display = 'flex';
     }
 
-    /**
-     * Closes a specified modal.
-     * @param {string} id - The ID of the modal element to close.
-     */
     function closeModal(id) {
-        document.getElementById(id).style.display = 'none';
-        bookToDeleteId = null; // Clear the stored ID when modal closes
+      document.getElementById(id).style.display = 'none';
+      bookToDeleteId = null; // Clear the stored ID when modal closes
     }
 
-    /**
-     * Confirms and deletes a book.
-     */
     async function confirmDelete() {
         if (!bookToDeleteId) return;
 
@@ -521,6 +470,17 @@
         if (event.target === messageBox) {
             messageBox.style.display = 'none';
         }
+    };
+
+    window.logout = async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error logging out:', error.message);
+        alert('Error logging out: ' + error.message); // Changed to alert
+      } else {
+        console.log('User logged out successfully.');
+        window.location.href = 'index.html'; // Redirect to index.html
+      }
     };
 
     // Expose functions to global scope for HTML onclick attributes

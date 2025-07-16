@@ -130,203 +130,175 @@
       font-size: 1.5rem;
       color: var(--surface-text-dark);
       margin-bottom: 10px;
-      font-weight: 600;
     }
 
     .stat-card p {
       font-size: 2.5rem;
       font-weight: 700;
-      color: var(--accent-blue); /* Default color, overridden by specific classes */
+      color: var(--accent-blue); /* Use accent color for numbers */
     }
 
-    .stat-card.pending p { color: var(--accent-orange); }
-    .stat-card.rejected p { color: var(--accent-red); }
-    .stat-card.available p { color: var(--accent-green); }
-
-    .genre-stats-grid { /* New style for genre grid */
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 20px;
-        width: 100%;
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 1px solid rgba(0,0,0,0.1);
+    .genre-stats-section {
+      width: 100%;
+      margin-top: 50px;
     }
 
-    .genre-card { /* New style for individual genre cards */
-        background-color: rgba(255, 255, 255, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        backdrop-filter: blur(8px);
-        transition: transform 0.2s ease-in-out;
+    .genre-stats-section h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--surface-text-dark);
+      font-weight: 700 !important;
+    }
+
+    .genre-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+
+    .genre-card {
+      background-color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(8px);
+      transition: transform 0.15s ease-in-out;
     }
 
     .genre-card:hover {
-        transform: translateY(-3px);
+      transform: translateY(-3px);
     }
 
     .genre-card h3 {
-        font-size: 1.2rem;
-        color: var(--surface-text-dark);
-        margin-bottom: 8px;
-        font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--surface-text-dark);
+      margin-bottom: 8px;
     }
 
     .genre-card p {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--accent-blue);
-    }
-
-
-    .quick-actions {
-      margin-top: 50px;
-      width: 100%;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .action-button {
-      background-color: var(--accent-blue);
-      color: white;
-      padding: 15px 25px;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      flex: 1 1 auto; /* Allow buttons to grow and shrink */
-      max-width: 250px; /* Limit button width */
-    }
-
-    .action-button:hover {
-      background-color: #0056b3;
-      transform: translateY(-2px);
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--accent-green); /* Use a different accent color for genre counts */
     }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
       .stats-grid, .genre-stats-grid {
-        grid-template-columns: 1fr; /* Stack cards on small screens */
-      }
-      .quick-actions {
-        flex-direction: column; /* Stack buttons on small screens */
-        align-items: center;
-      }
-      .action-button {
-        width: 100%; /* Full width buttons */
-        max-width: 300px;
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-    <!-- Sidebar -->
     <div id="mySidebar" class="sidebar">
         <a href="dashboardClerk.html">Dashboard</a>
         <a href="addNewBook.html">Add New eBook</a>
         <a href="rejectedeBook.html">Rejected eBooks</a>
         <a href="eBookStatus.html">eBook Status</a>
-        
+        <a href="/logout.html" id="logoutButton" class="logout-link">Logout</a>
     </div>
 
-    <!-- Main Content -->
     <div id="mainContent">
         <div class="container-content">
-            <h1 class="text-3xl">eBook Management Dashboard</h1>
+            <h1>eBook Management Dashboard</h1>
 
             <div class="stats-grid">
-                <div class="stat-card pending">
-                    <h2>Pending eBooks</h2>
-                    <p id="pendingCount">0</p>
+                <div class="stat-card">
+                    <h2>Total eBooks</h2>
+                    <p id="totalEbooksCount">...</p>
                 </div>
-                <div class="stat-card rejected">
-                    <h2>Rejected eBooks</h2>
-                    <p id="rejectedCount">0</p>
+                <div class="stat-card">
+                    <h2>Pending Approval</h2>
+                    <p id="pendingApprovalCount">...</p>
                 </div>
-                <div class="stat-card available">
+                <div class="stat-card">
                     <h2>Available eBooks</h2>
-                    <p id="availableCount">0</p>
+                    <p id="availableCount">...</p>
+                </div>
+                <div class="stat-card">
+                    <h2>Rejected eBooks</h2>
+                    <p id="rejectedCount">...</p>
                 </div>
             </div>
 
-            <h2 class="text-2xl text-center mt-10 mb-6 text-gray-700 font-semibold">eBooks by Genre</h2>
-            <div class="genre-stats-grid" id="genreStatsGrid">
-                <!-- Genre stats will be dynamically inserted here -->
-            </div>
-
-            <div class="quick-actions">
-                <button class="action-button" onclick="location.href='addNewBook.html'">Add New eBook</button>
-                <button class="action-button" onclick="location.href='eBookStatus.html'">View All Statuses</button>
-                <button class="action-button" onclick="location.href='currentEbook.html'">Manage Available eBooks</button>
-                <button class="action-button" onclick="location.href='rejectedeBook.html'">Review Rejected eBooks</button>
+            <div class="genre-stats-section">
+                <h2>eBooks by Genre</h2>
+                <div id="genreStatsGrid" class="genre-stats-grid">
+                    </div>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        // Supabase Initialization
-        // This attempts to use global variables if provided by the environment,
-        // otherwise falls back to placeholders.
-        const SUPABASE_URL = typeof __supabase_url !== 'undefined' ? __supabase_url :  'https://zfiaoyymowvjurqxrazu.supabase.co';
-        const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
-;
+    <script>
+        const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Replace with your Supabase URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Replace with your Supabase Anon Key
+
         const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Logout functionality
+        document.getElementById('logoutButton').addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error logging out:', error.message);
+                alert('Error logging out: ' + error.message);
+            } else {
+                window.location.href = 'login.html'; // Redirect to your login page
+            }
+        } catch (err) {
+            console.error('Network error during logout:', err.message);
+            alert('Network error during logout: ' + err.message);
+        }
+    });
+
         /**
-         * Fetches and updates the dashboard statistics from Supabase.
+         * Fetches and displays dashboard statistics.
          */
         async function fetchDashboardStats() {
             try {
-                // Fetch all eBooks to calculate counts by status and genre
-                const { data, error } = await supabase
+                // Fetch all ebooks to calculate stats
+                const { data: ebooks, error } = await supabase
                     .from('ebooks')
-                    .select('status, genre'); // Select both status and genre
+                    .select('status, genre');
 
                 if (error) {
-                    console.error('Error fetching dashboard stats:', error);
-                    document.getElementById('pendingCount').textContent = 'Error';
-                    document.getElementById('rejectedCount').textContent = 'Error';
+                    console.error('Error fetching dashboard stats:', error.message);
+                    document.getElementById('totalEbooksCount').textContent = 'Error';
+                    document.getElementById('pendingApprovalCount').textContent = 'Error';
                     document.getElementById('availableCount').textContent = 'Error';
+                    document.getElementById('rejectedCount').textContent = 'Error';
                     document.getElementById('genreStatsGrid').innerHTML = '<p class="text-center text-gray-500 col-span-full">Error loading genre stats.</p>';
                     return;
                 }
 
-                let pending = 0;
-                let rejected = 0;
-                let available = 0; // Includes 'approved' and 'in-library'
-                const genreCounts = {};
+                const totalEbooks = ebooks.length;
+                const pendingApproval = ebooks.filter(book => book.status === 'pending').length;
+                const approvedEbooks = ebooks.filter(book => book.status === 'approved').length;
+                const rejectedEbooks = ebooks.filter(book => book.status === 'rejected').length;
 
-                data.forEach(book => {
-                    if (book.status === 'pending') {
-                        pending++;
-                    } else if (book.status === 'rejected') {
-                        rejected++;
-                    } else if (book.status === 'approved' || book.status === 'in-library') {
-                        available++;
-                        // Count by genre only for available books
-                        const genre = book.genre || 'Uncategorized'; // Handle books without a genre
-                        genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+                document.getElementById('totalEbooksCount').textContent = totalEbooks;
+                document.getElementById('pendingApprovalCount').textContent = pendingApproval;
+                document.getElementById('availableCount').textContent = approvedEbooks;
+                document.getElementById('rejectedCount').textContent = rejectedEbooks;
+
+                // Calculate genre counts
+                const genreCounts = ebooks.reduce((acc, book) => {
+                    if (book.status === 'approved') { // Only count approved books for genre stats
+                        acc[book.genre] = (acc[book.genre] || 0) + 1;
                     }
-                });
-
-                document.getElementById('pendingCount').textContent = pending;
-                document.getElementById('rejectedCount').textContent = rejected;
-                document.getElementById('availableCount').textContent = available;
+                    return acc;
+                }, {});
 
                 renderGenreStats(genreCounts);
 
-            } catch (error) {
-                console.error("Dashboard data loading error:", error);
-                document.getElementById('pendingCount').textContent = 'Error';
-                document.getElementById('rejectedCount').textContent = 'Error';
+            } catch (networkError) {
+                console.error('Network error fetching dashboard stats:', networkError);
+                document.getElementById('totalEbooksCount').textContent = 'Error';
+                document.getElementById('pendingApprovalCount').textContent = 'Error';
                 document.getElementById('availableCount').textContent = 'Error';
                 document.getElementById('genreStatsGrid').innerHTML = '<p class="text-center text-gray-500 col-span-full">Error loading genre stats.</p>';
             }
