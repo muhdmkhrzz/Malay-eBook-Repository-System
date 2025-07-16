@@ -235,7 +235,7 @@
       const { error } = await supabase.from("review").insert([{
         ebook_id: parseInt(bookId),
         user_id: user.id,
-        reviewer_name: user.email, // 👈 ADD this
+        reviewer_name: user.email,
         rating: parseInt(rating),
         comment,
         datereview: new Date().toISOString(),
