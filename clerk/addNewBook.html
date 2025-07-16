@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New eBook</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Custom font import for Poppins */
@@ -25,9 +24,18 @@
             font-weight: 700 !important; /* Ensured h1 is bold */
         }
         /* Hide default file input button */
-        input[type="file"] {
-            display: none;
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
         }
+
         /* Style for custom file input button */
         .custom-file-upload {
             border: 2px solid theme('colors.blue.500');
@@ -43,31 +51,64 @@
             background-color: theme('colors.blue.600');
             border-color: theme('colors.blue.600');
         }
+        
+        /* === Image Preview Specific Styles === */
         #imagePreviewContainer {
             width: 150px;
             height: 200px;
-            border: 2px dashed #cbd5e1; /* Light gray dashed border */
+            border: 2px dashed #cbd5e1;
             border-radius: 8px;
-            display: flex;
+            display: flex; /* Still good for centering elements if they weren't absolute */
             justify-content: center;
             align-items: center;
             overflow: hidden;
             cursor: pointer;
             background-color: #f8fafc;
-            position: relative;
-            margin: 0 auto 1rem auto; /* Centered horizontally */
+            position: relative; /* CRITICAL: Establishes positioning context for children */
+            margin: 0 auto 1rem auto;
+            flex-shrink: 0;
         }
         #imagePreview {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+            position: absolute; /* Place precisely over the container */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.2s ease-in-out; /* Smooth fade effect */
+            opacity: 0; /* Hidden by default */
+            pointer-events: none; /* Prevents clicks on hidden image */
         }
         #imagePlaceholderText {
             color: #94a3b8;
             font-size: 0.875rem;
             text-align: center;
             padding: 10px;
+            position: absolute; /* Place precisely over the container */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex; /* Use flexbox to center its own text */
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.2s ease-in-out; /* Smooth fade effect */
+            opacity: 1; /* Visible by default */
+            pointer-events: auto; /* Allows clicks on the placeholder */
         }
+
+        /* Utility classes for toggling visibility */
+        .image-active {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        .image-inactive {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        /* === End Image Preview Specific Styles === */
 
         /* Sidebar styles */
         .sidebar {
@@ -154,48 +195,40 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
     <div id="mySidebar" class="sidebar">
         <a href="dashboardClerk.html">Dashboard</a>
-        <a href="currentEbook.html">All eBooks</a>
         <a href="addNewBook.html">Add New eBook</a>
         <a href="rejectedeBook.html">Rejected eBooks</a>
         <a href="eBookStatus.html">eBook Status</a>
-        
     </div>
 
-    <!-- Main Content -->
     <div id="mainContent">
         <div class="container-content">
             <h1 class="text-3xl text-center mb-8 text-gray-800">Add New eBook</h1>
 
             <form id="ebookForm" class="space-y-6">
-                <!-- Book Title -->
                 <div>
                     <label for="bookTitle" class="block text-sm font-medium text-gray-700 mb-1">Book Title</label>
                     <input type="text" id="bookTitle" name="bookTitle" required
                            class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
-                <!-- Author -->
                 <div>
                     <label for="author" class="block text-sm font-medium text-gray-700 mb-1">Author</label>
                     <input type="text" id="author" name="author" required
                            class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
-                <!-- Year Published -->
                 <div>
                     <label for="yearPublished" class="block text-sm font-medium text-gray-700 mb-1">Year Published</label>
                     <input type="number" id="yearPublished" name="yearPublished" min="1000" max="2100"
                            class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
-                <!-- Genre -->
                 <div>
                     <label for="genre" class="block text-sm font-medium text-gray-700 mb-1">Genre</label>
                     <select id="genre" name="genre" required
-                            class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                 class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a genre</option>
                         <option value="Fiction">Fiction</option>
                         <option value="Science Fiction">Science Fiction</option>
@@ -211,40 +244,41 @@
                     </select>
                 </div>
 
-                <!-- Synopsis -->
                 <div>
                     <label for="synopsis" class="block text-sm font-medium text-gray-700 mb-1">Synopsis</label>
                     <textarea id="synopsis" name="synopsis" rows="4" required
-                              class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                     class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
 
-                <!-- Image Upload / URL -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover Image</label>
-                    <div id="imagePreviewContainer" class="mb-4">
-                        <img id="imagePreview" src="" alt="Image Preview" class="hidden">
-                        <span id="imagePlaceholderText">Click to upload or enter URL below</span>
-                    </div>
+                    
+                    <label for="hiddenImageUpload" id="imagePreviewContainer" class="mb-4 cursor-pointer">
+                        <input type="file" id="hiddenImageUpload" name="imageUpload" accept="image/*" class="visually-hidden">
+                        <img id="imagePreview" src="" alt="Image Preview">
+                        <span id="imagePlaceholderText">
+                            Click to upload or enter URL below
+                        </span>
+                    </label>
 
                     <div class="flex items-center space-x-4 mb-4">
-                        <label for="imageUpload" class="custom-file-upload">
+                        <label for="fileUploadButton" class="custom-file-upload">
                             Upload File
                         </label>
-                        <input type="file" id="imageUpload" name="imageUpload" accept="image/*">
+                        <input type="file" id="fileUploadButton" name="fileUploadButton" accept="image/*" class="visually-hidden">
                         <span class="text-gray-500">OR</span>
                         <input type="url" id="imageUrl" name="imageUrl" placeholder="Enter image URL"
                                class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
                 <div class="flex justify-end space-x-4">
                     <button type="button" id="cancelButton"
-                            class="px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                 class="px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Cancel
                     </button>
                     <button type="submit"
-                            class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                 class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Submit for Approval
                     </button>
                 </div>
@@ -252,7 +286,6 @@
         </div>
     </div>
 
-    <!-- Message Box -->
     <div id="messageBox" class="message-box">
         <h3 id="messageText"></h3>
         <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
@@ -260,9 +293,10 @@
 
     <script type="module">
         // Supabase Initialization (replace with your actual keys)
-        const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // e.g., 'https://abcde12345.supabase.co'
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
-; // e.g., 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        // Ensure your Supabase project URL and anon key are correct.
+        // For production, consider environment variables for sensitive keys.
+        const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw';
         const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const ebookForm = document.getElementById('ebookForm');
@@ -271,8 +305,11 @@
         const yearPublishedInput = document.getElementById('yearPublished');
         const genreSelect = document.getElementById('genre');
         const synopsisTextarea = document.getElementById('synopsis');
-        const imageUpload = document.getElementById('imageUpload');
+
+        const hiddenImageUpload = document.getElementById('hiddenImageUpload'); // Linked to imagePreviewContainer label
+        const fileUploadButton = document.getElementById('fileUploadButton');     // Linked to custom-file-upload label
         const imageUrl = document.getElementById('imageUrl');
+        
         const imagePreviewContainer = document.getElementById('imagePreviewContainer');
         const imagePreview = document.getElementById('imagePreview');
         const imagePlaceholderText = document.getElementById('imagePlaceholderText');
@@ -292,27 +329,60 @@
         /**
          * Updates the image preview display.
          * @param {string|null} src - The image source URL or data URL, or null to show placeholder.
+         * @param {string} [placeholderMsg="Click to upload or enter URL below"] - Message for placeholder.
          */
-        function updateImagePreview(src) {
+        function updateImagePreview(src, placeholderMsg = "Click to upload or enter URL below") {
             if (src) {
                 imagePreview.src = src;
-                imagePreview.classList.remove('hidden');
-                imagePlaceholderText.classList.add('hidden');
+                // Make image active (visible) and placeholder inactive (hidden)
+                imagePreview.classList.add('image-active');
+                imagePreview.classList.remove('image-inactive');
+                imagePlaceholderText.classList.add('image-inactive');
+                imagePlaceholderText.classList.remove('image-active');
             } else {
-                imagePreview.src = '';
-                imagePreview.classList.add('hidden');
-                imagePlaceholderText.classList.remove('hidden');
+                imagePreview.src = ''; // Clear the image source
+                // Make image inactive (hidden) and placeholder active (visible)
+                imagePreview.classList.add('image-inactive');
+                imagePreview.classList.remove('image-active');
+                imagePlaceholderText.textContent = placeholderMsg; // Set placeholder text
+                imagePlaceholderText.classList.add('image-active');
+                imagePlaceholderText.classList.remove('image-inactive');
             }
         }
 
-        // Event listener for file input change
-        imageUpload.addEventListener('change', function(event) {
+        // Event listener for hidden file input change (triggered by imagePreviewContainer LABEL click)
+        hiddenImageUpload.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     updateImagePreview(e.target.result);
                     imageUrl.value = ''; // Clear URL input if file is selected
+                    fileUploadButton.value = ''; // Also clear the other file input
+                };
+                reader.onerror = () => {
+                    updateImagePreview(null, "Could not read file.");
+                    console.error("FileReader failed to read file.");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                updateImagePreview(null);
+            }
+        });
+
+        // Event listener for the "Upload File" button input change
+        fileUploadButton.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    updateImagePreview(e.target.result);
+                    imageUrl.value = ''; // Clear URL input if file is selected
+                    hiddenImageUpload.value = ''; // Also clear the other file input
+                };
+                reader.onerror = () => {
+                    updateImagePreview(null, "Could not read file.");
+                    console.error("FileReader failed to read file.");
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -322,72 +392,149 @@
 
         // Event listener for URL input change
         imageUrl.addEventListener('input', function() {
-            const url = this.value;
+            const url = this.value.trim();
             if (url) {
                 const img = new Image();
-                img.onload = () => updateImagePreview(url);
+                img.onload = () => {
+                    updateImagePreview(url);
+                    hiddenImageUpload.value = ''; // Clear file inputs if URL is entered
+                    fileUploadButton.value = '';
+                };
                 img.onerror = () => {
-                    updateImagePreview(null);
+                    updateImagePreview(null, "Invalid image URL or unable to load.");
                     console.error("Failed to load image from URL:", url);
                 };
                 img.src = url;
-                imageUpload.value = ''; // Clear file input if URL is entered
             } else {
-                updateImagePreview(null);
+                updateImagePreview(null); // Show placeholder if URL input is empty
             }
-        });
-
-        // Event listener for clicking the image preview container
-        imagePreviewContainer.addEventListener('click', function() {
-            imageUpload.click(); // Programmatically click the hidden file input
         });
 
         // Event listener for Cancel button
         cancelButton.addEventListener('click', function() {
             ebookForm.reset(); // Resets all form fields
             updateImagePreview(null); // Reset image preview and show text
+            hiddenImageUpload.value = ''; // Ensure file inputs are cleared
+            fileUploadButton.value = '';
         });
 
         // Handle form submission
         ebookForm.addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent default form submission
+            event.preventDefault();
 
-            const newEbookData = {
-                title: bookTitleInput.value,
-                author: authorInput.value,
-                yearPublished: parseInt(yearPublishedInput.value) || null,
-                genre: genreSelect.value,
-                synopsis: synopsisTextarea.value,
-                imageUrl: imagePreview.src || '', // Use the previewed image URL/dataURL
-                status: 'pending', // Set status to pending for admin approval
-                statusDate: new Date().toISOString().split('T')[0] // Current date
-            };
-
-            // Basic validation
-            if (!newEbookData.title || !newEbookData.author || !newEbookData.genre || !newEbookData.synopsis) {
-                showMessageBox('Please fill in all required fields (Title, Author, Genre, Synopsis).');
+            // Basic validation for text fields
+            if (!bookTitleInput.value.trim()) {
+                showMessageBox('Book Title is required.');
+                return;
+            }
+            if (!authorInput.value.trim()) {
+                showMessageBox('Author is required.');
+                return;
+            }
+            if (!genreSelect.value) {
+                showMessageBox('Genre is required.');
+                return;
+            }
+            if (!synopsisTextarea.value.trim()) {
+                showMessageBox('Synopsis is required.');
                 return;
             }
 
+            const file = hiddenImageUpload.files[0] || fileUploadButton.files[0];
+            const useFile = file && file.type.startsWith("image/");
+            const urlInput = imageUrl.value.trim();
+
+            let imageUrlToSave = ''; // Final image URL for DB
+
+            // Determine image source and handle upload if necessary
+            if (useFile) {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `covers/${fileName}`; // This is the path inside your 'book-covers' bucket
+
+                try {
+                    // Upload to Supabase Storage
+                    const { error: uploadError } = await supabase.storage
+                        .from('book-covers') // Your Supabase bucket name
+                        .upload(filePath, file);
+
+                    if (uploadError) {
+                        console.error('Supabase Upload failed:', uploadError);
+                        showMessageBox(`Failed to upload image file: ${uploadError.message}. Check Supabase Storage bucket name ('book-covers') and RLS policies.`);
+                        return;
+                    }
+
+                    // Get public URL
+                    const { data } = supabase.storage
+                        .from('book-covers') // Your Supabase bucket name
+                        .getPublicUrl(filePath);
+
+                    imageUrlToSave = data.publicUrl;
+                } catch (e) {
+                    console.error('Storage operation failed:', e);
+                    showMessageBox(`Error during image upload: ${e.message}.`);
+                    return;
+                }
+            } else if (urlInput) {
+                // Validate if URL is a valid image
+                const isValidImage = await validateImageUrl(urlInput);
+                if (!isValidImage) {
+                    showMessageBox('Invalid image URL. Please enter a valid image link that can be loaded.');
+                    return;
+                }
+                imageUrlToSave = urlInput;
+            } else {
+                showMessageBox('Please upload an image file or provide a valid image URL for the book cover.');
+                return;
+            }
+
+            // Prepare new eBook data
+            const newEbookData = {
+                title: bookTitleInput.value.trim(),
+                author: authorInput.value.trim(),
+                yearPublished: parseInt(yearPublishedInput.value) || null,
+                genre: genreSelect.value,
+                synopsis: synopsisTextarea.value.trim(),
+                imageUrl: imageUrlToSave, // This will be the Supabase public URL or the external URL
+                status: 'pending',
+                statusDate: new Date().toISOString().split('T')[0]
+            };
+
+            // Insert into Supabase database
             try {
-                const { data, error } = await supabase
-                    .from('ebooks')
+                const { error: dbError } = await supabase
+                    .from('ebooks') // Your Supabase table name for eBooks
                     .insert([newEbookData]);
 
-                if (error) {
-                    console.error('Error submitting new eBook:', error);
-                    showMessageBox('Failed to submit eBook for approval. Please try again.');
+                if (dbError) {
+                    console.error('Supabase Insert error:', dbError);
+                    showMessageBox(`Failed to add eBook to database: ${dbError.message}. Check your 'ebooks' table schema and RLS policies.`);
                 } else {
-                    console.log('eBook submitted successfully:', data);
-                    showMessageBox('eBook submitted for approval successfully!');
-                    ebookForm.reset(); // Clear the form
-                    updateImagePreview(null); // Reset image preview
+                    showMessageBox('eBook submitted for approval!');
+                    ebookForm.reset(); // Reset form fields
+                    updateImagePreview(null); // Clear image preview
+                    hiddenImageUpload.value = ''; // Ensure file inputs are cleared after successful submission
+                    fileUploadButton.value = '';
                 }
             } catch (networkError) {
-                console.error('Network error during submission:', networkError);
-                showMessageBox('Network error. Please check your connection and try again.');
+                console.error('Network error during DB insert:', networkError);
+                showMessageBox('Network error. Please check your internet connection and try again.');
             }
         });
+
+        /**
+         * Validates if a URL points to a real image.
+         * @param {string} url - The image URL to test.
+         * @returns {Promise<boolean>} - True if image loads, false if not.
+         */
+        async function validateImageUrl(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+        }
 
         // Initialize preview on page load
         updateImagePreview(null);
