@@ -64,11 +64,10 @@
       <h2 class="text-2xl font-semibold text-center mb-6 text-gray-800">Edit Profile</h2>
 
       <form id="editProfileForm" class="space-y-4">
-        <!-- Username (using email for now as per profile.html) -->
         <div>
           <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-          <input type="text" id="username" name="username" readonly
-                 class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
+          <input type="text" id="username" name="username" required
+                      class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
         </div>
 
         <!-- Email -->
@@ -104,88 +103,100 @@
   </div>
 
   <script>
-    const supabase = window.supabase.createClient(
-      'https://zfiaoyymowvjurqxrazu.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
-    );
+  const supabase = window.supabase.createClient(
+    'https://zfiaoyymowvjurqxrazu.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
+  );
 
-    // Function to display a custom message box instead of alert()
-    function showMessageBox(message) {
-      const messageBox = document.createElement('div');
-      messageBox.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        text-align: center;
-        font-family: 'Inter', sans-serif;
-      `;
-      messageBox.innerHTML = `
-        <p>${message}</p>
-        <button onclick="this.parentNode.remove()" style="margin-top: 15px; padding: 8px 15px; background-color: #4F46E5; color: white; border: none; border-radius: 5px; cursor: pointer;">
-          OK
-        </button>
-      `;
-      document.body.appendChild(messageBox);
+  function showMessageBox(message) {
+    const messageBox = document.createElement('div');
+    messageBox.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+    `;
+    messageBox.innerHTML = `
+      <p>${message}</p>
+      <button onclick="this.parentNode.remove()" style="margin-top: 15px; padding: 8px 15px; background-color: #4F46E5; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        OK
+      </button>
+    `;
+    document.body.appendChild(messageBox);
+  }
+
+  let user = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const { data: authData, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !authData.user) {
+      showMessageBox('You must be logged in to edit your profile.');
+      return;
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+    user = authData.user;
 
-      if (userError || !user) {
-        showMessageBox('You must be logged in to edit your profile.');
-        // Optionally redirect to login page
-        // window.location.href = '/login.html';
-        return;
-      }
+    // ✅ Load data from metadata
+    document.getElementById('username').value = user.user_metadata?.username || '';
+    document.getElementById('email').value = user.email || '';
+  });
 
-      // Pre-fill form with current user data
-      document.getElementById('username').value = user.email || ''; // Using email as username
-      document.getElementById('email').value = user.email || '';
-    });
+  document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
 
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirm_password').value;
+    if (password && password !== confirmPassword) {
+      showMessageBox('New password and confirm password do not match.');
+      return;
+    }
 
-      if (password && password !== confirmPassword) {
-        showMessageBox('New password and confirm password do not match.');
-        return;
-      }
+    let updateData = { data: {} };
 
-      let updateData = {};
-      if (email) {
-        updateData.email = email;
-      }
-      if (password) {
-        updateData.password = password;
-      }
+    if (email && email !== user.email) {
+      updateData.email = email;
+    }
 
-      if (Object.keys(updateData).length === 0) {
-        showMessageBox('No changes to save.');
-        return;
-      }
+    if (password) {
+      updateData.password = password;
+    }
 
-      const { data, error } = await supabase.auth.updateUser(updateData);
+    if (username && username !== user.user_metadata?.username) {
+      updateData.data.username = username;
+    }
 
-      if (error) {
-        showMessageBox(`Failed to update profile: ${error.message}`);
-        console.error('Profile update error:', error);
-      } else {
-        showMessageBox('Profile updated successfully!');
-        // Optionally redirect back to profile page
-        // window.location.href = 'profile.html';
-      }
-    });
-  </script>
+    // Clean up empty data field if not used
+    if (Object.keys(updateData.data).length === 0) {
+      delete updateData.data;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      showMessageBox('No changes to save.');
+      return;
+    }
+
+    const { data, error } = await supabase.auth.updateUser(updateData);
+
+    if (error) {
+      showMessageBox(`Failed to update profile: ${error.message}`);
+      console.error('Profile update error:', error);
+    } else {
+      showMessageBox('Profile updated successfully!');
+      window.location.href = 'profile.html';
+    }
+  });
+</script>
 
 </body>
 </html>
