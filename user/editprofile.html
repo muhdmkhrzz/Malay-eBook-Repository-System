@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Profile - MyEbookMelayu</title>
+  <title>Edit Profile - MyEbookMelayu</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.6/dist/umd/supabase.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -59,38 +59,47 @@
   </aside>
 
   <!-- Main Content Wrapper -->
-  <div class="main-content-wrapper flex-1 p-8">
-    <div class="bg-white p-6 rounded-lg shadow-md">
-      <!-- Profile Info -->
-      <div class="flex flex-col sm:flex-row items-center sm:justify-between">
-        <div class="flex items-center gap-4">
-          <!-- Removed user avatar image -->
-          <div>
-            <h2 id="userName" class="text-2xl font-semibold text-gray-800">Loading...</h2>
-            <p id="userEmail" class="text-gray-600 text-sm">Loading...</p>
-          </div>
-        </div>
-        <div class="mt-4 sm:mt-0 flex gap-3">
-          <a href="editprofile.html" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">✏️ Edit Profile</a>
-          <a href="/logout.html" class="bg-red-100 text-red-600 px-4 py-2 rounded hover:bg-red-200">🚪 Logout</a>
-        </div>
-      </div>
+  <div class="main-content-wrapper flex-1 p-8 flex items-center justify-center">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
+      <h2 class="text-2xl font-semibold text-center mb-6 text-gray-800">Edit Profile</h2>
 
-      <!-- Stats -->
-      <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-        <div class="bg-indigo-50 p-4 rounded-lg shadow">
-          <p id="libraryCount" class="text-xl font-bold text-indigo-700">0</p>
-          <p class="text-sm text-gray-600">Books in Library</p>
+      <form id="editProfileForm" class="space-y-4">
+        <!-- Username (using email for now as per profile.html) -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input type="text" id="username" name="username" readonly
+                 class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
         </div>
-        <div class="bg-pink-50 p-4 rounded-lg shadow">
-          <p id="wishlistCount" class="text-xl font-bold text-pink-700">0</p>
-          <p class="text-sm text-gray-600">Books in Wishlist</p>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" name="email" required
+                 class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        <div class="bg-green-50 p-4 rounded-lg shadow">
-          <p id="reviewsCount" class="text-xl font-bold text-green-700">0</p>
-          <p class="text-sm text-gray-600">Reviews Submitted</p>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">New Password (leave blank to keep current)</label>
+          <input type="password" id="password" name="password"
+                 class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-      </div>
+
+        <!-- Confirm Password -->
+        <div>
+          <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+          <input type="password" id="confirm_password" name="confirm_password"
+                 class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button type="submit"
+                  class="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+            Save Changes
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -129,43 +138,53 @@
       const { data: { user }, error: userError } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        showMessageBox('You must be logged in to view your profile.');
+        showMessageBox('You must be logged in to edit your profile.');
         // Optionally redirect to login page
         // window.location.href = '/login.html';
         return;
       }
 
-      // Display user information
-      document.getElementById('userName').textContent = user.email || 'User'; // Use email as username for now
-      document.getElementById('userEmail').textContent = user.email;
-      // You can add logic here to display a custom avatar if available in user metadata
-
-      // Fetch and display stats
-      await fetchStats(user.id);
+      // Pre-fill form with current user data
+      document.getElementById('username').value = user.email || ''; // Using email as username
+      document.getElementById('email').value = user.email || '';
     });
 
-    async function fetchStats(userId) {
-      // Fetch Library count from localStorage
-      const library = JSON.parse(localStorage.getItem('library')) || [];
-      document.getElementById('libraryCount').textContent = library.length;
+    document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-      // Fetch Wishlist count from localStorage
-      const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-      document.getElementById('wishlistCount').textContent = wishlist.length;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
 
-      // Fetch Reviews count from Supabase
-      const { count: reviewsCount, error: reviewsError } = await supabase
-        .from('review')
-        .select('*', { count: 'exact' })
-        .eq('user_id', userId);
-
-      if (reviewsError) {
-        console.error('Error fetching reviews count:', reviewsError);
-        document.getElementById('reviewsCount').textContent = 'Error';
-      } else {
-        document.getElementById('reviewsCount').textContent = reviewsCount;
+      if (password && password !== confirmPassword) {
+        showMessageBox('New password and confirm password do not match.');
+        return;
       }
-    }
+
+      let updateData = {};
+      if (email) {
+        updateData.email = email;
+      }
+      if (password) {
+        updateData.password = password;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        showMessageBox('No changes to save.');
+        return;
+      }
+
+      const { data, error } = await supabase.auth.updateUser(updateData);
+
+      if (error) {
+        showMessageBox(`Failed to update profile: ${error.message}`);
+        console.error('Profile update error:', error);
+      } else {
+        showMessageBox('Profile updated successfully!');
+        // Optionally redirect back to profile page
+        // window.location.href = 'profile.html';
+      }
+    });
   </script>
 
 </body>
