@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Rejected eBooks - Clerk Panel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary: #1f2937; /* Dark Gray */
@@ -24,542 +27,623 @@
     body {
       background: var(--bg-light);
       margin: 0;
-      padding: 30px;
+      padding: 0; /* Changed to 0 for sidebar layout */
       color: var(--text-dark);
+      display: flex; /* Added for sidebar layout */
+      min-height: 100vh; /* Added for sidebar layout */
+      overflow-x: hidden; /* Added for sidebar layout */
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 50px; /* Increased margin-bottom for more space */
       color: var(--primary);
+      font-family: 'Poppins', sans-serif; /* Ensure Poppins for h1 */
+      font-weight: 700 !important; /* Ensured h1 is bold */
     }
 
-    .search-bar {
-      text-align: center;
+    /* Sidebar styles */
+    .sidebar {
+        height: 100%;
+        width: 250px; /* Always open width */
+        position: fixed;
+        z-index: 10; /* Ensure sidebar is above main content */
+        top: 0;
+        left: 0;
+        background-color: #1A2B42; /* Deep, vibrant dark blue */
+        overflow-x: hidden;
+        transition: 0.5s; /* Keep transition for smooth initial load */
+        padding-top: 60px;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar a {
+        padding: 15px 25px;
+        text-decoration: none;
+        font-size: 18px;
+        color: #e2e8f0; /* Light text for links */
+        display: block;
+        transition: 0.3s;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar a:hover {
+        color: #ffffff;
+        background-color: #334155; /* Slightly lighter hover background */
+    }
+
+    /* Main content styles - always has margin-left */
+    #mainContent {
+        padding: 20px;
+        flex-grow: 1;
+        margin-left: 250px; /* Always have space from sidebar */
+    }
+
+    .container-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+      padding: 30px;
+    }
+
+    .search-container {
       margin-bottom: 20px;
+      text-align: center;
     }
 
-    .search-bar input {
-      padding: 10px;
-      width: 500px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    .table-container {
-      max-width: 1000px;
-      margin: auto;
-      overflow-x: auto; /* Added for responsiveness */
+    .search-container input {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 15px;
+      border: 1px solid #94a3b8; /* Darker outline for search bar */
+      border-radius: 5px;
+      font-size: 1rem;
     }
 
     table {
       width: 100%;
-      border-spacing: 0 15px;
-      min-width: 700px; /* Ensure table doesn't get too small */
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      border-radius: 8px;
+      overflow: hidden; /* Ensures rounded corners apply to table */
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
     }
 
     th {
-      background-color: var(--primary);
-      color: #fff;
-      padding: 12px;
-      border-radius: 10px 10px 0 0;
-      text-align: center;
+      background-color: #f2f2f2;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      font-size: 0.9rem;
     }
 
-    td {
-      background-color: #fff;
-      text-align: center;
-      padding: 15px;
-      border-radius: 0 0 10px 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      vertical-align: middle; /* Align content vertically */
+    tr:hover {
+      background-color: #f5f5f5;
     }
 
-    img.cover {
-      width: 60px;
-      height: 90px;
-      border-radius: 6px;
+    .book-cover-thumbnail {
+      width: 50px;
+      height: 75px;
       object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #eee;
     }
 
-    .btn {
-      padding: 10px 18px; /* Increased padding for better visibility */
+    .actions button {
+      padding: 8px 12px;
       border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: 600; /* Made font bolder */
+      border-radius: 5px;
       cursor: pointer;
-      transition: all 0.2s ease; /* Smooth transition for hover effects */
-      margin-right: 10px;
-      white-space: nowrap;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+      margin-right: 5px; /* Space between buttons */
     }
 
-    .btn:last-child {
-      margin-right: 0;
+    .actions .approve-btn {
+      background-color: var(--success);
+      color: white;
     }
 
-    .btn:hover {
-      transform: translateY(-1px); /* Slight lift effect */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* More pronounced shadow on hover */
-      opacity: 0.9; /* Slight opacity change for hover */
+    .actions .approve-btn:hover {
+      background-color: #218838;
     }
 
-    .edit { background-color: var(--warning); color: #212529; }
-    .resubmit { background-color: var(--info); }
-    .view-reason { background-color: var(--danger); } /* To view the rejection reason */
-    .btn.primary { background-color: var(--ok-button-color); } /* Custom color for OK button */
-    .btn.danger { background-color: var(--danger); } /* Apply new brighter red */
+    .actions .edit-btn {
+      background-color: var(--info);
+      color: white;
+    }
 
+    .actions .edit-btn:hover {
+      background-color: #138496;
+    }
 
-    /* Generic Modal Styling */
+    /* Modal Styles */
     .modal {
       display: none;
       position: fixed;
       z-index: 1000;
-      left: 0; top: 0;
+      left: 0;
+      top: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.4);
-      animation: fadeIn 0.3s ease-in-out;
-      justify-content: center; /* Center horizontally */
-      align-items: center; /* Center vertically */
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; } to { opacity: 1; }
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
     }
 
     .modal-content {
-      background: white;
-      padding: 25px;
-      width: 700px; /* Increased width for edit modal */
+      background-color: #fefefe;
+      padding: 30px;
       border-radius: 10px;
-      text-align: left;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 600px;
       position: relative;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      max-height: 90vh; /* Max height for scrollability */
-      overflow-y: auto; /* Enable scrolling for long forms */
     }
 
-    /* Specific styles for the Message Modal */
-    .message-modal .modal-content {
-        width: 350px; /* Smaller for messages, overrides generic .modal-content width */
-        text-align: center;
-        padding: 30px;
-    }
-    .message-modal h3 {
-        margin-bottom: 15px;
-        color: var(--primary);
-    }
-    .message-modal p {
-        margin-bottom: 20px;
-        font-size: 1.1em;
-    }
-    .message-modal .modal-footer {
-        text-align: center;
-    }
-
-
-    .close {
+    .close-button {
+      color: #aaa;
       position: absolute;
       top: 10px;
-      right: 15px;
-      font-size: 20px;
+      right: 20px;
+      font-size: 28px;
       font-weight: bold;
       cursor: pointer;
     }
 
-    .modal-content h3 {
-      margin-top: 0;
-      color: var(--primary);
+    .close-button:hover,
+    .close-button:focus {
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
     }
 
-    .modal-content p, .modal-content label {
-      margin: 10px 0 5px;
+    .modal-image-preview-container {
+      width: 120px;
+      height: 160px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      cursor: pointer;
+      background-color: #f8fafc;
+      position: relative;
+      margin-bottom: 1rem;
+      margin-right: 1rem; /* Added margin for layout */
+    }
+
+    .modal-image-preview {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .modal-image-placeholder-text {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .modal-file-upload-label {
+      border: 2px solid var(--ok-button-color);
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: theme('borderRadius.md');
+      background-color: var(--ok-button-color);
+      color: white;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .modal-file-upload-label:hover {
+      background-color: #3a7bd5;
+      border-color: #3a7bd5;
+    }
+    .modal-file-input {
+      display: none;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button {
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
       font-weight: 500;
     }
 
-    .modal-content input[type="text"],
-    .modal-content input[type="number"],
-    .modal-content input[type="url"],
-    .modal-content textarea,
-    .modal-content select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box; /* Include padding and border in element's total width and height */
+    .modal-buttons .cancel-btn {
+      background-color: #ccc;
+      color: var(--text-dark);
     }
-    .modal-content textarea {
-        resize: vertical;
+    .modal-buttons .cancel-btn:hover {
+      background-color: #bbb;
     }
 
-    .modal-footer {
-      margin-top: 20px;
-      text-align: right; /* Align buttons to the right */
+    .modal-buttons .save-btn {
+      background-color: var(--ok-button-color);
+      color: white;
+    }
+    .modal-buttons .save-btn:hover {
+      background-color: #3a7bd5;
     }
 
-    .modal-footer .btn {
-        margin-left: 10px;
-        margin-right: 0;
-    }
-
-    .modal-rejection-reason {
-        background-color: #ffe6e6; /* Light red background */
-        border: 1px solid var(--danger);
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        text-align: left; /* Ensure text inside is left-aligned */
-    }
-    .modal-rejection-reason strong {
-        color: var(--danger);
-    }
-    /* Custom file upload button for modal */
-    .modal .custom-file-upload {
-        border: 1px solid #ccc;
-        display: inline-block;
-        padding: 8px 12px;
-        cursor: pointer;
-        border-radius: 6px;
-        background-color: #f0f0f0;
-        color: var(--text-dark);
-        font-weight: normal;
-        transition: background-color 0.2s, border-color 0.2s;
-        margin-top: 5px; /* Space between text and button */
-    }
-    .modal .custom-file-upload:hover {
-        background-color: #e0e0e0;
-    }
-
-
+    /* Responsive adjustments */
     @media (max-width: 768px) {
-      .search-bar input {
-        width: 90%;
-      }
-      .table-container {
-        padding: 0 10px;
-      }
       th, td {
-        padding: 8px;
-        font-size: 13px;
+        padding: 8px 10px;
+        font-size: 0.85rem;
       }
-      .btn {
-        padding: 8px 12px; /* Adjusted button padding for smaller screens */
-        font-size: 12px;
-      }
-      img.cover {
-        width: 50px;
-        height: 75px;
+      .actions button {
+        padding: 6px 8px;
+        font-size: 0.8rem;
       }
       .modal-content {
-        width: 95%;
-        margin: 20px auto;
+        padding: 20px;
       }
-      .message-modal .modal-content {
-          width: 90%;
+      .modal-buttons {
+        flex-direction: column;
+        align-items: stretch;
       }
     }
   </style>
 </head>
 <body>
-
-<h1>Rejected eBooks</h1>
-
-<div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Search eBook by title or author..." onkeyup="searchBooks()">
-</div>
-
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th>Cover</th>
-        <th>Title</th>
-        <th>Genre</th>
-        <th>Author</th>
-        <th>Rejection Reason</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="ebook-table">
-      <tr data-id="1">
-        <td><img src="https://via.placeholder.com/60x90.png?text=Book1" class="cover" alt="Book Cover" /></td>
-        <td class="title">The Whispering Woods</td>
-        <td class="genre">Mystery</td>
-        <td class="author">Alice B. Smith</td>
-        <td class="reason">Synopsis too vague; needs more detail about the conflict.</td>
-        <td>
-          <button class="btn edit" onclick="openEditModal(this)">Edit</button>
-          <button class="btn resubmit" onclick="resubmitBook(this)">Resubmit</button>
-        </td>
-      </tr>
-      <tr data-id="2">
-        <td><img src="https://via.placeholder.com/60x90.png?text=Book2" class="cover" alt="Book Cover" /></td>
-        <td class="title">Galactic Odyssey</td>
-        <td class="genre">Science Fiction</td>
-        <td class="author">John C. Doe</td>
-        <td class="reason">Cover image quality is poor.</td>
-        <td>
-          <button class="btn edit" onclick="openEditModal(this)">Edit</button>
-          <button class="btn resubmit" onclick="resubmitBook(this)">Resubmit</button>
-        </td>
-      </tr>
-       <tr data-id="3">
-        <td><img src="https://via.placeholder.com/60x90.png?text=Book3" class="cover" alt="Book Cover" /></td>
-        <td class="title">Culinary Delights</td>
-        <td class="genre">Cookbook</td>
-        <td class="author">Chef Isabella</td>
-        <td class="reason">Incorrect genre classification. Should be 'Non-Fiction/Cookbook'.</td>
-        <td>
-          <button class="btn edit" onclick="openEditModal(this)">Edit</button>
-          <button class="btn resubmit" onclick="resubmitBook(this)">Resubmit</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div id="editModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal('editModal')">&times;</span>
-    <h3>Edit eBook Details</h3>
-
-    <div class="modal-rejection-reason">
-        <strong>Rejection Reason:</strong> <span id="editModalRejectionReason"></span>
+    <!-- Sidebar -->
+    <div id="mySidebar" class="sidebar">
+        <a href="dashboardClerk.html">Dashboard</a>
+        <a href="currentEbook.html">All eBooks</a>
+        <a href="addNewBook.html">Add New eBook</a>
+        <a href="rejectedeBook.html">Rejected eBooks</a>
+        <a href="eBookStatus.html">eBook Status</a>
+        
     </div>
 
-    <label for="editBookTitle">Book Title</label>
-    <input type="text" id="editBookTitle" name="editBookTitle">
+    <!-- Main Content -->
+    <div id="mainContent">
+        <div class="container-content">
+            <h1 class="text-3xl text-center" style="font-weight: bold;">Rejected eBooks - Clerk Panel</h1>
 
-    <label for="editAuthor">Author</label>
-    <input type="text" id="editAuthor" name="editAuthor">
-
-    <label for="editYearPublished">Year Published</label>
-    <input type="number" id="editYearPublished" name="editYearPublished" min="1000" max="2099">
-
-    <label for="editGenre">Genre</label>
-    <select id="editGenre" name="editGenre">
-        <option value="fiction">Fiction</option>
-        <option value="fantasy">Fantasy</option>
-        <option value="science-fiction">Science Fiction</option>
-        <option value="mystery">Mystery</option>
-        <option value="thriller">Thriller</option>
-        <option value="romance">Romance</option>
-        <option value="biography">Biography</option>
-        <option value="history">History</option>
-        <option value="self-help">Self-Help</option>
-        <option value="children">Children</option>
-        <option value="horror">Horror</option>
-        <option value="poetry">Poetry</option>
-        <option value="non-fiction">Non-Fiction</option>
-        <option value="cookbook">Cookbook</option>
-    </select>
-
-    <label for="editPrice">Price (RM)</label>
-    <input type="number" id="editPrice" name="editPrice" step="0.01" min="0">
-
-    <label for="editSynopsis">Synopsis</label>
-    <textarea id="editSynopsis" name="editSynopsis" rows="6"></textarea>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover</label>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div>
-                <label for="editImageUrl" style="display: block; margin-bottom: 5px;">Paste image URL here:</label>
-                <input type="url" id="editImageUrl" name="editImageUrl" placeholder="https://example.com/cover.jpg"
-                       style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search by title, author, or reason..." onkeyup="searchBooks()">
             </div>
 
-            <div style="text-align: center; font-weight: 600; color: #555;">OR</div>
-
-            <div>
-                <label for="editImageUpload" class="custom-file-upload">
-                    Choose File from Local
-                </label>
-                <input type="file" id="editImageUpload" accept="image/*" style="display: none;">
-            </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 20px;">
-            <img id="editImagePreview" src="https://via.placeholder.com/200x150.png?text=No+Image" alt="Cover Preview"
-                 style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px; object-fit: contain;">
+            <table id="ebook-table">
+                <thead>
+                    <tr>
+                        <th>Cover</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Genre</th>
+                        <th>Reason</th>
+                        <th>Rejected Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- eBook rows will be dynamically inserted here -->
+                </tbody>
+            </table>
         </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn danger" onclick="closeModal('editModal')">Cancel</button>
-      <button class="btn edit" onclick="saveChanges()">Save Changes</button>
+
+  <!-- Edit eBook Modal -->
+  <div id="editEbookModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('editEbookModal')">&times;</span>
+      <h2 class="text-xl font-bold mb-4">Edit eBook</h2>
+      <form id="editEbookForm" class="space-y-4">
+        <input type="hidden" id="editBookId">
+
+        <div class="flex items-start">
+          <div id="modalImagePreviewContainer" class="modal-image-preview-container">
+            <img id="modalImagePreview" src="" alt="Book Cover Preview" class="modal-image-preview hidden">
+            <span id="modalImagePlaceholderText" class="modal-image-placeholder-text">Click to upload</span>
+          </div>
+          <div class="flex-grow">
+            <label for="editImageUpload" class="modal-file-upload-label">Upload New Cover</label>
+            <input type="file" id="editImageUpload" class="modal-file-input" accept="image/*">
+            <p class="text-sm text-gray-500 mt-2">OR</p>
+            <input type="url" id="editImageUrl" placeholder="Enter image URL"
+                   class="mt-2 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+
+        <div>
+          <label for="editBookTitle" class="block text-sm font-medium text-gray-700">Title</label>
+          <input type="text" id="editBookTitle" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+        </div>
+        <div>
+          <label for="editAuthor" class="block text-sm font-medium text-gray-700">Author</label>
+          <input type="text" id="editAuthor" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+        </div>
+        <div>
+          <label for="editGenre" class="block text-sm font-medium text-gray-700">Genre</label>
+          <input type="text" id="editGenre" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+        </div>
+        <div>
+          <label for="editSynopsis" class="block text-sm font-medium text-gray-700">Synopsis</label>
+          <textarea id="editSynopsis" rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"></textarea>
+        </div>
+        <div>
+          <label for="editReason" class="block text-sm font-medium text-gray-700">Reason for Rejection</label>
+          <textarea id="editReason" rows="2" class="mt-1 block w-full p-2 border border-gray-300 rounded-md"></textarea>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="closeModal('editEbookModal')">Cancel</button>
+          <button type="submit" class="save-btn">Save Changes</button>
+        </div>
+      </form>
     </div>
   </div>
-</div>
 
-<div id="messageModal" class="modal message-modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('messageModal')">&times;</span>
-        <h3 id="messageModalTitle"></h3>
-        <p id="messageModalText"></p>
-        <div class="modal-footer">
-            <button class="btn primary" onclick="closeModal('messageModal')">OK</button>
-        </div>
-    </div>
-</div>
+  <script type="module">
+    // Supabase Initialization (replace with your actual keys)
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    const ebookTableBody = document.querySelector('#ebook-table tbody');
+    const searchInput = document.getElementById('searchInput');
+    const editEbookModal = document.getElementById('editEbookModal');
+    const editEbookForm = document.getElementById('editEbookForm');
 
-<script>
-  let currentEditingRow = null; // Stores the <tr> element being edited
+    // Modal elements for image preview
+    const modalImagePreviewContainer = document.getElementById('modalImagePreviewContainer');
+    const modalImagePreview = document.getElementById('modalImagePreview');
+    const modalImagePlaceholderText = document.getElementById('modalImagePlaceholderText');
+    const editImageUpload = document.getElementById('editImageUpload');
+    const editImageUrl = document.getElementById('editImageUrl');
 
-  // Function to show the custom message modal
-  function showMessageModal(title, message) {
-    document.getElementById('messageModalTitle').textContent = title;
-    document.getElementById('messageModalText').textContent = message;
-    document.getElementById('messageModal').style.display = 'flex';
-  }
+    let allRejectedEbooks = []; // To store data fetched from Supabase
 
-  // Function to update image preview and manage input clearing
-  function updateModalImagePreview(src, isFile) {
-      const editImagePreview = document.getElementById('editImagePreview');
-      const editImageUrlInput = document.getElementById('editImageUrl');
-      const editImageUploadInput = document.getElementById('editImageUpload');
-
-      if (src) {
-          editImagePreview.src = src;
-      } else {
-          editImagePreview.src = "https://via.placeholder.com/200x150.png?text=No+Image";
-      }
-
-      // Clear the other input field
-      if (isFile) {
-          editImageUrlInput.value = '';
-      } else { // It's a URL, or clearing both
-          editImageUploadInput.value = ''; // Clear file input
-      }
-  }
-
-
-  function openEditModal(btn) {
-    currentEditingRow = btn.closest('tr');
-
-    // Populate modal with current book data
-    document.getElementById('editModalRejectionReason').textContent = currentEditingRow.querySelector('.reason').textContent;
-    document.getElementById('editBookTitle').value = currentEditingRow.querySelector('.title').textContent;
-    document.getElementById('editAuthor').value = currentEditingRow.querySelector('.author').textContent;
-    document.getElementById('editGenre').value = currentEditingRow.querySelector('.genre').textContent.toLowerCase().replace(' ', '-'); // Set genre dropdown
-
-    // Placeholder values for year, price, synopsis, image URL as they are not in the table
-    // In a real application, you'd fetch these from a data source or embed them in the row data.
-    document.getElementById('editYearPublished').value = 2022; // Example placeholder
-    document.getElementById('editPrice').value = 15.99; // Example placeholder
-    document.getElementById('editSynopsis').value = "A detailed synopsis about the book's exciting plot and characters."; // Example placeholder
-
-    const currentCoverSrc = currentEditingRow.querySelector('.cover').src;
-    // Set URL input and clear file input
-    document.getElementById('editImageUrl').value = currentCoverSrc.includes('placeholder') ? '' : currentCoverSrc;
-    document.getElementById('editImageUpload').value = ''; // Clear file input when opening modal
-    document.getElementById('editImagePreview').src = currentCoverSrc;
-
-
-    document.getElementById('editModal').style.display = 'flex'; // Use flex to center
-  }
-
-  function saveChanges() {
-    if (!currentEditingRow) return; // Should not happen
-
-    // Get updated values from modal
-    const newTitle = document.getElementById('editBookTitle').value;
-    const newAuthor = document.getElementById('editAuthor').value;
-    const newGenre = document.getElementById('editGenre').value; // Get value from select
-    const newGenreText = document.getElementById('editGenre').options[document.getElementById('editGenre').selectedIndex].text; // Get text for display
-    const newYear = document.getElementById('editYearPublished').value;
-    const newPrice = document.getElementById('editPrice').value;
-    const newSynopsis = document.getElementById('editSynopsis').value;
-
-    // The current image source displayed in the preview is the one we want to save
-    const newImageUrl = document.getElementById('editImagePreview').src;
-
-    // Update the row in the table (for demonstration purposes)
-    currentEditingRow.querySelector('.title').textContent = newTitle;
-    currentEditingRow.querySelector('.author').textContent = newAuthor;
-    currentEditingRow.querySelector('.genre').textContent = newGenreText; // Update displayed genre
-    currentEditingRow.querySelector('.cover').src = newImageUrl; // Use the image from preview
-
-
-    closeModal('editModal'); // Close the edit modal first
-    showMessageModal("Changes Saved!", `📝 Changes for "${newTitle}" have been saved. You can now resubmit this eBook.`); // Show custom message modal
-  }
-
-  function resubmitBook(btn) {
-    const row = btn.closest('tr');
-    const title = row.querySelector('.title').textContent;
-
-    // We can also use the custom modal for confirmation instead of alert/confirm
-    // For simplicity, keeping confirm for now, but you could build a custom confirmation modal too.
-    if (confirm(`Are you sure you want to resubmit "${title}" for approval?`)) {
-      row.remove(); // Remove from the rejected list after resubmission
-      showMessageModal("Resubmitted!", `🚀 "${title}" has been successfully resubmitted to admin for review.`); // Show custom message modal
+    /**
+     * Updates the image preview in the modal.
+     * @param {string|null} src - The image source URL or data URL, or null to show placeholder.
+     * @param {boolean} isFileInput - True if the source is from a file input, false if from URL.
+     */
+    function updateModalImagePreview(src, isFileInput) {
+        if (src) {
+            modalImagePreview.src = src;
+            modalImagePreview.classList.remove('hidden');
+            modalImagePlaceholderText.classList.add('hidden');
+            if (isFileInput) {
+                editImageUrl.value = ''; // Clear URL if file is selected
+            } else {
+                editImageUpload.value = ''; // Clear file if URL is entered
+            }
+        } else {
+            modalImagePreview.src = '';
+            modalImagePreview.classList.add('hidden');
+            modalImagePlaceholderText.classList.remove('hidden');
+        }
     }
-  }
 
-  function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
-    if (id === 'editModal') { // Only reset currentEditingRow if the edit modal is closed
-      currentEditingRow = null;
+    /**
+     * Fetches rejected eBooks from Supabase and renders them.
+     */
+    async function fetchAndRenderRejectedEbooks() {
+        const { data, error } = await supabase
+            .from('ebooks')
+            .select('*')
+            .eq('status', 'rejected'); // Only fetch rejected books
+
+        if (error) {
+            console.error('Error fetching rejected eBooks:', error);
+            ebookTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">Error loading rejected eBooks.</td></tr>';
+            return;
+        }
+
+        allRejectedEbooks = data; // Store fetched data
+        renderTableRows(allRejectedEbooks); // Render all initially
     }
-  }
 
-  // Close modal when clicking outside of it
-  window.onclick = function(event) {
-    const editModal = document.getElementById('editModal');
-    const messageModal = document.getElementById('messageModal');
+    /**
+     * Renders table rows based on the provided data.
+     * @param {Array<Object>} books - Array of book objects to render.
+     */
+    function renderTableRows(books) {
+        ebookTableBody.innerHTML = ''; // Clear existing rows
+        if (books.length === 0) {
+            ebookTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">No rejected eBooks found.</td></tr>';
+            return;
+        }
 
-    if (event.target === editModal) {
-      editModal.style.display = 'none';
-      currentEditingRow = null;
+        books.forEach(book => {
+            const row = ebookTableBody.insertRow();
+            row.dataset.id = book.id; // Store ID for actions
+            row.innerHTML = `
+                <td class="py-2"><img src="${book.imageUrl || 'https://placehold.co/50x75/cccccc/333333?text=No+Image'}" alt="Cover" class="book-cover-thumbnail" onerror="this.onerror=null;this.src='https://placehold.co/50x75/cccccc/333333?text=No+Image';"></td>
+                <td class="title py-2">${book.title}</td>
+                <td class="author py-2">${book.author}</td>
+                <td class="genre py-2">${book.genre}</td>
+                <td class="reason py-2">${book.reason || 'N/A'}</td>
+                <td class="rejected-date py-2">${book.statusDate}</td>
+                <td class="actions py-2">
+                    <button class="approve-btn" data-id="${book.id}">Approve</button>
+                    <button class="edit-btn" data-id="${book.id}">Edit</button>
+                </td>
+            `;
+
+            row.querySelector('.approve-btn').addEventListener('click', () => approveEbook(book.id));
+            row.querySelector('.edit-btn').addEventListener('click', () => openEditModal(book.id));
+        });
     }
-    if (event.target === messageModal) {
-      messageModal.style.display = 'none';
+
+    /**
+     * Searches books based on input value.
+     */
+    function searchBooks() {
+        const input = searchInput.value.toLowerCase();
+        const filtered = allRejectedEbooks.filter(book => {
+            return book.title.toLowerCase().includes(input) ||
+                   book.author.toLowerCase().includes(input) ||
+                   (book.reason && book.reason.toLowerCase().includes(input));
+        });
+        renderTableRows(filtered);
     }
-  };
 
-  // Event listener for URL input change in the edit modal
-  document.getElementById('editImageUrl').addEventListener('input', function() {
-      const url = this.value;
-      if (url) {
-          const img = new Image();
-          img.onload = () => updateModalImagePreview(url, false);
-          img.onerror = () => updateModalImagePreview(null, false); // Clear on error
-          img.src = url;
-      } else {
-          updateModalImagePreview(null, false);
-      }
-  });
+    /**
+     * Approves an eBook by updating its status in Supabase.
+     * @param {string} id - The ID of the eBook to approve.
+     */
+    async function approveEbook(id) {
+        // IMPORTANT: Replaced window.confirm with a custom modal or message box for better UX in an iframe.
+        // For simplicity, this example uses a basic confirmation, but in a real app,
+        // you'd replace 'confirm' with your own custom modal logic.
+        if (!confirm('Are you sure you want to approve this eBook?')) {
+            return;
+        }
+        const { data, error } = await supabase
+            .from('ebooks')
+            .update({ status: 'approved', statusDate: new Date().toISOString().split('T')[0] }) // Set status to approved and current date
+            .eq('id', id);
 
-  // Event listener for file input change in the edit modal
-  document.getElementById('editImageUpload').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-              updateModalImagePreview(e.target.result, true);
-          };
-          reader.readAsDataURL(file);
-      } else {
-          updateModalImagePreview(null, true);
-      }
-  });
+        if (error) {
+            console.error('Error approving eBook:', error);
+            // IMPORTANT: Replaced alert with a custom message box.
+            // For simplicity, this example uses a basic alert, but in a real app,
+            // you'd replace 'alert' with your own custom modal logic.
+            alert('Failed to approve eBook. Please try again.');
+        } else {
+            console.log('eBook approved:', data);
+            // Supabase real-time listener will automatically re-render the list
+        }
+    }
 
-  function searchBooks() {
-    const input = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#ebook-table tr');
-    rows.forEach(row => {
-      const title = row.querySelector('.title').textContent.toLowerCase();
-      const author = row.querySelector('.author').textContent.toLowerCase();
-      const reason = row.querySelector('.reason').textContent.toLowerCase(); // Search by reason too
-      row.style.display = (title.includes(input) || author.includes(input) || reason.includes(input)) ? '' : 'none';
+    /**
+     * Opens the edit modal and populates it with book data.
+     * @param {string} id - The ID of the book to edit.
+     */
+    function openEditModal(id) {
+        const book = allRejectedEbooks.find(b => b.id === id);
+        if (!book) {
+            console.error('Book not found for editing:', id);
+            return;
+        }
+
+        document.getElementById('editBookId').value = book.id;
+        document.getElementById('editBookTitle').value = book.title;
+        document.getElementById('editAuthor').value = book.author;
+        document.getElementById('editGenre').value = book.genre;
+        document.getElementById('editSynopsis').value = book.synopsis;
+        document.getElementById('editReason').value = book.reason || '';
+
+        // Set image preview
+        updateModalImagePreview(book.imageUrl, false); // Assume URL for existing
+
+        editEbookModal.style.display = 'flex';
+    }
+
+    /**
+     * Closes a specified modal.
+     * @param {string} id - The ID of the modal element to close.
+     */
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+        // Reset image preview when modal closes
+        if (id === 'editEbookModal') {
+            updateModalImagePreview(null, false);
+            editEbookForm.reset(); // Reset form fields
+        }
+    }
+
+    // Event listener for edit modal image upload
+    editImageUpload.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                updateModalImagePreview(e.target.result, true);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            updateModalImagePreview(null, true);
+        }
     });
-  }
-</script>
 
+    // Event listener for edit modal image URL input
+    editImageUrl.addEventListener('input', function() {
+        const url = this.value;
+        if (url) {
+            const img = new Image();
+            img.onload = () => updateModalImagePreview(url, false);
+            img.onerror = () => updateModalImagePreview(null, false); // Clear on error
+            img.src = url;
+        } else {
+            updateModalImagePreview(null, false);
+        }
+    });
+
+    // Event listener for clicking the image preview container in modal
+    modalImagePreviewContainer.addEventListener('click', function() {
+        editImageUpload.click(); // Programmatically click the hidden file input
+    });
+
+    // Handle form submission for editing eBook
+    editEbookForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const bookId = document.getElementById('editBookId').value;
+        const updatedData = {
+            title: document.getElementById('editBookTitle').value,
+            author: document.getElementById('editAuthor').value,
+            genre: document.getElementById('editGenre').value,
+            synopsis: document.getElementById('editSynopsis').value,
+            reason: document.getElementById('editReason').value,
+            imageUrl: modalImagePreview.src // Use the current image preview source
+        };
+
+        const { data, error } = await supabase
+            .from('ebooks')
+            .update(updatedData)
+            .eq('id', bookId);
+
+        if (error) {
+            console.error('Error updating eBook:', error);
+            // IMPORTANT: Replaced alert with a custom message box.
+            // For simplicity, this example uses a basic alert, but in a real app,
+            // you'd replace 'alert' with your own custom modal logic.
+            alert('Failed to update eBook. Please try again.');
+        } else {
+            console.log('eBook updated:', data);
+            closeModal('editEbookModal');
+            // Supabase real-time listener will automatically re-render the list
+        }
+    });
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target === editEbookModal) {
+            closeModal('editEbookModal');
+        }
+    };
+
+    // Initial data fetch and render on page load
+    document.addEventListener('DOMContentLoaded', fetchAndRenderRejectedEbooks);
+
+    // Expose functions to global scope for HTML onclick attributes
+    window.searchBooks = searchBooks;
+    window.closeModal = closeModal;
+  </script>
 </body>
 </html>

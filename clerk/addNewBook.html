@@ -5,15 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New eBook</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Custom font import for Inter */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        /* Custom font import for Poppins */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            color: #334155; /* Dark slate text */
+            padding: 0; /* Remove default body padding */
+            margin: 0; /* Remove default body margin */
+            display: flex; /* Use flexbox for sidebar and main content layout */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
         h1 {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700 !important; /* Ensured h1 is bold */
         }
         /* Hide default file input button */
         input[type="file"] {
@@ -34,170 +43,264 @@
             background-color: theme('colors.blue.600');
             border-color: theme('colors.blue.600');
         }
-        /* Simple spinner for loading indicator */
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #3B82F6; /* Blue-500 */
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Styles for the enhanced image preview area */
-        .image-preview-wrapper {
-            position: relative;
-            min-height: 150px;
+        #imagePreviewContainer {
+            width: 150px;
+            height: 200px;
+            border: 2px dashed #cbd5e1; /* Light gray dashed border */
+            border-radius: 8px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            overflow: hidden; /* Ensure content doesn't spill out */
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            background-color: #f8fafc;
+            position: relative;
+            margin: 0 auto 1rem auto; /* Centered horizontally */
         }
-
-        .image-preview-text {
-            position: absolute;
-            /* Changed to a direct hex code for gray */
-            color: #6B7280; /* This is Tailwind's default gray-500 */
-            font-size: 1.125rem; /* text-lg */
-            font-weight: 500; /* font-medium */
-            pointer-events: none; /* Allows clicks to pass through to the container */
-            z-index: 10; /* Ensure text is above the image */
-            transition: opacity 0.3s ease-in-out; /* Smooth transition for fading */
+        #imagePreview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        #imagePlaceholderText {
+            color: #94a3b8;
+            font-size: 0.875rem;
             text-align: center;
-            line-height: 1.5;
+            padding: 10px;
         }
 
-        .image-preview-wrapper img {
-            transition: opacity 0.3s ease-in-out; /* Smooth transition for image */
+        /* Sidebar styles */
+        .sidebar {
+            height: 100%;
+            width: 250px; /* Always open width */
+            position: fixed;
+            z-index: 10; /* Ensure sidebar is above main content */
+            top: 0;
+            left: 0;
+            background-color: #1A2B42; /* Deep, vibrant dark blue */
+            overflow-x: hidden;
+            transition: 0.5s; /* Keep transition for smooth initial load */
+            padding-top: 60px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Hide text and show image when an image is loaded */
-        .image-preview-wrapper.has-image .image-preview-text {
-            opacity: 0; /* Fade out text */
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #e2e8f0; /* Light text for links */
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* When no image, make placeholder visible and image transparent */
-        .image-preview-wrapper:not(.has-image) img {
-            opacity: 0; /* Make the placeholder image transparent */
+        .sidebar a:hover {
+            color: #ffffff;
+            background-color: #334155; /* Slightly lighter hover background */
+        }
+
+        /* Main content styles - always has margin-left */
+        #mainContent {
+            padding: 20px;
+            flex-grow: 1;
+            margin-left: 250px; /* Always have space from sidebar */
+        }
+
+        .container-content {
+            max-width: 800px; /* Adjusted for forms */
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+
+        /* Message box styles */
+        .message-box {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+        }
+        .message-box h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        .message-box button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 15px;
+        }
+        .message-box button:hover {
+            background-color: #2563eb;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-100 to-purple-200 min-h-screen flex items-center justify-center p-4">
-
-    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl transform transition-all duration-300 hover:scale-[1.01]">
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">eBook New Entry</h1>
-
-        <form id="ebookForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <div>
-                <label for="bookTitle" class="block text-sm font-medium text-gray-700 mb-1">Book Title</label>
-                <input type="text" id="bookTitle" name="bookTitle" placeholder="Write the book title here"
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
-            </div>
-
-            <div>
-                <label for="author" class="block text-sm font-medium text-gray-700 mb-1">Author</label>
-                <input type="text" id="author" name="author" placeholder="Enter author name"
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
-            </div>
-
-            <div>
-                <label for="yearPublished" class="block text-sm font-medium text-gray-700 mb-1">Year Published</label>
-                <input type="number" id="yearPublished" name="yearPublished" placeholder="e.g., 2023" min="1000" max="2099"
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
-            </div>
-
-            <div>
-                <label for="genre" class="block text-sm font-medium text-gray-700 mb-1">Genre</label>
-                <select id="genre" name="genre"
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white transition duration-150 ease-in-out">
-                    <option value="">Choose genre</option>
-                    <option value="fiction">Fiction</option>
-                    <option value="fantasy">Fantasy</option>
-                    <option value="science-fiction">Science Fiction</option>
-                    <option value="mystery">Mystery</option>
-                    <option value="thriller">Thriller</option>
-                    <option value="romance">Romance</option>
-                    <option value="biography">Biography</option>
-                    <option value="history">History</option>
-                    <option value="self-help">Self-Help</option>
-                    <option value="children">Children</option>
-                    <option value="horror">Horror</option>
-                    <option value="poetry">Poetry</option>
-                    <option value="non-fiction">Non-Fiction</option>
-                </select>
-            </div>
-
-            <div class="col-span-1 md:col-span-2">
-                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price (RM)</label>
-                <input type="number" id="price" name="price" placeholder="e.g., 12.99" step="0.01" min="0"
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
-            </div>
-
-            <div class="col-span-1 md:col-span-2">
-                <label for="synopsis" class="block text-sm font-medium text-gray-700 mb-1">Synopsis</label>
-                <textarea id="synopsis" name="synopsis" rows="6" placeholder="Provide a detailed synopsis of the book..."
-                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"></textarea>
-            </div>
-
-            <div class="col-span-1 md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover</label>
-                <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <label for="imageUpload" class="custom-file-upload flex-shrink-0">
-                        Choose File
-                    </label>
-                    <input type="file" id="imageUpload" accept="image/*" class="flex-grow">
-
-                    <span class="text-gray-500 font-medium">OR</span>
-
-                    <input type="url" id="imageUrl" name="imageUrl" placeholder="Paste image URL here"
-                                class="flex-grow mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
-                </div>
-
-                <div id="imagePreviewContainer" class="mt-4 border border-gray-300 rounded-lg p-2 flex items-center justify-center bg-gray-50 cursor-pointer image-preview-wrapper">
-                    <img id="imagePreview" src="https://placehold.co/200x150/E0E7FF/4F46E5?text=No+Image" alt="Preview Gambar"
-                            class="max-w-full max-h-[200px] rounded-md object-contain shadow-md">
-                    <span id="imagePreviewText" class="image-preview-text">
-                        Click here<br>to add image
-                    </span>
-                </div>
-            </div>
-
-            <div class="col-span-1 md:col-span-2 flex justify-center mt-6 space-x-4">
-                <button type="button" id="cancelButton"
-                                class="px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 ease-in-out transform hover:scale-105">
-                    Cancel
-                </button>
-                <button type="submit"
-                                class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200 ease-in-out transform hover:scale-105">
-                    Add eBook
-                </button>
-            </div>
-
-        </form>
+<body>
+    <!-- Sidebar -->
+    <div id="mySidebar" class="sidebar">
+        <a href="dashboardClerk.html">Dashboard</a>
+        <a href="currentEbook.html">All eBooks</a>
+        <a href="addNewBook.html">Add New eBook</a>
+        <a href="rejectedeBook.html">Rejected eBooks</a>
+        <a href="eBookStatus.html">eBook Status</a>
+        
     </div>
 
-    <script>
-        // Get elements
+    <!-- Main Content -->
+    <div id="mainContent">
+        <div class="container-content">
+            <h1 class="text-3xl text-center mb-8 text-gray-800">Add New eBook</h1>
+
+            <form id="ebookForm" class="space-y-6">
+                <!-- Book Title -->
+                <div>
+                    <label for="bookTitle" class="block text-sm font-medium text-gray-700 mb-1">Book Title</label>
+                    <input type="text" id="bookTitle" name="bookTitle" required
+                           class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Author -->
+                <div>
+                    <label for="author" class="block text-sm font-medium text-gray-700 mb-1">Author</label>
+                    <input type="text" id="author" name="author" required
+                           class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Year Published -->
+                <div>
+                    <label for="yearPublished" class="block text-sm font-medium text-gray-700 mb-1">Year Published</label>
+                    <input type="number" id="yearPublished" name="yearPublished" min="1000" max="2100"
+                           class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Genre -->
+                <div>
+                    <label for="genre" class="block text-sm font-medium text-gray-700 mb-1">Genre</label>
+                    <select id="genre" name="genre" required
+                            class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select a genre</option>
+                        <option value="Fiction">Fiction</option>
+                        <option value="Science Fiction">Science Fiction</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Mystery">Mystery</option>
+                        <option value="Thriller">Thriller</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Self-Help">Self-Help</option>
+                        <option value="Biography">Biography</option>
+                        <option value="History">History</option>
+                        <option value="Science">Science</option>
+                        <option value="Cookbook">Cookbook</option>
+                    </select>
+                </div>
+
+                <!-- Synopsis -->
+                <div>
+                    <label for="synopsis" class="block text-sm font-medium text-gray-700 mb-1">Synopsis</label>
+                    <textarea id="synopsis" name="synopsis" rows="4" required
+                              class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+
+                <!-- Image Upload / URL -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover Image</label>
+                    <div id="imagePreviewContainer" class="mb-4">
+                        <img id="imagePreview" src="" alt="Image Preview" class="hidden">
+                        <span id="imagePlaceholderText">Click to upload or enter URL below</span>
+                    </div>
+
+                    <div class="flex items-center space-x-4 mb-4">
+                        <label for="imageUpload" class="custom-file-upload">
+                            Upload File
+                        </label>
+                        <input type="file" id="imageUpload" name="imageUpload" accept="image/*">
+                        <span class="text-gray-500">OR</span>
+                        <input type="url" id="imageUrl" name="imageUrl" placeholder="Enter image URL"
+                               class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelButton"
+                            class="px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Submit for Approval
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <h3 id="messageText"></h3>
+        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
+    </div>
+
+    <script type="module">
+        // Supabase Initialization (replace with your actual keys)
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // e.g., 'https://abcde12345.supabase.co'
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // e.g., 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const ebookForm = document.getElementById('ebookForm');
+        const bookTitleInput = document.getElementById('bookTitle');
+        const authorInput = document.getElementById('author');
+        const yearPublishedInput = document.getElementById('yearPublished');
+        const genreSelect = document.getElementById('genre');
+        const synopsisTextarea = document.getElementById('synopsis');
         const imageUpload = document.getElementById('imageUpload');
         const imageUrl = document.getElementById('imageUrl');
-        const imagePreview = document.getElementById('imagePreview');
         const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-        const imagePreviewText = document.getElementById('imagePreviewText');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePlaceholderText = document.getElementById('imagePlaceholderText');
         const cancelButton = document.getElementById('cancelButton');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
 
-        // Function to update image preview and manage text visibility
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            messageText.textContent = message;
+            messageBox.style.display = 'block';
+        }
+
+        /**
+         * Updates the image preview display.
+         * @param {string|null} src - The image source URL or data URL, or null to show placeholder.
+         */
         function updateImagePreview(src) {
-            if (src && src !== "https://placehold.co/200x150/E0E7FF/4F46E5?text=No+Image") {
+            if (src) {
                 imagePreview.src = src;
-                imagePreviewContainer.classList.add('has-image'); // Add class to container
+                imagePreview.classList.remove('hidden');
+                imagePlaceholderText.classList.add('hidden');
             } else {
-                imagePreview.src = "https://placehold.co/200x150/E0E7FF/4F46E5?text=No+Image";
-                imagePreviewContainer.classList.remove('has-image'); // Remove class from container
+                imagePreview.src = '';
+                imagePreview.classList.add('hidden');
+                imagePlaceholderText.classList.remove('hidden');
             }
         }
 
@@ -242,6 +345,47 @@
         cancelButton.addEventListener('click', function() {
             ebookForm.reset(); // Resets all form fields
             updateImagePreview(null); // Reset image preview and show text
+        });
+
+        // Handle form submission
+        ebookForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const newEbookData = {
+                title: bookTitleInput.value,
+                author: authorInput.value,
+                yearPublished: parseInt(yearPublishedInput.value) || null,
+                genre: genreSelect.value,
+                synopsis: synopsisTextarea.value,
+                imageUrl: imagePreview.src || '', // Use the previewed image URL/dataURL
+                status: 'pending', // Set status to pending for admin approval
+                statusDate: new Date().toISOString().split('T')[0] // Current date
+            };
+
+            // Basic validation
+            if (!newEbookData.title || !newEbookData.author || !newEbookData.genre || !newEbookData.synopsis) {
+                showMessageBox('Please fill in all required fields (Title, Author, Genre, Synopsis).');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('ebooks')
+                    .insert([newEbookData]);
+
+                if (error) {
+                    console.error('Error submitting new eBook:', error);
+                    showMessageBox('Failed to submit eBook for approval. Please try again.');
+                } else {
+                    console.log('eBook submitted successfully:', data);
+                    showMessageBox('eBook submitted for approval successfully!');
+                    ebookForm.reset(); // Clear the form
+                    updateImagePreview(null); // Reset image preview
+                }
+            } catch (networkError) {
+                console.error('Network error during submission:', networkError);
+                showMessageBox('Network error. Please check your connection and try again.');
+            }
         });
 
         // Initialize preview on page load
