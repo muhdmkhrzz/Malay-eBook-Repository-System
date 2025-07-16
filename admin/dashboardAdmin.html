@@ -1,424 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            margin: 0;
-            padding: 0; /* Changed to 0 for sidebar layout */
-            display: flex; /* Added for sidebar layout */
-            min-height: 100vh; /* Added for sidebar layout */
-            overflow-x: hidden; /* Prevent horizontal scroll */
-        }
-        h1 {
-            text-align: center; /* This ensures the h1 title is centered */
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-weight: 700 !important; /* Ensure h1 is bold and prominent */
-            font-size: 2.25rem; /* Tailwind's text-3xl equivalent */
-        }
-        /* Sidebar styles */
-        .sidebar {
-            height: 100%;
-            width: 250px; /* Always open width */
-            position: fixed;
-            z-index: 10; /* Ensure sidebar is above main content */
-            top: 0;
-            left: 0;
-            background-color: #1A2B42; /* Deep, vibrant dark blue */
-            overflow-x: hidden;
-            transition: 0.5s; /* Keep transition for smooth initial load */
-            padding-top: 60px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar a {
-            padding: 15px 25px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #e2e8f0; /* Light text for links */
-            display: block;
-            transition: 0.3s;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .sidebar a:hover {
-            color: #ffffff;
-            background-color: #334155; /* Slightly lighter hover background */
-        }
-
-        /* Main content styles - always has margin-left */
-        #mainContent {
-            padding: 20px;
-            flex-grow: 1;
-            margin-left: 250px; /* Always have space from sidebar */
-        }
-
-        .container-content { /* Renamed from .container to avoid conflict with main layout */
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .stat-panel {
-            background-color: #fefefe;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .stat-panel h2 {
-            font-size: 1.5rem;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .stat-panel h2 svg {
-            width: 28px;
-            height: 28px;
-            color: #3498db;
-        }
-        .metric p {
-            font-size: 1.1rem;
-            color: #555;
-            margin: 5px 0;
-        }
-        .metric .value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #3498db;
-            margin-right: 8px;
-        }
-        .popular-list, .role-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .popular-list li, .role-list li {
-            background-color: #f8f8f8;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.95rem;
-            color: #444;
-        }
-        .chart-placeholder {
-            background-color: #eceff1;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            color: #78909c;
-            min-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-style: italic;
-            font-size: 0.9rem;
-        }
-        /* Message box styles */
-        .message-box {
-            display: none; /* Hidden by default */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            z-index: 10000;
-            text-align: center;
-            max-width: 350px;
-            width: 90%;
-        }
-        .message-box h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #1e293b;
-        }
-        .message-box button {
-            background-color: #3b82f6;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 15px;
-        }
-        .message-box button:hover {
-            background-color: #2563eb;
-        }
-        @media (max-width: 768px) {
-            #mainContent {
-                margin-left: 0;
-            }
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
-<body>
-    <!-- Sidebar -->
-    <div id="mySidebar" class="sidebar">
-        <a href="dashboardAdmin.html">Dashboard</a>
-        <a href="manageEbook.html">Manage eBooks</a>
-        <a href="approveBookList.html">Approved eBooks</a>
-        <a href="manageUser.html">Manage Users</a>
+<body class="bg-gray-100 font-sans flex">
+
+  <!-- Sidebar -->
+ <aside class="hidden md:flex flex-col justify-between w-64 h-screen bg-gray-800 text-white p-6 sticky top-0">
+  <div>
+    <h2 class="text-2xl font-bold mb-6">Admin Menu</h2>
+    <nav class="space-y-2">
+      <a href="dashboardAdmin.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+        <i class="lucide lucide-layout-dashboard mr-3"></i> Dashboard
+      </a>
+      <a href="manageEbook.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+        <i class="lucide lucide-book-open mr-3"></i> Manage Ebooks
+      </a>
+      <a href="manageUser.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+        <i class="lucide lucide-users mr-3"></i> Manage Users
+      </a>
+      <a href="approveBookList.html" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700 hover:text-blue-300">
+        <i class="lucide lucide-check-circle mr-3"></i> Approved Books
+      </a>
+    </nav>
+  </div>
+  <button onclick="logout()" class="flex items-center px-4 py-2 mt-4 rounded-lg hover:bg-gray-700 hover:text-red-400">
+    <i class="lucide lucide-log-out mr-3"></i> Logout
+  </button>
+</aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 overflow-y-auto">
+    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <p class="text-sm text-gray-500 mb-2">Total Users</p>
+        <p id="totalUsersValue" class="text-3xl font-bold text-indigo-600">0</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <p class="text-sm text-gray-500 mb-2">Total Ebooks</p>
+        <p id="totalEbooksValue" class="text-3xl font-bold text-green-600">0</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <p class="text-sm text-gray-500 mb-2">Total Clerks</p>
+        <p id="totalClerksValue" class="text-3xl font-bold text-purple-600">0</p>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div id="mainContent">
-        <div class="container-content">
-            <h1>Admin Dashboard</h1>
-
-            <div class="dashboard-grid">
-                <div class="stat-panel">
-                    <h2>
-                        <i class="lucide lucide-book-open"></i> eBook Statistics
-                    </h2>
-                    <div class="metric">
-                        <p>
-                            <span class="value" id="totalEbooksValue"></span> Total eBooks
-                        </p>
-                    </div>
-                    <div class="metric">
-                        <p>
-                            <span class="value" id="newEbooksLast30DaysValue"></span> New eBooks (Last 30 Days)
-                        </p>
-                    </div>
-                    <div>
-                        <h3>Most Popular eBooks</h3>
-                        <ul class="popular-list" id="mostPopularEbooksList">
-                            <!-- Popular ebooks populated by JavaScript -->
-                        </ul>
-                        <div class="chart-placeholder">
-                            <p>Pie chart for ebook categories will be displayed here using a charting library (e.g., Chart.js).</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stat-panel">
-                    <h2>
-                        <i class="lucide lucide-users-round"></i> User Statistics
-                    </h2>
-                    <div class="metric">
-                        <p>
-                            <span class="value" id="totalUsersValue"></span> Total Users
-                        </p>
-                    </div>
-                    <div class="metric">
-                        <p>
-                            <span class="value" id="totalClerksValue"></span> Total Clerks
-                        </p>
-                    </div>
-                    <div class="metric">
-                        <p>
-                            <span class="value" id="newUsersLast30DaysValue"></span> New Users (Last 30 Days)
-                        </p>
-                    </div>
-                    <div class="metric">
-                        <p>
-                            <span class="value" id="activeUsersYesterdayValue"></span> Active Users Yesterday
-                        </p>
-                    </div>
-                    <div>
-                        <h3>User Role Distribution</h3>
-                        <div class="role-list" id="userRoleList">
-                            <!-- User roles populated by JavaScript -->
-                        </div>
-                        <div class="chart-placeholder">
-                            <p>Bar chart for user role distribution will be displayed here using a charting library.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold mb-4">Ebooks by Category</h2>
+        <canvas id="ebookPieChart"></canvas>
+        <p id="noDataEbook" class="text-center text-gray-500 mt-4 hidden">No data available</p>
+        <div class="text-right mt-4">
+          <button onclick="downloadChart('ebookPieChart')" class="text-blue-600 hover:underline text-sm">Download Chart</button>
         </div>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold mb-4">User Roles</h2>
+        <canvas id="userRoleBarChart"></canvas>
+        <p id="noDataRole" class="text-center text-gray-500 mt-4 hidden">No data available</p>
+        <div class="text-right mt-4">
+          <button onclick="downloadChart('userRoleBarChart')" class="text-blue-600 hover:underline text-sm">Download Chart</button>
+        </div>
+      </div>
     </div>
+  </main>
 
-    <!-- Message Box -->
-    <div id="messageBox" class="message-box">
-        <h3 id="messageText"></h3>
-        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
-    </div>
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://zfiaoyymowvjurqxrazu.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
+    );
 
-    <script type="module">
-        // Supabase Initialization (replace with your actual keys)
-        const SUPABASE_URL = typeof __supabase_url !== 'undefined' ? __supabase_url : 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = typeof __supabase_anon_key !== 'undefined' ? __supabase_anon_key : 'YOUR_SUPABASE_ANON_KEY';
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    async function fetchDashboardData() {
+  const [profilesRes, ebooksRes] = await Promise.all([
+    supabase.from('profiles').select('id, role'),
+    supabase.from('ebooks').select('id, category')
+  ]);
 
-        document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
-            fetchDashboardStats();
+  if (profilesRes.error || ebooksRes.error) {
+    console.error('Supabase error:', profilesRes.error || ebooksRes.error);
+    return {
+      totalUsers: 0,
+      totalEbooks: 0,
+      totalClerks: 0,
+      userRoles: [],
+      ebookCategories: []
+    };
+  }
+
+  const users = profilesRes.data || [];
+  const ebooks = ebooksRes.data || [];
+
+  const totalUsers = users.length;
+  const totalEbooks = ebooks.length;
+  const totalClerks = users.filter(u => u.role === 'Clerk').length;
+
+  const userRoles = {};
+  users.forEach(user => {
+    if (user.role) {
+      userRoles[user.role] = (userRoles[user.role] || 0) + 1;
+    }
+  });
+
+  const ebookCategories = {};
+  ebooks.forEach(e => {
+    if (e.category) {
+      ebookCategories[e.category] = (ebookCategories[e.category] || 0) + 1;
+    }
+  });
+
+  return {
+    totalUsers,
+    totalEbooks,
+    totalClerks,
+    userRoles: Object.entries(userRoles).map(([role, count]) => ({ role, count })),
+    ebookCategories: Object.entries(ebookCategories).map(([name, count]) => ({ name, count }))
+  };
+}
+
+
+    function getCategoryColor(index) {
+      const colors = ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b', '#a855f7', '#ec4899', '#6366f1', '#14b8a6'];
+      return colors[index % colors.length];
+    }
+
+    function calculatePercentage(value, total) {
+      return total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+    }
+
+    function downloadChart(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = canvasId + '.png';
+      link.click();
+    }
+
+    async function logout() {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout failed:', error.message);
+        alert('Logout failed. Please try again.');
+      } else {
+        window.location.href = '../screens/login.html';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = '../screens/login.html';
+        return;
+      }
+
+      lucide.createIcons();
+      const data = await fetchDashboardData();
+
+      document.getElementById('totalUsersValue').textContent = data.totalUsers;
+      document.getElementById('totalEbooksValue').textContent = data.totalEbooks;
+      document.getElementById('totalClerksValue').textContent = data.totalClerks;
+
+      // Pie Chart
+      const pieCanvas = document.getElementById('ebookPieChart');
+      const pieMsg = document.getElementById('noDataEbook');
+      if (data.ebookCategories.length === 0) {
+        pieCanvas.style.display = 'none';
+        pieMsg.classList.remove('hidden');
+      } else {
+        pieCanvas.style.display = 'block';
+        pieMsg.classList.add('hidden');
+
+        const ctx = pieCanvas.getContext('2d');
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: data.ebookCategories.map(c => c.name),
+            datasets: [{
+              data: data.ebookCategories.map(c => c.count),
+              backgroundColor: data.ebookCategories.map((_, i) => getCategoryColor(i))
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const total = context.dataset.data.reduce((sum, v) => sum + v, 0);
+                    const percent = calculatePercentage(context.parsed, total);
+                    return `${context.label}: ${context.parsed} (${percent}%)`;
+                  }
+                }
+              },
+              legend: { position: 'right' }
+            }
+          }
         });
+      }
 
-        /**
-         * Displays a custom message box.
-         * @param {string} message - The message to display.
-         */
-        function showMessageBox(message) {
-            document.getElementById('messageText').textContent = message;
-            document.getElementById('messageBox').style.display = 'block';
-        }
+      // Bar Chart
+      const barCanvas = document.getElementById('userRoleBarChart');
+      const barMsg = document.getElementById('noDataRole');
+      if (data.userRoles.length === 0) {
+        barCanvas.style.display = 'none';
+        barMsg.classList.remove('hidden');
+      } else {
+        barCanvas.style.display = 'block';
+        barMsg.classList.add('hidden');
 
-        /**
-         * Fetches dashboard statistics from Supabase.
-         */
-        async function fetchDashboardStats() {
-            try {
-                // Fetch total ebooks
-                const { count: totalEbooks, error: ebooksError } = await supabase
-                    .from('ebooks')
-                    .select('*', { count: 'exact', head: true });
-
-                if (ebooksError) throw ebooksError;
-
-                // Fetch new ebooks last 30 days (example logic, adjust as needed)
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                const { count: newEbooksLast30Days, error: newEbooksError } = await supabase
-                    .from('ebooks')
-                    .select('*', { count: 'exact', head: true })
-                    .gte('created_at', thirtyDaysAgo.toISOString()); // Assuming 'created_at' column
-
-                if (newEbooksError) throw newEbooksError;
-
-                // Fetch most popular ebooks (example: top 3 by a 'reads' column)
-                const { data: popularEbooks, error: popularEbooksError } = await supabase
-                    .from('ebooks')
-                    .select('title, reads')
-                    .order('reads', { ascending: false })
-                    .limit(3);
-
-                if (popularEbooksError) throw popularEbooksError;
-
-                // Fetch total users
-                const { count: totalUsers, error: usersError } = await supabase
-                    .from('users')
-                    .select('*', { count: 'exact', head: true });
-
-                if (usersError) throw usersError;
-
-                // Fetch total clerks
-                const { count: totalClerks, error: clerksError } = await supabase
-                    .from('users')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('role', 'Clerk');
-
-                if (clerksError) throw clerksError;
-
-                // Fetch new users last 30 days (example logic)
-                const { count: newUsersLast30Days, error: newUsersError } = await supabase
-                    .from('users')
-                    .select('*', { count: 'exact', head: true })
-                    .gte('registered', thirtyDaysAgo.toISOString()); // Assuming 'registered' column
-
-                if (newUsersError) throw newUsersError;
-
-                // Simulate active users yesterday (requires more complex backend or analytics)
-                // For demonstration, we'll use a placeholder.
-                const activeUsersYesterday = 850; // Placeholder value
-
-                // Fetch user role distribution
-                const { data: userRoles, error: userRolesError } = await supabase
-                    .from('users')
-                    .select('role');
-
-                if (userRolesError) throw userRolesError;
-
-                const roleCounts = userRoles.reduce((acc, user) => {
-                    acc[user.role] = (acc[user.role] || 0) + 1;
-                    return acc;
-                }, {});
-
-                // Update the DOM with fetched data
-                document.getElementById('totalEbooksValue').textContent = totalEbooks;
-                document.getElementById('newEbooksLast30DaysValue').textContent = newEbooksLast30Days;
-                renderPopularEbooks(popularEbooks);
-
-                document.getElementById('totalUsersValue').textContent = totalUsers;
-                document.getElementById('totalClerksValue').textContent = totalClerks;
-                document.getElementById('newUsersLast30DaysValue').textContent = newUsersLast30Days;
-                document.getElementById('activeUsersYesterdayValue').textContent = activeUsersYesterday;
-                renderUserRoleDistribution(roleCounts);
-
-            } catch (error) {
-                console.error('Error fetching dashboard stats:', error);
-                showMessageBox('Failed to load dashboard statistics. Please check console and Supabase configuration.');
-                // Set fallback values or error messages on the dashboard
-                document.getElementById('totalEbooksValue').textContent = 'Error';
-                document.getElementById('newEbooksLast30DaysValue').textContent = 'Error';
-                document.getElementById('mostPopularEbooksList').innerHTML = '<li class="text-gray-500">Error loading popular ebooks.</li>';
-                document.getElementById('totalUsersValue').textContent = 'Error';
-                document.getElementById('totalClerksValue').textContent = 'Error';
-                document.getElementById('newUsersLast30DaysValue').textContent = 'Error';
-                document.getElementById('activeUsersYesterdayValue').textContent = 'Error';
-                document.getElementById('userRoleList').innerHTML = '<li class="text-gray-500">Error loading user roles.</li>';
+        const ctx = barCanvas.getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.userRoles.map(c => c.role),
+            datasets: [{
+              label: 'Users',
+              data: data.userRoles.map(c => c.count),
+              backgroundColor: data.userRoles.map((_, i) => getCategoryColor(i))
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const total = context.dataset.data.reduce((sum, v) => sum + v, 0);
+                    const percent = calculatePercentage(context.parsed.y, total);
+                    return `${context.label}: ${context.parsed.y} (${percent}%)`;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+              }
             }
-        }
-
-        /**
-         * Renders the list of most popular eBooks.
-         * @param {Array<Object>} ebooks - Array of popular eBook objects.
-         */
-        function renderPopularEbooks(ebooks) {
-            const list = document.getElementById('mostPopularEbooksList');
-            list.innerHTML = '';
-            if (ebooks.length === 0) {
-                list.innerHTML = '<li class="text-gray-500">No popular eBooks to display.</li>';
-                return;
-            }
-            ebooks.forEach(book => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${book.title}</span> <span>${book.reads} reads</span>`;
-                list.appendChild(li);
-            });
-        }
-
-        /**
-         * Renders the user role distribution.
-         * @param {Object} roleCounts - An object with role names as keys and counts as values.
-         */
-        function renderUserRoleDistribution(roleCounts) {
-            const list = document.getElementById('userRoleList');
-            list.innerHTML = '';
-            const sortedRoles = Object.keys(roleCounts).sort((a, b) => roleCounts[b] - roleCounts[a]);
-            if (sortedRoles.length === 0) {
-                list.innerHTML = '<li class="text-gray-500">No user roles to display.</li>';
-                return;
-            }
-            sortedRoles.forEach(role => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${role}</span> <span>${roleCounts[role]}</span>`;
-                list.appendChild(li);
-            });
-        }
-    </script>
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
