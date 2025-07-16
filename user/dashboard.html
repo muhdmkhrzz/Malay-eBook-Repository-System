@@ -11,33 +11,29 @@
     body {
       font-family: 'Inter', sans-serif;
     }
-    /* Custom CSS for fixed sidebar */
     .fixed-sidebar {
-      position: fixed; /* Makes the sidebar stay in place */
+      position: fixed;
       top: 0;
       left: 0;
-      height: 100vh; /* Ensures it takes full viewport height */
-      z-index: 10; /* Ensures it stays on top of other content */
+      height: 100vh;
+      z-index: 10;
     }
-    /* Adjust main content to not be hidden by the fixed sidebar */
     .main-content-wrapper {
-      margin-left: 16rem; /* Equivalent to w-64 (64 * 0.25rem = 16rem) */
-      flex-grow: 1; /* Allows it to take remaining space */
+      margin-left: 16rem;
+      flex-grow: 1;
     }
-
-    /* Responsive adjustments for smaller screens if needed, though sidebar is static */
-    @media (max-width: 767px) { /* Adjust for small screens if sidebar needs to change behavior */
+    @media (max-width: 767px) {
       .fixed-sidebar {
-        width: 100%; /* Full width on small screens if desired */
-        height: auto; /* Adjust height for content */
-        position: relative; /* Make it relative for scrolling */
-        box-shadow: none; /* Remove shadow if it's not fixed */
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: none;
       }
       .main-content-wrapper {
-        margin-left: 0; /* No margin on small screens */
+        margin-left: 0;
       }
       .flex {
-        flex-direction: column; /* Stack sidebar and main content vertically */
+        flex-direction: column;
       }
     }
   </style>
@@ -50,173 +46,148 @@
       <h1 class="text-2xl font-bold text-indigo-600">MyEbookMelayu</h1>
     </div>
     <nav class="mt-4 px-4 space-y-2">
-      <a href="dashboard.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-600 font-semibold transition duration-200 ease-in-out">📊 Dashboard</a>
-      <a href="review.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition duration-200 ease-in-out">⭐ Reviews</a>
-      <a href="wishlist.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition duration-200 ease-in-out">❤️ Wishlist</a>
-      <a href="library.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition duration-200 ease-in-out">📚 Library</a>
+      <a href="dashboard.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-600 font-semibold transition">📊 Dashboard</a>
+      <a href="review.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition">⭐ Reviews</a>
+      <a href="wishlist.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition">❤️ Wishlist</a>
+      <a href="library.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700 transition">📚 Library</a>
       <a href="profile.html" class="block py-2 px-3 rounded-lg hover:bg-indigo-100 text-gray-700">👤 Profile</a>
-      <a href="/logout.html" class="block py-2 px-3 rounded-lg hover:bg-red-100 text-red-500 transition duration-200 ease-in-out">🚪 Logout</a>
+      <a href="/logout.html" class="block py-2 px-3 rounded-lg hover:bg-red-100 text-red-500 transition">🚪 Logout</a>
     </nav>
   </aside>
 
   <!-- Main Content Wrapper -->
   <div class="main-content-wrapper">
     <main id="mainContent" class="p-8">
-
       <!-- Search Form -->
       <div class="mb-8 p-6 bg-white rounded-xl shadow-md">
         <form id="searchForm" class="flex flex-col sm:flex-row gap-4 items-center">
-          <input
-            type="text"
-            name="query"
-            placeholder="Search eBook title or author..."
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 ease-in-out"
-          />
-          <button
-            type="submit"
-            class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-200 ease-in-out shadow-md hover:shadow-lg"
-          >
+          <input type="text" name="query" placeholder="Search eBook title or author..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+          <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 shadow-md hover:shadow-lg">
             🔍 Search
           </button>
         </form>
       </div>
 
-      <!-- Welcome Heading -->
-      <h2 class="text-3xl font-semibold mb-8 text-gray-800">Welcome back!</h2>
-
-      <!-- 📚 Book Grid Section -->
+      <!-- Book Grid Section -->
       <section>
         <h3 class="text-2xl font-bold text-gray-800 mb-6">Latest eBooks</h3>
         <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <!-- Books will be injected here -->
+          <!-- Books will be injected here -->
         </div>
         <div class="mt-6 text-center">
-          <button onclick="loadAllBooks()" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-200 ease-in-out shadow-md hover:shadow-lg">
-          View All eBooks
+          <button onclick="loadAllBooks()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 shadow-md hover:shadow-lg">
+            View All eBooks
           </button>
-
         </div>
       </section>
 
     </main>
   </div>
-  <script>
-  // Replace with your actual Supabase credentials
+
+<script>
   const supabase = window.supabase.createClient(
-    'https://zfiaoyymowvjurqxrazu.supabase.co', // Supabase URL
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'// Supabase anon public key
+    'https://zfiaoyymowvjurqxrazu.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'
   );
 
-  async function loadBooks() {
-  const { data, error } = await supabase
-    .from('ebook')
-    .select('*')
-    .limit(4); // Only get 4 books
+  async function loadBooks(limit = 4) {
+    const { data, error } = await supabase
+      .from('ebook')
+      .select('*')
+      .limit(limit);
 
-  const container = document.getElementById('booksGrid');
+    const container = document.getElementById('booksGrid');
+    if (error) {
+      container.innerHTML = `<p class="text-red-500">Failed to load books.</p>`;
+      console.error('Error loading books:', error);
+      return;
+    }
 
-  if (error) {
-    container.innerHTML = `<p class="text-red-500">Failed to load books.</p>`;
-    console.error('Error loading books:', error);
-    return;
+    if (data.length === 0) {
+      container.innerHTML = `<p class="text-gray-500">No books available.</p>`;
+      return;
+    }
+
+    container.innerHTML = data.map(book => `
+      <div class="bg-white rounded-xl shadow-md p-5 flex flex-col transform hover:scale-105 transition">
+        <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg mb-4 h-56 object-cover w-full shadow-sm">
+        <h4 class="text-lg font-semibold text-indigo-700 mb-1">${book.title}</h4>
+        <p class="text-sm text-gray-600 mb-1">By ${book.author}</p>
+        <p class="text-sm text-gray-500 mb-1">📚 Genre: ${book.genre || 'N/A'}</p>
+        <p class="text-sm text-gray-500 mb-1">📄 Pages: ${book.pages || 0}</p>
+        <p class="text-sm text-gray-500 mb-4">📝 Words: ${book.words || 0}</p>
+        <a href="ebook_detail.html?book_id=${book.id}" class="mt-auto text-indigo-600 hover:underline font-medium flex items-center">
+          📖 View Details
+        </a>
+      </div>
+    `).join('');
   }
-
-  if (data.length === 0) {
-    container.innerHTML = `<p class="text-gray-500">No books available.</p>`;
-    return;
-  }
-
-  // Display limited (4) books
-  container.innerHTML = data.map(book => `
-    <div class="book-card bg-white rounded-xl shadow-md p-5 flex flex-col transform hover:scale-105 transition duration-300 ease-in-out"
-         data-title="${book.title}"
-         data-author="${book.author}">
-      <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg mb-4 h-56 object-cover w-full shadow-sm">
-      <h4 class="text-lg font-semibold text-indigo-700 mb-1">${book.title}</h4>
-      <p class="text-sm text-gray-600 mb-4">By ${book.author}</p>
-      <a href="ebook_detail.html?book_id=${book.id}" class="mt-auto text-indigo-600 hover:underline font-medium flex items-center">
-        📖 View Details
-      </a>
-    </div>
-  `).join('');
-}
-
-
-  loadBooks();
 
   async function loadAllBooks() {
-  const { data, error } = await supabase
-    .from('ebook')
-    .select('*'); // no limit
-
-  const container = document.getElementById('booksGrid');
-
-  if (error) {
-    container.innerHTML = `<p class="text-red-500">Failed to load all books.</p>`;
-    console.error('Error loading all books:', error);
-    return;
+    loadBooks(1000); // or whatever max number you expect
   }
 
-  if (data.length === 0) {
-    container.innerHTML = `<p class="text-gray-500">No books found.</p>`;
-    return;
+  async function loadStats() {
+    const { data, error } = await supabase
+      .from('ebook')
+      .select('pages, words');
+
+    if (error) {
+      console.error('Failed to fetch stats:', error);
+      return;
+    }
+
+    const totalPages = data.reduce((sum, book) => sum + (book.pages || 0), 0);
+    const totalWords = data.reduce((sum, book) => sum + (book.words || 0), 0);
+
+    document.getElementById('totalPages').textContent = totalPages.toLocaleString();
+    document.getElementById('totalWords').textContent = totalWords.toLocaleString();
   }
 
-  container.innerHTML = data.map(book => `
-    <div class="book-card bg-white rounded-xl shadow-md p-5 flex flex-col transform hover:scale-105 transition duration-300 ease-in-out"
-         data-title="${book.title}"
-         data-author="${book.author}">
-      <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg mb-4 h-56 object-cover w-full shadow-sm">
-      <h4 class="text-lg font-semibold text-indigo-700 mb-1">${book.title}</h4>
-      <p class="text-sm text-gray-600 mb-4">By ${book.author}</p>
-      <a href="ebook_detail.html?book_id=${book.id}" class="mt-auto text-indigo-600 hover:underline font-medium flex items-center">
-        📖 View Details
-      </a>
-    </div>
-  `).join('');
-}
-
-  
   document.getElementById('searchForm').addEventListener('submit', async function (e) {
-  e.preventDefault(); // Stop default form submit
-  const query = e.target.query.value.trim().toLowerCase();
-  const container = document.getElementById('booksGrid');
+    e.preventDefault();
+    const query = e.target.query.value.trim().toLowerCase();
+    const container = document.getElementById('booksGrid');
 
-  if (!query) {
-    loadBooks(); // Load default books again if search box is empty
-    return;
-  }
+    if (!query) {
+      loadBooks();
+      return;
+    }
 
-  const { data, error } = await supabase
-    .from('ebook')
-    .select('*')
-    .ilike('title', `%${query}%`);
+    const { data, error } = await supabase
+      .from('ebook')
+      .select('*')
+      .ilike('title', `%${query}%`);
 
-  if (error) {
-    container.innerHTML = `<p class="text-red-500">Search failed.</p>`;
-    console.error('Search error:', error);
-    return;
-  }
+    if (error) {
+      container.innerHTML = `<p class="text-red-500">Search failed.</p>`;
+      console.error('Search error:', error);
+      return;
+    }
 
-  if (data.length === 0) {
-    container.innerHTML = `<p class="text-gray-500">No results found for "${query}".</p>`;
-    return;
-  }
+    if (data.length === 0) {
+      container.innerHTML = `<p class="text-gray-500">No results found for "${query}".</p>`;
+      return;
+    }
 
-  container.innerHTML = data.map(book => `
-    <div class="book-card bg-white rounded-xl shadow-md p-5 flex flex-col transform hover:scale-105 transition duration-300 ease-in-out"
-         data-title="${book.title}"
-         data-author="${book.author}">
-      <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg mb-4 h-56 object-cover w-full shadow-sm">
-      <h4 class="text-lg font-semibold text-indigo-700 mb-1">${book.title}</h4>
-      <p class="text-sm text-gray-600 mb-4">By ${book.author}</p>
-      <a href="ebook_detail.html?book_id=${book.id}" class="mt-auto text-indigo-600 hover:underline font-medium flex items-center">
-        📖 View Details
-      </a>
-    </div>
-  `).join('');
-});
+    container.innerHTML = data.map(book => `
+      <div class="bg-white rounded-xl shadow-md p-5 flex flex-col transform hover:scale-105 transition">
+        <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg mb-4 h-56 object-cover w-full shadow-sm">
+        <h4 class="text-lg font-semibold text-indigo-700 mb-1">${book.title}</h4>
+        <p class="text-sm text-gray-600 mb-1">By ${book.author}</p>
+        <p class="text-sm text-gray-500 mb-1">📚 Genre: ${book.genre || 'N/A'}</p>
+        <p class="text-sm text-gray-500 mb-1">📄 Pages: ${book.pages || 0}</p>
+        <p class="text-sm text-gray-500 mb-4">📝 Words: ${book.words || 0}</p>
+        <a href="ebook_detail.html?book_id=${book.id}" class="mt-auto text-indigo-600 hover:underline font-medium flex items-center">
+          📖 View Details
+        </a>
+      </div>
+    `).join('');
+  });
 
+  // Initial load
+  loadBooks();
+  loadStats();
 </script>
 
 </body>
