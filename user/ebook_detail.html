@@ -129,7 +129,7 @@
 
       document.getElementById('bookDetail').innerHTML = `
         <div class="flex-shrink-0 w-full md:w-1/3">
-          <img src="${book.cover_url}" alt="Book Cover ${book.title}" class="rounded-lg shadow-md w-full object-cover">
+          <img src="${book.imageUrl || 'default-cover.jpg'}" alt="Book Cover ${book.title}" class="rounded-lg shadow-md w-full object-cover">
         </div>
         <div class="flex-1">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">${book.title}</h2>
