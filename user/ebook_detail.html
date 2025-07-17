@@ -118,7 +118,7 @@
         return;
       }
 
-      const { data: book, error } = await supabase.from('ebooks').select('*').eq('id', bookId).single();
+      const { data: book, error } = await supabase.from('ebook').select('*').eq('id', bookId).single();
 
       if (error || !book) {
         document.getElementById('bookDetail').innerHTML = `<p class="text-red-500">Book not found.</p>`;
@@ -196,7 +196,7 @@
 
 
     async function saveToStorage(key, bookId) {
-      const { data: book } = await supabase.from('ebooks').select('*').eq('id', bookId).single();
+      const { data: book } = await supabase.from('ebook').select('*').eq('id', bookId).single();
       const list = JSON.parse(localStorage.getItem(key)) || [];
       const exists = list.some(b => b.id === book.id);
       if (!exists) {

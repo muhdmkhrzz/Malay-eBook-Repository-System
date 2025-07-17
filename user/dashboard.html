@@ -92,7 +92,7 @@
 
   async function loadBooks(limit = 4) {
     const { data, error } = await supabase
-      .from('ebooks')
+      .from('ebook')
       .select('*')
       .limit(limit);
 
@@ -129,7 +129,7 @@
 
   async function loadStats() {
     const { data, error } = await supabase
-      .from('ebooks')
+      .from('ebook')
       .select('pages, words');
 
     if (error) {
@@ -155,7 +155,7 @@
     }
 
     const { data, error } = await supabase
-      .from('ebooks')
+      .from('ebook')
       .select('*')
       .ilike('title', `%${query}%`);
 
