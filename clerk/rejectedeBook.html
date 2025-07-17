@@ -306,13 +306,12 @@
 </head>
 <body>
   <div id="mySidebar" class="sidebar">
-        <a href="dashboardClerk.html">Dashboard</a>
-        <a href="manageEbookC.html">Manage eBooks</a>
-        <a href="addNewBook.html">Add New eBook</a>
-        <a href="rejectedeBook.html">Rejected eBooks</a>
-        <a href="eBookStatus.html">eBook Status</a>
-        <a href="/logout.html" id="logoutButton" class="logout-link">Logout</a>
-    </div>
+    <a href="dashboardClerk.html">Dashboard</a>
+    <a href="addNewBook.html">Add New eBook</a>
+    <a href="rejectedeBook.html">Rejected eBooks</a>
+    <a href="eBookStatus.html">eBook Status</a>
+    <a href="/logout.html" id="logoutButton" class="logout-link">Logout</a>
+  </div>
 
   <div id="mainContent">
     <div class="container-content">
@@ -323,7 +322,7 @@
       </div>
 
       <div class="overflow-x-auto">
-        <table class="min-w-full bg-white" id="rejectedEbooksTable">
+        <table id="rejectedEbooksTable" class="min-w-full bg-white" id="rejectedEbooksTable">
           <thead>
             <tr>
               <th>Cover</th>
@@ -389,11 +388,13 @@
     </div>
   </div>
 
-  <script>
+  <script type = "module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
     const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co'; // Replace with your Supabase URL
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw'; // Replace with your Supabase Anon Key
 
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = createClient('https://zfiaoyymowvjurqxrazu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw');
 
     // Logout functionality
     document.getElementById('logoutButton').addEventListener('click', async (event) => {
@@ -429,12 +430,12 @@
     async function fetchAndRenderRejectedEbooks() {
       try {
         const { data, error } = await supabase
-          .from('ebooks')
+          .from('ebook')
           .select('*')
           .eq('status', 'rejected'); // Only fetch rejected books
 
         if (error) {
-          console.error('Error fetching rejected ebooks:', error.message);
+          console.error('Error fetching rejected ebook:', error.message);
           rejectedEbooksTable.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500">Error loading rejected ebooks.</td></tr>`;
           return;
         }
@@ -442,7 +443,7 @@
         renderTable(data);
 
       } catch (networkError) {
-        console.error('Network error fetching rejected ebooks:', networkError);
+        console.error('Network error fetching rejected ebook:', networkError);
         rejectedEbooksTable.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500">Network error. Please check your connection.</td></tr>`;
       }
     }
@@ -451,28 +452,25 @@
      * Renders the rejected ebooks into the table.
      * @param {Array<Object>} ebooks - The list of rejected ebook objects to render.
      */
-    function renderTable(ebooks) {
+    function renderTable(ebook) {
       rejectedEbooksTable.innerHTML = ''; // Clear existing rows
-      if (ebooks.length === 0) {
+      if (ebook.length === 0) {
         rejectedEbooksTable.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500">No rejected eBooks found.</td></tr>`;
         return;
       }
 
-      ebooks.forEach(book => {
-        const row = rejectedEbooksTable.insertRow();
-        row.innerHTML = `
-          <td class="py-2 px-3"><img src="${book.imageUrl || 'https://placehold.co/50x75/cccccc/333333?text=No+Image'}" alt="Cover" class="book-cover-thumbnail"></td>
-          <td class="py-2 px-3">${book.title}</td>
-          <td class="py-2 px-3">${book.author}</td>
-          <td class="py-2 px-3">${book.genre}</td>
-          <td class="py-2 px-3">${book.statusDate}</td>
-          <td class="py-2 px-3">${book.reason || 'N/A'}</td>
-          <td class="py-2 px-3 actions">
-            <button class="approve-btn" onclick="approveEbook('${book.id}')">Approve</button>
-            <button class="edit-btn" onclick="openEditModal('${book.id}', '${book.title.replace(/'/g, "\\'")}', '${book.author.replace(/'/g, "\\'")}', '${book.genre.replace(/'/g, "\\'")}', '${book.synopsis.replace(/'/g, "\\'")}', '${book.reason ? book.reason.replace(/'/g, "\\'") : ''}', '${book.imageUrl || ''}')">Edit</button>
-          </td>
-        `;
-      });
+      ebook.forEach(book => {
+  const row = rejectedEbooksTable.insertRow();
+  row.innerHTML = `
+    <td class="py-2 px-3"><img src="${book.imageUrl || 'https://placehold.co/50x75/cccccc/333333?text=No+Image'}" alt="Cover" class="book-cover-thumbnail"></td>
+    <td class="py-2 px-3">${book.title}</td>
+    <td class="py-2 px-3">${book.author}</td>
+    <td class="py-2 px-3">${book.genre}</td>
+    <td class="py-2 px-3">${book.statusDate}</td>
+    <td class="py-2 px-3">${book.reason || 'N/A'}</td>
+    <td class="py-2 px-3 text-red-600 font-semibold">${book.status}</td>
+  `;
+});
     }
 
     /**
@@ -502,7 +500,7 @@
 
         try {
             const { error } = await supabase
-                .from('ebooks')
+                .from('ebook')
                 .update({ status: 'approved', reason: null, statusDate: new Date().toISOString().split('T')[0] })
                 .eq('id', ebookId);
 
@@ -615,7 +613,7 @@
         };
 
         const { data, error } = await supabase
-            .from('ebooks')
+            .from('ebook')
             .update(updatedData)
             .eq('id', bookId);
 
@@ -645,6 +643,52 @@
     // Expose functions to global scope for HTML onclick attributes
     window.searchBooks = searchBooks;
     window.closeModal = closeModal;
+
+    ebookForm.addEventListener('submit', async function(event) {
+  event.preventDefault(); // Prevent default form submission
+
+  const newEbookData = {
+    title: bookTitleInput.value.trim(),
+    author: authorInput.value.trim(),
+    yearPublished: parseInt(yearPublishedInput.value) || null,
+    genre: genreSelect.value.trim(),
+    synopsis: synopsisTextarea.value.trim(),
+    imageUrl: imagePreview.src || '',
+    status: 'pending',
+    statusDate: new Date().toISOString().split('T')[0] // YYYY-MM-DD
+  };
+
+  try {
+    // Insert into 'ebooks' only
+    const { data, error } = await supabase
+      .from('ebook')
+      .insert([newEbookData])
+      .select();
+
+    if (error) {
+      console.error('Insert error (ebook table):', error);
+      return showMessageBox(`❌ Failed to add eBook: ${error.message}`);
+    }
+
+    console.log('eBook added:', data);
+    showMessageBox('✅ eBook successfully added and pending approval!');
+    ebookForm.reset();
+    updateImagePreview(null);
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    showMessageBox('❌ Unexpected error occurred.');
+  }
+});
+
   </script>
+  <script>
+function closeModal() {
+  const modal = document.getElementById('editModal'); // replace with actual ID
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+</script>
+
 </body>
 </html>
