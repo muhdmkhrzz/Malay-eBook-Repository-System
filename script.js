@@ -286,7 +286,7 @@ async function fetchEbooks() {
             ebookList.innerHTML = '<p id="loading-message">Loading eBooks...</p>';
         }
 
-        let query = supabase.from('ebook').select('*');
+        let query = supabase.from('ebooks').select('*');
 
         if (searchInput && searchInput.value) {
             const searchTerm = searchInput.value.toLowerCase();
@@ -375,7 +375,7 @@ async function fetchEbookDetails(ebookId) {
     try {
         currentEbookId = ebookId;
         const { data: ebook, error } = await supabase
-            .from('ebook')
+            .from('ebooks')
             .select('*')
             .eq('id', ebookId)
             .single();
@@ -517,7 +517,7 @@ async function uploadEbook(event) {
         fileUrl = publicUrlData.publicUrl;
     }
 
-    const { error: insertError } = await supabase.from('ebook').insert({
+    const { error: insertError } = await supabase.from('ebooks').insert({
         title,
         author,
         pages: pages ? parseInt(pages) : null,

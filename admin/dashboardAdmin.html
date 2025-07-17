@@ -84,7 +84,7 @@
 
         const [profilesRes, ebooksRes] = await Promise.all([
             supabaseClient.from('profiles').select('id, role'),
-            supabaseClient.from('ebook').select('id, genre')
+            supabaseClient.from('ebooks').select('id, genre')
         ]);
 
         console.log("Supabase profiles response:", profilesRes);

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit eBook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --light-bg-start: #e0f2f7;
+            --light-bg-end: #f0f8ff;
+            --surface-text-dark: #333333;
+            --surface-text-light: #666666;
+            --glass-bg-color: rgba(255, 255, 255, 0.6);
+            --glass-border-color: rgba(255, 255, 255, 0.8);
+            --glass-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --glass-blur: 15px;
+            --accent-blue: #007bff;
+            --accent-green: #28a745;
+            --accent-red: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg-start); /* Solid light blue background */
+            margin: 0;
+            padding: 0;
+            color: black; /* Black font for the body */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: black; /* Black font for heading */
+            margin-bottom: 30px;
+            font-weight: 700 !important;
+            font-size: 2.5rem;
+        }
+
+        .container-content {
+            max-width: 700px;
+            width: 90%;
+            margin: 20px auto;
+            background-color: var(--glass-bg-color);
+            border-radius: 15px;
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border-color);
+            box-shadow: var(--glass-shadow);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: black; /* Black font for labels */
+            font-size: 0.95rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="url"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .image-upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 20px;
+        }
+
+        #imagePreviewContainer {
+            width: 150px;
+            height: 200px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            background-color: #f8fafc;
+            position: relative;
+        }
+        #imagePreview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        #imagePlaceholderText {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 5px;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        .file-url-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .custom-file-upload {
+            background-color: var(--accent-blue); /* Blue background */
+            color: white; /* White text color */
+            display: inline-block;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+        .custom-file-upload:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-actions button {
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .form-actions button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-save {
+            background-color: var(--accent-green);
+            color: white;
+        }
+        .btn-save:hover {
+            background-color: #218838;
+        }
+
+        /* Message box styles */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50; /* Green for success */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .message-box.error {
+            background-color: #f44336; /* Red for error */
+        }
+    </style>
+</head>
+<body>
+    <div class="container-content">
+        <h1>Edit eBook</h1>
+
+        <form id="editEbookForm">
+            <input type="hidden" id="ebookId">
+
+            <div class="form-group">
+                <label for="bookTitle">Book Title</label>
+                <input type="text" id="bookTitle" required>
+            </div>
+
+            <div class="form-group">
+                <label for="author">Author</label>
+                <input type="text" id="author" required>
+            </div>
+
+            <div class="form-group">
+                <label for="year">Year Published</label> <!-- Changed label for="year" -->
+                <input type="number" id="year" min="1000" max="2100"> <!-- Changed id="year" -->
+            </div>
+
+            <div class="form-group">
+                <label for="genre">Genre</label>
+                <select id="genre" required>
+                    <option value="">Select a genre</option>
+                    <option value="Fiction">Fiction</option>
+                    <option value="Science Fiction">Science Fiction</option>
+                    <option value="Fantasy">Fantasy</option>
+                    <option value="Mystery">Mystery</option>
+                    <option value="Thriller">Thriller</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Self-Help">Self-Help</option>
+                    <option value="Biography">Biography</option>
+                    <option value="History">History</option>
+                    <option value="Science">Science</option>
+                    <option value="Cookbook">Cookbook</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="synopsis">Synopsis</label>
+                <textarea id="synopsis" rows="6" required></textarea>
+            </div>
+
+            <div class="form-group image-upload-section">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover Image</label>
+                <div id="imagePreviewContainer">
+                    <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                    <img id="imagePreview" src="" alt="Image Preview" class="hidden absolute inset-0 w-full h-full object-contain">
+                    <span id="imagePlaceholderText" class="absolute inset-0 flex items-center justify-center text-center text-gray-400 p-2">
+                        Click to upload
+                    </span>
+                </div>
+                <div class="file-url-input-group">
+                    <label for="fileUploadButton" class="custom-file-upload">
+                        Upload File
+                    </label>
+                    <input type="file" id="fileUploadButton" accept="image/*" class="hidden">
+                    <span class="text-gray-500">OR</span>
+                    <input type="url" id="imageUrl" placeholder="Enter image URL"
+                           class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" id="cancelButton">Cancel</button>
+                <button type="submit" class="btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const SUPABASE_URL = 'https://zfiaoyymowvjurqxrazu.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmaWFveXltb3d2anVycXhyYXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjg3MjMsImV4cCI6MjA2Nzc0NDcyM30.LX6eYX1F9Z1LpAIMurENn921WtgF9YF5qM1xLr6hVWw';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Form elements
+        const ebookIdInput = document.getElementById('ebookId');
+        const bookTitleInput = document.getElementById('bookTitle');
+        const authorInput = document.getElementById('author');
+        const yearInput = document.getElementById('year'); // Changed variable name to yearInput
+        const genreSelect = document.getElementById('genre');
+        const synopsisTextarea = document.getElementById('synopsis');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imageUploadInput = document.getElementById('imageUpload'); // Hidden input for preview click
+        const fileUploadButtonInput = document.getElementById('fileUploadButton'); // Input for "Upload File" button
+        const imageUrlInput = document.getElementById('imageUrl');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePlaceholderText = document.getElementById('imagePlaceholderText');
+        const editEbookForm = document.getElementById('editEbookForm');
+        const cancelButton = document.getElementById('cancelButton');
+        const messageBox = document.getElementById('messageBox');
+
+        let originalImageUrl = null; // To store the original image URL for potential deletion
+
+        // --- Debugging: Log all element references on script load ---
+        console.log('--- editEbook.html: Element References Check (on script load) ---');
+        console.log('ebookIdInput:', ebookIdInput);
+        console.log('bookTitleInput:', bookTitleInput);
+        console.log('authorInput:', authorInput);
+        console.log('yearInput:', yearInput); // Changed log
+        console.log('genreSelect:', genreSelect);
+        console.log('synopsisTextarea:', synopsisTextarea);
+        console.log('imagePreviewContainer:', imagePreviewContainer);
+        console.log('imageUploadInput:', imageUploadInput);
+        console.log('fileUploadButtonInput:', fileUploadButtonInput);
+        console.log('imageUrlInput:', imageUrlInput);
+        console.log('imagePreview:', imagePreview);
+        console.log('imagePlaceholderText:', imagePlaceholderText);
+        console.log('editEbookForm:', editEbookForm);
+        console.log('cancelButton:', cancelButton);
+        console.log('messageBox:', messageBox);
+        console.log('--- editEbook.html: End Element References Check ---');
+        // --- End Debugging ---
+
+
+        /**
+         * Displays a message box with a given message and type.
+         * @param {string} message - The message to display.
+         * @param {string} type - 'success' or 'error'.
+         */
+        function showMessageBox(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box'; // Reset classes
+            if (type === 'error') {
+                messageBox.classList.add('error');
+            }
+            messageBox.style.opacity = '1';
+            messageBox.style.display = 'block';
+
+            setTimeout(() => {
+                messageBox.style.opacity = '0';
+                messageBox.addEventListener('transitionend', function handler() {
+                    messageBox.style.display = 'none';
+                    messageBox.removeEventListener('transitionend', handler);
+                });
+            }, 3000);
+        }
+
+        /**
+         * Updates the image preview display.
+         * @param {string|null} src - The image source URL or data URL, or null to show placeholder.
+         */
+        function updateImagePreview(src) {
+            if (src) {
+                imagePreview.src = src;
+                imagePreview.classList.remove('hidden');
+                imagePlaceholderText.classList.add('hidden');
+            } else {
+                imagePreview.src = '';
+                imagePreview.classList.add('hidden');
+                imagePlaceholderText.classList.remove('hidden');
+            }
+        }
+
+        // Event listeners for Image Upload/URL
+        imageUploadInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    updateImagePreview(e.target.result);
+                    imageUrlInput.value = ''; // Clear URL input if file is selected
+                    fileUploadButtonInput.value = ''; // Clear other file input
+                };
+                reader.readAsDataURL(file);
+            } else {
+                updateImagePreview(null);
+            }
+        });
+
+        fileUploadButtonInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    updateImagePreview(e.target.result);
+                    imageUrlInput.value = ''; // Clear URL input if file is selected
+                    imageUploadInput.value = ''; // Clear other file input
+                };
+                reader.readAsDataURL(file);
+            } else {
+                updateImagePreview(null);
+            }
+        });
+
+        imageUrlInput.addEventListener('input', function() {
+            const url = this.value;
+            if (url) {
+                const img = new Image();
+                img.onload = () => updateImagePreview(url);
+                img.onerror = () => {
+                    updateImagePreview(null);
+                    console.error("Failed to load image from URL:", url);
+                };
+                img.src = url;
+                imageUploadInput.value = ''; // Clear file inputs if URL is entered
+                fileUploadButtonInput.value = '';
+            } else {
+                updateImagePreview(null);
+            }
+        });
+
+        imagePreviewContainer.addEventListener('click', function() {
+            imageUploadInput.click(); // Programmatically click the hidden file input
+        });
+
+        /**
+         * Validates if a URL points to a real image.
+         * @param {string} url - The image URL to test.
+         * @returns {Promise<boolean>} - True if image loads, false if not.
+         */
+        async function validateImageUrl(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+        }
+
+        /**
+         * Fetches and populates the form with ebook data based on ID from URL.
+         */
+        async function loadEbookForEdit() {
+            console.log('--- editEbook.html: loadEbookForEdit function called ---'); // Debugging
+            const urlParams = new URLSearchParams(window.location.search);
+            const ebookId = urlParams.get('id');
+
+            console.log('editEbook.html: Extracted ebookId from URL:', ebookId); // Debugging
+
+            if (!ebookId) {
+                showMessageBox('No eBook ID found in URL. Cannot edit.', 'error');
+                console.error('editEbook.html: No eBook ID found in URL.');
+                return;
+            }
+
+            if (ebookIdInput) {
+                ebookIdInput.value = ebookId; // Set the hidden ID field
+            } else {
+                console.error('editEbook.html: ebookIdInput element not found!');
+                showMessageBox('Internal error: Missing form element.', 'error');
+                return;
+            }
+
+
+            const { data: ebook, error } = await supabase
+                .from('ebook')
+                .select('*')
+                .eq('id', ebookId)
+                .single();
+
+            if (error) {
+                showMessageBox('Error loading eBook: ' + error.message, 'error');
+                console.error('editEbook.html: Error fetching ebook for edit:', error.message);
+                return;
+            }
+
+            if (!ebook) {
+                showMessageBox('eBook not found.', 'error');
+                console.error('editEbook.html: eBook not found for ID:', ebookId);
+                return;
+            }
+
+            console.log('editEbook.html: Fetched ebook data:', ebook); // Debugging: log the fetched data
+
+            // Populate form fields
+            if (bookTitleInput) bookTitleInput.value = ebook.title || ''; else console.error('bookTitleInput not found');
+            if (authorInput) authorInput.value = ebook.author || ''; else console.error('authorInput not found');
+            if (yearInput) yearInput.value = ebook.year || ''; else console.error('yearInput not found'); // Changed to ebook.year
+            if (genreSelect) genreSelect.value = ebook.genre || ''; else console.error('genreSelect not found');
+            if (synopsisTextarea) synopsisTextarea.value = ebook.synopsis || ''; else console.error('synopsisTextarea not found');
+            if (imageUrlInput) imageUrlInput.value = ebook.imageUrl || ''; else console.error('imageUrlInput not found');
+
+
+            originalImageUrl = ebook.imageUrl; // Store original URL for potential deletion
+
+            if (imagePreview && imagePlaceholderText) {
+                updateImagePreview(ebook.imageUrl); // Display current image
+            } else {
+                console.error('editEbook.html: Image preview elements (imagePreview or imagePlaceholderText) not found.');
+            }
+
+
+            showMessageBox('eBook details loaded successfully!');
+            console.log('--- editEbook.html: eBook details loaded and form populated ---'); // Debugging
+        }
+
+        /**
+         * Handles form submission to update the ebook.
+         */
+        editEbookForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            console.log('--- editEbook.html: Edit form submitted ---'); // Debugging
+
+            const ebookId = ebookIdInput.value;
+            const file = imageUploadInput.files[0] || fileUploadButtonInput.files[0];
+            const useFile = file && file.type.startsWith("image/");
+            const urlInput = imageUrlInput.value.trim();
+
+            let imageUrlToSave = imageUrlInput.value; // Default to current URL in input
+
+            // Handle image upload if a new file is selected
+            if (useFile) {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `covers/${fileName}`;
+
+                console.log('editEbook.html: New file detected, attempting upload to:', filePath); // Debugging
+
+                const { error: uploadError } = await supabase.storage
+                    .from('bookcover') // Changed bucket name
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    showMessageBox('Failed to upload new image file: ' + uploadError.message, 'error');
+                    console.error('editEbook.html: Upload failed:', uploadError);
+                    return;
+                }
+
+                const { data } = supabase.storage
+                    .from('bookcover') // Changed bucket name
+                    .getPublicUrl(filePath);
+
+                imageUrlToSave = data.publicUrl;
+                console.log('editEbook.html: New image uploaded, public URL:', imageUrlToSave); // Debugging
+
+                // If a new file was uploaded, and there was an original image from storage, delete the old one
+                if (originalImageUrl && originalImageUrl.includes(SUPABASE_URL + '/storage/v1/object/public/bookcover/')) {
+                    try {
+                        const oldImagePath = originalImageUrl.split('/bookcover/')[1]; // Changed split key
+                        console.log('editEbook.html: Deleting old image from storage:', oldImagePath); // Debugging
+                        const { error: storageError } = await supabase.storage
+                            .from('bookcover') // Changed bucket name
+                            .remove([oldImagePath]);
+                        if (storageError) {
+                            console.warn('editEbook.html: Warning: Failed to delete old image from storage:', storageError.message);
+                        }
+                    } catch (e) {
+                        console.warn('editEbook.html: Error during old image deletion from storage:', e);
+                    }
+                }
+
+            } else if (urlInput) {
+                console.log('editEbook.html: URL input detected:', urlInput); // Debugging
+                const isValid = await validateImageUrl(urlInput);
+                if (!isValid) {
+                    showMessageBox('Invalid image URL. Please enter a valid image link.', 'error');
+                    return;
+                }
+                imageUrlToSave = urlInput;
+
+                // If a URL is provided, and it's different from the original and the original was from storage, delete old one
+                if (originalImageUrl && originalImageUrl !== imageUrlToSave && originalImageUrl.includes(SUPABASE_URL + '/storage/v1/object/public/bookcover/')) {
+                    try {
+                        const oldImagePath = originalImageUrl.split('/bookcover/')[1]; // Changed split key
+                        console.log('editEbook.html: Deleting old image from storage (URL changed):', oldImagePath); // Debugging
+                        const { error: storageError } = await supabase.storage
+                            .from('bookcover') // Changed bucket name
+                            .remove([oldImagePath]);
+                        if (storageError) {
+                            console.warn('editEbook.html: Warning: Failed to delete old image from storage:', storageError.message);
+                        }
+                    } catch (e) {
+                        console.warn('editEbook.html: Error during old image deletion from storage:', e);
+                    }
+                }
+            } else {
+                console.log('editEbook.html: No new file or URL. Checking if original image needs deletion.'); // Debugging
+                // If no file and no URL, and there was an original image from storage, delete the old one
+                if (originalImageUrl && originalImageUrl.includes(SUPABASE_URL + '/storage/v1/object/public/bookcover/')) {
+                    try {
+                        const oldImagePath = originalImageUrl.split('/bookcover/')[1]; // Changed split key
+                        console.log('editEbook.html: Deleting old image from storage (image cleared):', oldImagePath); // Debugging
+                        const { error: storageError } = await supabase.storage
+                            .from('bookcover') // Changed bucket name
+                            .remove([oldImagePath]);
+                        if (storageError) {
+                            console.warn('editEbook.html: Warning: Failed to delete old image from storage:', storageError.message);
+                        }
+                    } catch (e) {
+                        console.warn('editEbook.html: Error during old image deletion from storage:', e);
+                    }
+                }
+                imageUrlToSave = null; // Clear image URL in DB
+            }
+
+
+            const updatedEbookData = {
+                title: bookTitleInput.value,
+                author: authorInput.value,
+                year: parseInt(yearInput.value) || null, // Changed to year
+                genre: genreSelect.value,
+                synopsis: synopsisTextarea.value,
+                imageUrl: imageUrlToSave,
+                // Status and statusDate are not changed on this page, but you could add them if needed
+            };
+
+            console.log('editEbook.html: Attempting to update ebook with data:', updatedEbookData); // Debugging
+
+            const { error } = await supabase
+                .from('ebook') // Correct table name: 'ebook'
+                .update(updatedEbookData)
+                .eq('id', ebookId);
+
+            if (error) {
+                showMessageBox('Failed to update eBook: ' + error.message, 'error');
+                console.error('editEbook.html: Error updating ebook:', error.message);
+            } else {
+                showMessageBox('eBook updated successfully!');
+                console.log('editEbook.html: eBook updated successfully, redirecting...'); // Debugging
+                // Redirect back to the manage ebooks page after a short delay
+                setTimeout(() => {
+                    window.location.href = 'manageEbookC.html';
+                }, 1500);
+            }
+        });
+
+        // Cancel button redirects back to manageEbookC.html
+        cancelButton.addEventListener('click', () => {
+            console.log('editEbook.html: Cancel button clicked, redirecting to manageEbookC.html'); // Debugging
+            window.location.href = 'manageEbookC.html';
+        });
+
+        // Load ebook data when the page loads
+        document.addEventListener('DOMContentLoaded', loadEbookForEdit);
+    </script>
+</body>
+</html>

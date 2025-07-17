@@ -303,6 +303,17 @@
         const genreFilter = document.getElementById('genreFilter');
         const logoutButton = document.getElementById('logoutButton');
 
+        // --- Debugging: Log all element references on script load ---
+        console.log('--- manageEbookC.html: Element References Check (on script load) ---');
+        console.log('ebooksList:', ebooksList);
+        console.log('searchInput:', searchInput);
+        console.log('statusFilter:', statusFilter);
+        console.log('genreFilter:', genreFilter);
+        console.log('logoutButton:', logoutButton);
+        console.log('--- manageEbookC.html: End Element References Check ---');
+        // --- End Debugging ---
+
+
         // Logout functionality
         logoutButton.addEventListener('click', async (event) => {
             event.preventDefault();
@@ -322,6 +333,7 @@
 
         async function fetchAndDisplayEbooks() {
             ebooksList.innerHTML = '<p class="no-ebooks-message">Loading eBooks...</p>';
+            console.log('--- manageEbookC.html: Fetching and displaying ebooks ---'); // Debugging
 
             let query = supabase
                 .from('ebook') // Correct table name: 'ebook'
@@ -370,6 +382,7 @@
                         <h3>${ebook.title}</h3>
                         <p><strong>Author:</strong> ${ebook.author}</p>
                         <p><strong>Genre:</strong> ${ebook.genre}</p>
+                        <p><strong>Year:</strong> ${ebook.year || 'N/A'}</p> <!-- Changed to ebook.year -->
                         <p><strong>Status:</strong> <span class="font-semibold capitalize ${ebook.status === 'approved' ? 'text-green-600' : ebook.status === 'pending' ? 'text-yellow-600' : 'text-red-600'}">${ebook.status}</span></p>
                     </div>
                     <div class="ebook-list-actions">
@@ -384,19 +397,28 @@
         }
 
         function addEventListenersToButtons() {
+            console.log('--- manageEbookC.html: Attaching Event Listeners ---'); // Debugging
+            const editButtons = document.querySelectorAll('.btn-edit');
+            console.log('Found edit buttons:', editButtons.length); // Debugging: How many buttons found?
+
             // Add listener for Edit buttons
-            document.querySelectorAll('.btn-edit').forEach(button => {
+            editButtons.forEach(button => {
+                console.log('Attaching edit listener to button with ID:', button.dataset.id); // Debugging
                 button.addEventListener('click', (event) => {
                     const ebookId = event.target.dataset.id;
-                    // Redirect to a new edit page, passing the ebook ID as a URL parameter
-                    window.location.href = `editEbook.html?id=${ebookId}`;
+                    console.log('manageEbookC.html: Edit button clicked for ID:', ebookId); // NEW Debugging: Confirm click event fires
+                    const targetUrl = `editEbook.html?id=${ebookId}`;
+                    console.log('manageEbookC.html: Attempting to navigate to:', targetUrl); // NEW Debugging: Log the target URL
+                    window.location.href = targetUrl;
                 });
             });
 
             // Add listener for Delete buttons
             document.querySelectorAll('.btn-delete').forEach(button => {
+                console.log('Attaching delete listener to button with ID:', button.dataset.id); // Debugging
                 button.addEventListener('click', (event) => deleteEbook(event.target.dataset.id));
             });
+            console.log('--- manageEbookC.html: Event Listeners Attached ---'); // Debugging
         }
 
         async function deleteEbook(id) {
@@ -426,11 +448,12 @@
                 alert('Failed to delete eBook: ' + deleteError.message);
             } else {
                 // If there was an imageUrl and it's from our storage, attempt to delete it
-                if (ebookToDelete && ebookToDelete.imageUrl && ebookToDelete.imageUrl.includes(SUPABASE_URL + '/storage/v1/object/public/book-covers/')) {
+                // IMPORTANT: Changed 'book-covers' to 'bookcover'
+                if (ebookToDelete && ebookToDelete.imageUrl && ebookToDelete.imageUrl.includes(SUPABASE_URL + '/storage/v1/object/public/bookcover/')) {
                     try {
-                        const imagePath = ebookToDelete.imageUrl.split('/book-covers/')[1];
+                        const imagePath = ebookToDelete.imageUrl.split('/bookcover/')[1]; // Changed split key
                         const { error: storageError } = await supabase.storage
-                            .from('book-covers')
+                            .from('bookcover') // Changed bucket name
                             .remove([imagePath]);
 
                         if (storageError) {
